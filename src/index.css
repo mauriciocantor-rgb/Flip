@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #003DA5;
+  --navy-dark: #00204A;
+  --gold: #F2A900;
+  --bg: #f4f6fa;
+  --panel: #ffffff;
+  --text: #16202e;
+  --muted: #5b6b81;
+  --border: #dfe4ec;
+
+  /* Fondo del visor UTP */
+  --viewer-1: #0a2a63;
+  --viewer-2: #05173c;
+  --viewer-accent: #1a4b9e;
+  --toolbar-bg: rgba(6, 22, 51, 0.85);
+  --toolbar-border: rgba(255, 255, 255, 0.14);
+  --toolbar-icon: #eef3ff;
+  --toolbar-icon-muted: #93a7cf;
+}
+
+/* Visor y Flipbook */
+.viewer-bg {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.07), transparent 55%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 2px, transparent 2px, transparent 6px),
+    linear-gradient(160deg, var(--viewer-1), var(--viewer-2));
+}
+
+#flipbook {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.48);
+  background: #ffffff;
+}
+
+.page {
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.page img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+}

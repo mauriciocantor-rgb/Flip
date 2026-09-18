@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conversor de PDF a Flipbook — UTP</title>
+    <meta name="description" content="Conversor de documentos PDF a flipbook interactivo con efecto de pasar página, miniaturas, búsqueda y exportación descargable para la Universidad Tecnológica de Pereira." />
+    <meta property="og:title" content="Conversor de PDF a Flipbook — UTP" />
+    <meta property="og:description" content="Conversor de documentos PDF a flipbook interactivo con efecto de pasar página, miniaturas, búsqueda y exportación descargable para la Universidad Tecnológica de Pereira." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- PDF.js y PageFlip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+  </head>
+  <body class="bg-[#f4f6fa] text-[#16202e] min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

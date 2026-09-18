@@ -1,0 +1,7 @@
+{
+  "name": "Conversor de PDF a Flipbook — UTP",
+  "description": "Conversor de documentos PDF a flipbook interactivo con efecto de pasar página, miniaturas, búsqueda y exportación descargable para la Universidad Tecnológica de Pereira.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
