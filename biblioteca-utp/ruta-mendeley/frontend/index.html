@@ -1,0 +1,874 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ruta Mendeley UTP</title>
+<style>
+  /* Línea visual compartida de los artefactos UTP: banner navy con búho, insignia dorada, tarjetas blancas. */
+  :root{
+    --navy:#003DA5; --navy-dark:#00204A; --gold:#F2A900; --on-brand:#ffffff; --on-brand-soft:#d7e2f5;
+    --bg:#f4f6fa; --panel:#ffffff; --text:#16202e; --muted:#5b6b81; --border:#dfe4ec; --field:#A9B6CF;
+    --brand-text:#003DA5; --accent-soft:#EAF0FC; --row:#f8fafd;
+    --ok:#17754A; --ok-bg:#E7F5EE; --warn:#8A5A00; --warn-bg:#FFF4D6; --err:#B42318; --err-bg:#FDECEA;
+    --radius:10px; --shadow:0 6px 18px rgba(0,32,74,.10);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1621; --panel:#17202e; --text:#eef1f6; --muted:#9aa8bd; --border:#2a3648; --field:#3a4a63;
+      --brand-text:#8FB3F2; --accent-soft:#15213a; --row:#131b28;
+      --ok:#5FD39A; --ok-bg:#12301F; --warn:#F2C35B; --warn-bg:#33270A; --err:#FF8E82; --err-bg:#3A1512;
+      --shadow:0 6px 18px rgba(0,0,0,.35); color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1621; --panel:#17202e; --text:#eef1f6; --muted:#9aa8bd; --border:#2a3648; --field:#3a4a63;
+    --brand-text:#8FB3F2; --accent-soft:#15213a; --row:#131b28;
+    --ok:#5FD39A; --ok-bg:#12301F; --warn:#F2C35B; --warn-bg:#33270A; --err:#FF8E82; --err-bg:#3A1512;
+    --shadow:0 6px 18px rgba(0,0,0,.35); color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .cls-1{fill:currentColor}
+  .wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:0 60px}
+  button,input,select,textarea{font:inherit;color:inherit}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  a{color:var(--brand-text)}
+
+  header.banner{margin:0 -16px;padding:22px 16px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));color:var(--on-brand);position:relative}
+  .view-badge{position:absolute;top:14px;right:16px;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 12px;font-size:.78rem}
+  .view-badge svg{width:15px;height:15px;color:var(--gold)}
+  .view-badge b{font-variant-numeric:tabular-nums}
+  .header-inner{display:flex;align-items:center;justify-content:center;gap:18px;max-width:720px;margin:0 auto;flex-wrap:wrap}
+  .logo-header{flex-shrink:0;width:56px;color:var(--on-brand);opacity:.96}
+  .logo-header svg{display:block;width:100%;height:auto}
+  .header-text{min-width:0;flex:1 1 320px}
+  .badge{display:inline-block;background:var(--gold);color:var(--navy-dark);font-size:.72rem;font-weight:700;letter-spacing:.04em;padding:3px 10px;border-radius:20px;margin-bottom:10px;text-transform:uppercase}
+  .header-text h1{margin:0 0 4px;font-size:1.4rem;text-wrap:balance}
+  .header-text .sub{margin:0;font-size:.86rem;color:var(--on-brand-soft);max-width:560px}
+  .header-text .fuente{margin:8px 0 0;font-size:.7rem;color:rgba(255,255,255,.6)}
+  @media (max-width:620px){
+    .header-inner{text-align:center}.header-text{flex-basis:100%}
+    .view-badge{position:static;width:max-content;margin:0 auto 14px}.logo-header{width:42px}
+  }
+
+  nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin:0 -16px 22px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;gap:8px;overflow-x:auto}
+  .tab{flex:0 0 auto;border:1px solid var(--border);background:var(--panel);border-radius:20px;padding:7px 14px;font-size:.84rem;font-weight:600;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:var(--on-brand)}
+  .tab .ck{display:none;width:16px;height:16px;border-radius:50%;background:var(--gold);color:var(--navy-dark);font-size:.68rem;line-height:16px;text-align:center;font-weight:800}
+  .tab.done .ck{display:inline-block}
+
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:20px}
+  .panel>h2{font-size:1.02rem;color:var(--brand-text);margin:0 0 14px;padding-bottom:8px;border-bottom:3px solid var(--gold);display:inline-block}
+  .panel h3{font-size:.92rem;margin:18px 0 8px}
+  .lead{margin:0 0 14px;max-width:68ch}
+  .muted{color:var(--muted)} .small{font-size:.8rem}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  label.lb{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;font-weight:600}
+  input[type=text],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--field);border-radius:8px;font-size:.9rem;background:var(--bg);color:var(--text)}
+  textarea{resize:vertical;min-height:58px}
+  .btn{background:var(--navy);color:var(--on-brand);border:1px solid var(--navy);padding:9px 16px;border-radius:8px;font-size:.86rem;font-weight:700;cursor:pointer}
+  .btn:hover{opacity:.92} .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--brand-text);border-color:var(--field)}
+  .btn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy-dark)}
+  .btn.sm{padding:6px 11px;font-size:.8rem}
+  .row-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .box{border-left:4px solid var(--navy);background:var(--accent-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.85rem;margin:12px 0}
+  .box.ok{border-left-color:var(--ok);background:var(--ok-bg)} .box.err{border-left-color:var(--err);background:var(--err-bg)} .box.warn{border-left-color:var(--gold);background:var(--warn-bg)}
+  .pill{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:20px;padding:2px 9px;background:var(--accent-soft);color:var(--brand-text);border:1px solid var(--border)}
+  .pill.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent} .pill.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+
+  /* estado de componentes */
+  .comp{border:1px solid var(--border);border-radius:8px;padding:12px 14px;background:var(--row);display:flex;flex-direction:column;gap:4px}
+  .comp b{font-size:.9rem} .comp p{margin:0;font-size:.82rem;color:var(--muted)}
+
+  /* diagnóstico y quiz */
+  fieldset.q{border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:0 0 12px}
+  fieldset.q legend{font-weight:700;font-size:.9rem;padding:0 6px}
+  .opt{display:flex;gap:8px;align-items:flex-start;padding:6px 4px;font-size:.88rem;cursor:pointer;border-radius:6px}
+  .opt:hover{background:var(--accent-soft)} .opt input{margin-top:4px;accent-color:var(--navy)}
+  .opt.good{background:var(--ok-bg)} .opt.bad{background:var(--err-bg)}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .steps li{display:flex;gap:12px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:var(--row)}
+  .steps .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--navy);color:var(--on-brand);font-weight:800;font-size:.82rem;display:grid;place-items:center}
+  .steps li.done .n{background:var(--gold);color:var(--navy-dark)}
+  .steps .tx{flex:1;min-width:0;font-size:.88rem}
+
+  /* misiones */
+  .missions{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px}
+  .missions li{font-size:.82rem;border:1px dashed var(--field);border-radius:8px;padding:8px 10px;display:flex;gap:8px;align-items:flex-start;min-width:0}
+  .missions li code{font-size:.78rem;word-break:break-all}
+  .missions li::before{content:"";flex:0 0 16px;height:16px;border:2px solid var(--field);border-radius:50%;margin-top:2px}
+  .missions li.done{border-style:solid;border-color:transparent;background:var(--ok-bg);color:var(--ok)}
+  .missions li.done::before{content:"✓";border-color:var(--ok);background:var(--ok);color:var(--panel);font-size:.66rem;font-weight:800;line-height:12px;text-align:center}
+
+  /* simulador */
+  .sim{display:grid;grid-template-columns:176px minmax(0,1fr) 268px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
+  .sim-nav{background:var(--row);border-right:1px solid var(--border);padding:12px 8px;font-size:.84rem;min-width:0}
+  .sim-nav button.nv{display:flex;justify-content:space-between;gap:6px;width:100%;text-align:left;border:0;background:transparent;padding:6px 8px;border-radius:6px;cursor:pointer}
+  .sim-nav button.nv.on{background:var(--accent-soft);color:var(--brand-text);font-weight:700}
+  .sim-nav .hd{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 8px 4px;font-weight:700}
+  .sim-nav .newc{display:flex;gap:4px;margin:8px 4px 0} .sim-nav .newc input{padding:5px 7px;font-size:.8rem;min-width:0}
+  .sim-main{min-width:0;display:flex;flex-direction:column}
+  .sim-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px;border-bottom:1px solid var(--border)}
+  .sim-bar input[type=text]{flex:1 1 130px;width:auto} .sim-bar select{width:auto;max-width:170px}
+  .sim-form{margin:10px;border:1px solid var(--field);border-radius:8px;padding:12px;background:var(--row);font-size:.86rem}
+  .tblwrap{overflow-x:auto}
+  table.refs{width:100%;border-collapse:collapse;font-size:.82rem;min-width:520px}
+  table.refs th{text-align:left;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--border)}
+  table.refs td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top}
+  table.refs tr.r{cursor:pointer} table.refs tr.r:hover{background:var(--row)} table.refs tr.sel{background:var(--accent-soft)}
+  table.refs td.y{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .flag{color:var(--err);font-weight:700}
+  .sim-info{border-left:1px solid var(--border);padding:12px;min-width:0;display:flex;flex-direction:column;gap:8px;background:var(--row)}
+  .sim-info .lb{margin-bottom:2px} .sim-info input[type=text],.sim-info select,.sim-info textarea{font-size:.82rem;padding:6px 8px;background:var(--panel)}
+  .dup{border:1px solid var(--border);border-radius:8px;margin:10px;padding:12px;font-size:.84rem}
+  .dup ul{margin:6px 0 10px;padding-left:18px}
+  .sim-msg{padding:8px 12px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--border);min-height:34px}
+  @media (max-width:880px){
+    .sim{grid-template-columns:1fr}
+    .sim-nav{border-right:0;border-bottom:1px solid var(--border)} .sim-info{border-left:0;border-top:1px solid var(--border)}
+  }
+
+  /* ficha APA */
+  .ficha{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:24px 18px 14px;margin-top:18px}
+  .ficha::before{content:attr(data-label);position:absolute;top:-11px;left:16px;background:var(--gold);color:var(--navy-dark);font-size:.66rem;font-weight:700;letter-spacing:.05em;padding:3px 10px;border-radius:20px;text-transform:uppercase}
+  .ref{margin:0 0 8px;font-size:.92rem;line-height:1.7;padding-left:1.6em;text-indent:-1.6em;overflow-wrap:anywhere}
+  .casebar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .casebar button{width:34px;height:34px;border-radius:50%;border:1px solid var(--field);background:var(--panel);font-weight:700;cursor:pointer}
+  .casebar button.on{background:var(--navy);color:var(--on-brand);border-color:var(--navy)}
+  .casebar button.ok{background:var(--gold);color:var(--navy-dark);border-color:var(--gold)}
+
+  /* editor */
+  .cite{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+  @media (max-width:880px){.cite{grid-template-columns:1fr}}
+  .doc{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:26px 28px;font-family:"Times New Roman",Times,serif;font-size:1.02rem;line-height:1.9;box-shadow:var(--shadow);min-width:0}
+  .doc h4{font-family:inherit;text-align:center;margin:0 0 10px;font-size:1.05rem}
+  .slot{display:inline;border:0;background:var(--accent-soft);color:var(--brand-text);border-radius:4px;padding:1px 5px;font-family:var(--font);font-size:.74rem;font-weight:700;cursor:pointer;vertical-align:baseline}
+  .slot.filled{background:transparent;font:inherit;color:inherit;border-bottom:2px dotted var(--field);border-radius:0;padding:0}
+  .slot.on{outline:2px solid var(--gold);outline-offset:2px}
+  .doc .bib{margin-top:20px;border-top:1px solid var(--border);padding-top:12px}
+  .addin{border:1px solid var(--border);border-radius:var(--radius);background:var(--row);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;align-self:start}
+  .addin h3{margin:0;font-size:.9rem}
+  .addin .lst{max-height:230px;overflow:auto;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+  .addin .lst label{display:flex;gap:8px;padding:7px 9px;font-size:.8rem;border-bottom:1px solid var(--border);cursor:pointer}
+  .addin .lst label:last-child{border-bottom:0} .addin .lst input{accent-color:var(--navy);margin-top:3px}
+
+  /* rutas */
+  .route{border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:var(--row);display:flex;flex-direction:column;gap:8px}
+  .route.rec{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+  .route h3{margin:0;font-size:.98rem;color:var(--brand-text)}
+  .route label{display:flex;gap:8px;font-size:.85rem;align-items:flex-start;cursor:pointer}
+  .route input{margin-top:4px;accent-color:var(--navy)}
+
+  /* indicadores */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:8px}
+  .kpi{border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--row)}
+  .kpi b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums;color:var(--brand-text)} .kpi span{font-size:.76rem;color:var(--muted)}
+  .barrow{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:.82rem;margin:6px 0}
+  .bar{height:12px;background:var(--accent-soft);border-radius:6px;overflow:hidden} .bar i{display:block;height:100%;background:var(--navy);border-radius:6px}
+  .barrow .v{text-align:right;font-variant-numeric:tabular-nums}
+
+  canvas#cert{max-width:100%;height:auto;border:1px solid var(--border);border-radius:8px;display:block;margin-top:14px}
+  footer.page-footer{text-align:center;font-size:.74rem;color:var(--muted);margin-top:10px}
+  .internal-badge{display:inline-flex;align-items:center;gap:8px;font-size:.68rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--brand-text);background:var(--accent-soft);border:1px solid var(--border);border-radius:20px;padding:5px 14px;text-align:left}
+  .internal-badge svg{width:20px;height:auto;flex:0 0 auto}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="buho" viewBox="0 0 500 478.7"><path class="cls-1" d="M255.53,213.91c-.15-5.5,0-10.98.96-16.42,2.46-14.06,8.48-26.37,18.15-36.84,10.88-11.79,24.24-19.36,40.04-22.13,22.04-3.87,42,1.18,59.39,15.36,12.66,10.32,21.03,23.56,24.46,39.54,5.38,25.03-.57,47.26-17.98,66.13-10.73,11.63-24.11,18.83-39.68,21.51-21.19,3.64-40.5-1.09-57.6-14.24-7.42-5.7-13.41-12.71-18.12-20.79-.1-.18-.24-.34-.37-.51.13-.56.23-1.13.38-1.69.96-3.56.91-7.15.22-10.73-.53-2.78-1.95-5.2-3.35-7.62-2.21-3.83-4.34-7.7-6.5-11.56ZM383.47,209.76c0-30.54-24.86-55.46-55.43-55.54-30.56-.08-55.67,24.88-55.61,55.49.06,30.76,24.72,55.41,55.41,55.53,30.64.12,55.63-24.9,55.63-55.48Z"/>
+  <path class="cls-1" d="M235.21,246.5c-3.09,4.87-6.46,9.51-10.5,13.65-10.17,10.41-22.28,17.45-36.53,20.35-24.67,5.02-46.58-.9-65.14-17.94-12.32-11.3-19.82-25.48-22.04-42.1-3.52-26.33,4.83-48.45,24.77-65.97,10.49-9.22,22.88-14.69,36.75-16.48,22.66-2.92,42.61,3.26,59.45,18.7,12.6,11.55,20,26.02,22.42,42.94.57,4.01.52,8.11.76,12.17-.28.57-.54,1.15-.85,1.69-2.65,4.68-5.3,9.36-7.97,14.04-1.93,3.39-2.99,7.03-2.64,10.91.24,2.7,1,5.36,1.52,8.04ZM172.57,265.27c30.51,0,55.51-24.89,55.53-55.3.02-30.8-24.86-55.78-55.55-55.75-30.57.03-55.47,24.97-55.45,55.53.02,30.59,24.92,55.51,55.46,55.52Z"/>
+  <path class="cls-1" d="M252.09,157.48c-.74.8-1.47,1.59-2.31,2.5-.63-.66-1.22-1.28-1.81-1.9-.12-.23-.24-.46-.36-.68l.02.03c-.11-.11-.23-.23-.34-.34l.02.03c-.11-.11-.23-.23-.34-.34l.02.02c-.19-.35-.33-.74-.57-1.05-1.29-1.7-2.64-3.36-3.9-5.08-.34-.46-.42-1.1-.62-1.66.12-1.53.24-3.05.35-4.58.42-1.93.87-3.86,1.23-5.81.08-.43-.08-.94-.25-1.37-4.07-10.35-9.17-20.17-15.28-29.45-2.17-3.29-4.64-6.38-6.98-9.57-.11-.17-.23-.33-.34-.5l.02.03c-.11-.22-.23-.44-.34-.66l.02.03c-.11-.11-.23-.22-.34-.34h.02c-1.26-1.72-2.44-3.51-3.78-5.18-12.79-15.88-27.74-29.46-44.27-41.32-21.56-15.47-43.71-30.08-65.89-44.64-.42-.28-.82-.59-1.45-1.05,5.86-1.56,11.44-3.05,17.18-4.58,6.95,4.41,13.98,8.82,20.94,13.32,13.24,8.55,26.21,17.48,38.8,26.95,11.08,8.34,21.76,17.14,31.4,27.15,12.78,13.27,24.21,27.55,32.78,43.95,1.39,2.66,2.66,5.38,4.06,8.21.6-1.28,1.15-2.46,1.71-3.64,5.71-12,13.1-22.92,21.45-33.21,6.87-8.47,14.33-16.41,22.35-23.8,10.67-9.83,22.24-18.54,34.04-26.97,15.32-10.94,31.07-21.22,47.1-31.09.98-.6,1.86-.76,2.97-.46,5.09,1.4,10.19,2.74,15.55,4.17-.64.45-1.13.8-1.64,1.13-11.01,7.3-22.06,14.54-33.02,21.93-13.68,9.22-27.39,18.39-40.48,28.44-6.42,4.93-12.52,10.24-18.38,15.82-7.63,7.28-14.65,15.09-21.08,23.44-.31.41-.45.96-.66,1.44,0,0,.02-.01.02-.01-.11.11-.22.22-.34.34,0,0,.02-.02.02-.02-.11.11-.23.22-.34.34,0,0,.02-.03.02-.03-.11.17-.23.33-.34.5-.42.47-.9.91-1.25,1.42-2.43,3.51-4.92,6.97-7.23,10.55-5.4,8.35-9.81,17.23-13.6,26.41-.33.81-.7,1.73-.6,2.55.22,1.87.73,3.7,1.11,5.55l.65,4.45c-.57,1.02-1.08,2.08-1.73,3.05-.97,1.45-2.02,2.85-3.04,4.26l.02-.02c-.12.22-.23.43-.35.65l.02-.02c-.11.11-.23.23-.34.34l.02-.03c-.11.14-.22.27-.33.41Z"/>
+  <path class="cls-1" d="M241.91,148.99c.2.56.29,1.2.62,1.66,1.26,1.72,2.61,3.38,3.9,5.08.24.31.39.7.57,1.05-.26-.13-.57-.22-.78-.41-10.02-9.23-21.55-16.09-33.89-21.67-14.36-6.48-29.39-10.78-44.88-13.54-10.89-1.94-21.85-3.2-32.9-3.54-10.93-.33-21.88-.45-32.82-.45-6.97,0-13.94.32-20.91.61-10.13.42-20.26.93-30.39,1.42-7.12.34-14.24.7-21.36,1.04-.41.02-.83,0-1.57,0,3.81-4.75,7.45-9.31,11.22-14,2.21-.17,4.52-.38,6.83-.5,7.49-.38,14.98-.77,22.48-1.07,9.4-.37,18.8-.69,28.2-.95,8.66-.24,17.33-.67,25.99-.46,8.7.21,17.4.96,26.08,1.74,10.95.98,21.79,2.79,32.46,5.46,5.88,1.47,11.65,3.37,17.47,5.07.49.14,1,.22,1.51.33l-.03-.02c.2.14.4.28.6.42,1.22.62,2.47,1.16,3.64,1.86,9.32,5.57,18.06,11.95,26.08,19.28,4.09,3.74,7.95,7.73,11.91,11.6Z"/>
+  <path class="cls-1" d="M253.05,156.16c1.02-1.42,2.08-2.81,3.04-4.26.64-.97,1.16-2.03,1.73-3.05,5.24-4.99,10.3-10.19,15.77-14.92,7.95-6.88,16.47-13.04,25.9-17.82,4.38-1.37,8.72-2.85,13.14-4.09,10.03-2.8,20.26-4.68,30.58-6.08,14.11-1.92,28.28-2.99,42.52-2.74,9.88.17,19.76.52,29.63.86,9.24.32,18.48.7,27.72,1.11,5.07.23,10.13.56,15.19.86.84.05,1.68.15,2.59.23,3.66,4.57,7.32,9.13,11.19,13.95-1.15,0-2.01.04-2.86,0-6.86-.33-13.72-.7-20.58-1.02-9.34-.44-18.68-.89-28.03-1.26-7.02-.28-14.05-.51-21.07-.63-7.45-.13-14.91-.25-22.36-.12-20.65.36-41.13,2.24-61.19,7.52-16.13,4.24-31.51,10.26-45.74,19.03-5.68,3.5-11.05,7.43-16.04,11.87-.3.27-.73.39-1.1.57Z"/>
+  <path class="cls-1" d="M299.48,116.1c-9.43,4.78-17.94,10.94-25.9,17.82-5.47,4.73-10.52,9.93-15.77,14.92l-.65-4.45c.13-.09.29-.16.38-.28,3.13-4.41,6.07-8.97,9.42-13.19,4.11-5.17,8.47-10.16,12.92-15.05,2.76-3.03,5.86-5.76,8.84-8.58.83-.79,1.8-1.44,2.7-2.15.11-.15.23-.3.34-.45l-.03.02c.22-.11.44-.22.66-.34,0,0-.01.03-.01.03,1.78-1,3.57-1.99,5.34-3.01,12.18-7.06,25.18-12.12,38.67-16.02,16.13-4.67,32.42-8.67,48.89-11.94,11.9-2.36,23.87-4.43,35.82-6.52,6.03-1.05,12.11-1.84,18.16-2.77,1.42-.22,2.56-.02,3.71,1.08,3.03,2.86,6.24,5.54,9.38,8.3.43.38.85.78,1.51,1.39-1.48.3-2.72.6-3.97.81-10.2,1.73-20.39,3.46-30.59,5.17-26.24,4.42-52.35,9.46-77.78,17.47-13.67,4.31-27,9.46-39.66,16.23-.83.44-1.6,1.01-2.4,1.52Z"/>
+  <path class="cls-1" d="M241.91,148.99c-3.96-3.87-7.83-7.86-11.91-11.6-8.01-7.33-16.75-13.71-26.08-19.28-1.17-.7-2.42-1.24-3.64-1.86-.2-.14-.4-.28-.6-.42l.03.02c-3.25-1.72-6.45-3.56-9.77-5.14-17.86-8.5-36.66-14.27-55.8-19.01-14.86-3.68-29.87-6.66-44.96-9.25-13.52-2.32-27.05-4.63-40.58-6.94-.87-.15-1.73-.34-2.97-.59,4.32-3.8,8.37-7.37,12.51-11.01,3.66.5,7.34.93,10.98,1.51,8.6,1.39,17.21,2.68,25.76,4.32,12.54,2.41,25.06,4.95,37.53,7.7,13.51,2.98,26.88,6.5,40.02,10.85,11.57,3.83,22.61,8.86,33,15.27.39.24.85.36,1.27.54,0,0-.01-.02-.01-.02.22.11.44.22.66.33,0,0-.03-.02-.03-.02.17.11.34.23.51.34,1.7,1.49,3.48,2.9,5.07,4.49,3.73,3.73,7.43,7.5,11.04,11.34,2.34,2.49,4.66,5.03,6.71,7.75,3.98,5.29,7.76,10.73,11.62,16.11-.12,1.53-.24,3.05-.35,4.58Z"/>
+  <path class="cls-1" d="M242.26,144.41c-3.86-5.38-7.64-10.82-11.62-16.11-2.05-2.73-4.37-5.26-6.71-7.75-3.61-3.85-7.31-7.61-11.04-11.34-1.59-1.59-3.38-3-5.07-4.49-.17-.11-.34-.23-.51-.34l.03.02c-.22-.11-.44-.22-.66-.33v.02c-.29-.41-.52-.91-.9-1.23-14.76-12.61-31.02-22.86-48.6-31.05-26.43-12.31-53.33-23.46-80.94-32.84-.29-.1-.56-.24-.99-.43,5.3-3.03,10.48-5.99,15.8-9.03,2.95,1.05,5.98,2.09,8.99,3.21,22.18,8.27,43.96,17.45,65.06,28.19,14.94,7.61,29.5,15.87,42.87,26.06,3.69,2.82,7.14,5.96,10.71,8.94.41.34.9.59,1.36.88h-.02c.11.1.23.21.34.32,0,0-.02-.03-.02-.03.11.22.23.44.34.66,0,0-.02-.03-.02-.03.11.17.23.33.34.5,2.33,3.18,4.81,6.27,6.98,9.57,6.11,9.28,11.21,19.11,15.28,29.45.17.43.33.94.25,1.37-.36,1.94-.81,3.87-1.23,5.81Z"/>
+  <path class="cls-1" d="M291.44,105.15c-.9.71-1.87,1.36-2.7,2.15-2.98,2.82-6.08,5.55-8.84,8.58-4.45,4.89-8.81,9.88-12.92,15.05-3.36,4.23-6.29,8.79-9.42,13.19-.09.12-.25.19-.38.28-.39-1.85-.89-3.68-1.11-5.55-.1-.82.27-1.75.6-2.55,3.79-9.18,8.2-18.06,13.6-26.41,2.32-3.58,4.8-7.05,7.23-10.55.36-.52.83-.95,1.25-1.42.11-.17.23-.33.34-.5,0,0-.02.03-.02.03.11-.11.23-.22.34-.34l-.02.02c.11-.11.22-.22.34-.34h-.02c2.24-1.9,4.45-3.85,6.72-5.73,9.35-7.75,19.51-14.31,30.01-20.37,19.2-11.08,39.24-20.42,59.75-28.78,10.21-4.16,20.59-7.93,30.89-11.87.49-.19.99-.33,1.5-.5,5.2,2.97,10.38,5.93,15.8,9.03-2.35.82-4.46,1.54-6.56,2.28-19.73,6.93-39.12,14.73-58.25,23.16-11.6,5.11-23.17,10.28-34.18,16.61-11.39,6.55-22.12,14.06-32.07,22.66-.36.31-.6.76-.89,1.14,0,0,.01-.03.01-.03-.22.11-.44.22-.66.34l.03-.02c-.11.15-.23.3-.34.45Z"/>
+  <path class="cls-1" d="M235.21,246.5c-.53-2.68-1.28-5.34-1.52-8.04-.35-3.87.71-7.52,2.64-10.91,2.67-4.67,5.32-9.36,7.97-14.04.31-.55.57-1.13.85-1.69,1.51-2.49,3.03-4.99,4.64-7.66,1.98,3.36,3.86,6.56,5.75,9.75,2.16,3.86,4.29,7.73,6.5,11.56,1.4,2.42,2.82,4.84,3.35,7.62.69,3.58.74,7.17-.22,10.73-.15.56-.25,1.13-.38,1.69-2.11,4.83-4.24,9.66-6.33,14.5-2.66,6.16-5.29,12.33-7.93,18.49-.2.47-.44.93-.78,1.64-1.41-3.29-2.71-6.33-4.02-9.36-3.38-7.86-6.77-15.71-10.15-23.57-.1-.24-.24-.47-.36-.71Z"/>
+  <path class="cls-1" d="M298.87,413.43c2.86-10.36,5.63-20.35,8.39-30.34h11.74v43.39h-7.18v-33.27c-.09-.01-.17-.02-.26-.03-3.14,11.09-6.29,22.17-9.45,33.32h-6.43c-3.12-11.14-6.24-22.28-9.36-33.42-.07.01-.14.03-.22.04v33.34h-7.2v-43.31h11.64c2.72,9.89,5.48,19.92,8.33,30.29Z"/>
+  <path class="cls-1" d="M147.13,341.13c.72.37,1.31.69,1.91,1,2.81,1.45,4.67,3.64,4.99,6.85.19,1.88.38,3.82.13,5.68-.55,4.12-3.13,6.77-6.96,8.05-2.08.7-4.31,1.21-6.49,1.27-5.97.17-11.95.06-18.04.06v-43.54c1.01,0,2,0,2.99,0,4.81.02,9.63-.08,14.44.1,2.18.08,4.43.47,6.51,1.13,4.16,1.33,6.35,4.44,6.71,8.72.37,4.43-1.14,7.99-5.26,10.15-.26.14-.51.29-.92.52ZM130.88,357.44c3.61-.13,7.04-.11,10.44-.42,2.63-.24,4.07-1.74,4.5-4.35.19-1.17.15-2.42-.03-3.59-.34-2.3-1.84-3.82-4.06-4.04-3.59-.36-7.21-.35-10.84-.5v12.9ZM130.89,337.75c3.28,0,6.5.18,9.69-.06,2.81-.21,4.48-2.32,4.51-5.01.03-2.75-1.66-4.93-4.54-5.16-3.18-.25-6.4-.06-9.66-.06v10.28Z"/>
+  <path class="cls-1" d="M183.78,407.51c3.06,6.25,6.14,12.54,9.29,18.97h-9.25c-2.66-5.76-5.38-11.63-8.12-17.55h-7.06v17.54h-8.21v-43.43c.88,0,1.72,0,2.55,0,5.29.02,10.58-.02,15.87.09,1.56.03,3.17.32,4.66.81,5.01,1.63,7.41,5.36,7.89,10.42.37,3.93-.25,7.66-3.41,10.42-1.21,1.06-2.71,1.77-4.21,2.73ZM168.69,390.02v12.06c2.57,0,5.05.02,7.52-.01.68,0,1.37-.13,2.04-.26,1.59-.3,3.07-.81,4.02-2.25,2.53-3.84.3-9.03-4.26-9.48-3.03-.3-6.11-.06-9.32-.06Z"/>
+  <path class="cls-1" d="M83.25,424.57c-6.81-2.97-4.81-8.18.31-10.79-.38-.37-.72-.74-1.1-1.07-5.76-5.02-3.5-14.2,3.5-16.93,4.44-1.73,8.74-1.24,13.19,1.61,1.94-2.13,4.43-2.77,7.31-2.54v4.9c-1.56.21-3.05.41-4.31.58.44,2,1.09,3.75,1.16,5.53.21,5.27-2.86,8.98-8.08,9.89-1.81.32-3.68.26-5.52.41-.84.07-1.74.06-2.49.38-.58.25-1.34.94-1.35,1.45-.01.52.7,1.36,1.26,1.53,1.35.4,2.79.53,4.2.7,2.93.35,5.9.48,8.79,1.03,2.82.54,5.1,2.02,5.96,5.03.94,3.29-.1,6.38-2.89,8.59-2.46,1.94-5.35,2.74-8.38,3.02-3.59.33-7.19.25-10.68-.81-.95-.29-1.9-.65-2.78-1.13-2.59-1.41-3.69-3.53-3.37-6.26.3-2.61,1.7-4.09,4.64-4.93.15-.04.3-.09.63-.18ZM92.45,433.18c1.27-.25,3-.44,4.63-.95,1.21-.38,2.35-1.23,2.34-2.69,0-1.45-1.25-2.03-2.37-2.47-2.65-1.05-5.44-1.26-8.26-1-.57.05-1.14.26-1.66.48-1.5.65-2.4,1.97-2.3,3.29.1,1.31,1.03,2.31,2.74,2.67,1.44.3,2.92.41,4.87.67ZM91.24,410.51c2.74.11,5.12-2.08,5.26-4.83.14-2.77-2.15-5.21-4.98-5.28-2.91-.07-5.32,2.07-5.44,4.84-.13,2.85,2.13,5.15,5.16,5.27Z"/>
+  <path class="cls-1" d="M185.16,360.88c-.3,1.09-.56,2.06-.84,3.12h-5.76v-43.36h7.36v14.85c.95-.66,1.67-1.26,2.48-1.71,4.98-2.8,10.75-1.56,14.27,3.03,1.92,2.5,2.98,5.36,3.28,8.45.42,4.31-.02,8.55-1.82,12.56-3.49,7.73-12.72,8.99-18.07,3.84-.23-.22-.47-.41-.89-.77ZM185.95,355.87c.61.51,1.12.97,1.66,1.39,3.37,2.58,8.03,1.56,9.7-2.33,1.83-4.25,1.78-8.65-.01-12.92-1.09-2.59-3.44-3.89-6.09-3.65-2.15.19-3.87,1.22-5.26,2.69v14.82Z"/>
+  <path class="cls-1" d="M343.14,406.62c.02-.35.05-.61.06-.87.08-4.41-2.46-6.3-6.76-5.07-1.97.56-3.37,1.88-4.69,3.55-1.64-1.24-3.21-2.43-5.08-3.84,1.26-1.13,2.27-2.3,3.52-3.11,4.75-3.07,9.86-3.24,15.03-1.33,3.61,1.33,4.91,4.46,5.27,8.01.21,2.15.17,4.33.19,6.49.05,4.33.05,8.67.12,13,.02.99.23,1.99.36,3.05h-7.18c-.17-.76-.34-1.52-.53-2.42-.6.34-1.16.66-1.72.97-3.33,1.88-6.86,2.75-10.65,1.83-2.66-.64-4.43-2.37-5.34-4.94-1.44-4.08.03-8.56,3.63-11.08,3.01-2.11,6.49-2.97,10.03-3.64,1.24-.23,2.48-.4,3.75-.61ZM343.15,411.51c-2.44.72-4.71,1.25-6.86,2.07-1.03.39-2.02,1.19-2.73,2.05-1.1,1.33-1.13,2.95-.23,4.45.88,1.46,2.31,1.74,3.87,1.45,2.36-.44,4.23-1.78,5.95-3.19v-6.82Z"/>
+  <path class="cls-1" d="M252.74,426.51h-7.18c-.17-.78-.34-1.53-.53-2.43-.6.34-1.17.66-1.73.98-3.33,1.88-6.87,2.74-10.65,1.82-2.66-.64-4.42-2.37-5.33-4.95-1.43-4.08.03-8.56,3.64-11.07,3.02-2.11,6.49-2.97,10.04-3.64,1.24-.23,2.48-.4,3.75-.61.02-.35.05-.61.05-.87.07-4.4-2.47-6.3-6.77-5.05-1.56.46-2.86,1.33-3.88,2.61-.22.28-.48.54-.82.91-1.6-1.2-3.14-2.37-4.75-3.58.43-1.29,1.42-2.09,2.41-2.84,3.58-2.69,7.64-3.41,12-2.85.26.03.52.1.78.14,5.14.85,7.85,3.7,8.31,8.87.17,1.89.16,3.8.18,5.7.05,4.6.05,9.2.12,13.8.01.99.23,1.98.37,3.04ZM244.74,411.52c-2.42.71-4.69,1.23-6.84,2.06-1.07.41-2.11,1.25-2.83,2.16-1.07,1.35-1.04,2.99-.09,4.45.88,1.35,2.27,1.62,3.78,1.34,2.37-.44,4.24-1.77,5.98-3.2v-6.81Z"/>
+  <path class="cls-1" d="M359.35,341.71c-1.69-1.29-3.23-2.46-5.06-3.86,1.25-1.12,2.26-2.29,3.5-3.1,4.74-3.07,9.86-3.24,15.03-1.34,3.61,1.33,4.91,4.46,5.28,8,.2,1.94.17,3.9.19,5.86.05,4.55.05,9.09.12,13.64.01.99.23,1.99.36,3.05h-7.18c-.18-.78-.35-1.58-.55-2.47-2.26,1.47-4.55,2.73-7.17,2.98-1.71.16-3.51.21-5.17-.16-3.2-.7-5.06-2.94-5.66-6.12-.81-4.26.79-7.88,4.45-10.21,2.95-1.88,6.27-2.71,9.66-3.31,1.19-.21,2.38-.39,3.6-.59.03-.34.06-.6.06-.86.08-4.47-2.54-6.37-6.9-5.03-1.9.58-3.26,1.87-4.56,3.51ZM370.75,348.99c-2.37.69-4.64,1.21-6.79,2.04-1.07.41-2.11,1.24-2.84,2.15-1.08,1.35-1.06,2.98-.12,4.45.87,1.36,2.26,1.64,3.77,1.37,2.38-.42,4.24-1.78,6.05-3.23,0-1.99,0-3.89,0-5.79,0-.21-.03-.42-.07-.99Z"/>
+  <path class="cls-1" d="M414.72,395.54h6.8v3.1c.78-.49,1.32-.83,1.86-1.16,2.27-1.38,4.61-2.59,7.36-2.65,5.68-.12,9.35,3.04,9.51,8.72.21,7.6.05,15.22.05,22.92h-7.45v-1.69c0-5.82.03-11.64-.02-17.45-.01-1.36-.17-2.74-.44-4.07-.29-1.47-1.37-2.25-2.83-2.35-2.83-.2-5.16.95-7.09,2.9-.36.36-.38,1.17-.38,1.77-.03,6.4-.02,12.8-.02,19.2v1.68h-7.38v-30.92Z"/>
+  <path class="cls-1" d="M270.46,348.41c-.19,3.04-.64,5.95-1.87,8.69-2.16,4.76-5.87,7.3-11.11,7.59-8.41.45-13.28-5.07-14.25-12.77-.48-3.81-.33-7.6,1.08-11.23,2.3-5.91,6.8-8.67,13.58-8.39,5.26.22,9.73,3.79,11.32,9.3.64,2.21.85,4.53,1.25,6.81ZM262.88,348.54c-.33-2.03-.47-4.16-1.04-6.16-.76-2.71-2.66-4.03-5.19-4.04-2.56-.01-4.4,1.26-5.25,3.97-1.28,4.07-1.27,8.22-.03,12.3.83,2.73,2.65,4.03,5.2,4.04,2.6.02,4.52-1.33,5.3-4.12.53-1.91.68-3.93,1.01-5.99Z"/>
+  <path class="cls-1" d="M224.42,410.97c-.19,3.04-.64,5.95-1.89,8.68-2.2,4.81-5.97,7.36-11.29,7.55-5.73.21-10.12-2.05-12.5-7.36-2.44-5.43-2.46-11.1-.43-16.66,2.18-5.95,6.78-8.67,13.57-8.37,5.26.23,9.71,3.81,11.29,9.33.63,2.21.84,4.53,1.25,6.81ZM216.93,411.02c-.44-2.27-.67-4.48-1.33-6.56-.79-2.48-2.6-3.59-5.01-3.59-2.39,0-4.26,1.14-5.08,3.54-1.48,4.37-1.49,8.82-.01,13.2.82,2.41,2.67,3.57,5.06,3.57,2.41,0,4.24-1.1,5.03-3.56.68-2.13.91-4.4,1.34-6.59Z"/>
+  <path class="cls-1" d="M55.68,411c-.03,3.01-.47,5.92-1.72,8.65-2.2,4.81-5.96,7.37-11.28,7.57-5.73.22-10.12-2.04-12.51-7.34-2.45-5.43-2.46-11.1-.44-16.66,2.17-5.96,6.78-8.67,13.56-8.38,5.26.23,9.65,3.82,11.33,9.31.28.9.5,1.83.63,2.77.19,1.35.29,2.72.42,4.08ZM48.37,411.16c-.45-2.29-.72-4.65-1.41-6.89-.71-2.31-2.57-3.4-4.98-3.4-2.43,0-4.16,1.18-4.99,3.43-.49,1.32-.77,2.74-.93,4.14-.34,3.01-.24,6.01.76,8.9.58,1.66,1.57,2.97,3.34,3.53,2.99.94,5.78-.2,6.81-3.15.72-2.05.93-4.28,1.4-6.56Z"/>
+  <path class="cls-1" d="M115.87,412.24c.34,3.47.6,6.81,4.02,8.32,3.9,1.72,6.94-.09,9.52-3.09,1.78,1.1,3.52,2.18,5.37,3.32-1.3,2.3-3.12,3.93-5.41,4.97-3.64,1.65-7.49,1.99-11.32,1.01-4.74-1.21-7.48-4.61-8.77-9.16-1.32-4.62-1.28-9.29.25-13.89,2.02-6.07,6.77-9.17,13.55-8.9,5.29.21,9.85,4.13,11.13,9.87.53,2.39.53,4.9.79,7.54h-19.14ZM127.89,407.15c-.25-4.49-2.65-6.99-6.3-6.74-3.52.24-5.86,3.09-5.48,6.74h11.78Z"/>
+  <path class="cls-1" d="M300.32,349.71c.34,3.47.6,6.81,4.02,8.32,3.9,1.72,6.94-.09,9.52-3.09,1.78,1.1,3.52,2.18,5.37,3.32-1.3,2.3-3.12,3.93-5.41,4.97-3.64,1.65-7.49,1.99-11.32,1.01-4.74-1.21-7.48-4.62-8.77-9.16-1.32-4.62-1.28-9.29.25-13.89,2.02-6.07,6.77-9.17,13.55-8.9,5.29.21,9.85,4.13,11.13,9.87.53,2.39.53,4.9.79,7.54h-19.14ZM312.33,344.61c-.19-4.42-2.59-6.96-6.25-6.74-3.52.21-5.8,2.95-5.57,6.74h11.81Z"/>
+  <path class="cls-1" d="M466.62,417.5c1.78,1.1,3.48,2.15,5.3,3.28-.95,1.81-2.3,3.19-3.98,4.19-4.34,2.58-9.02,3.02-13.74,1.47-4.58-1.51-6.94-5.2-8.01-9.69-1.04-4.39-.96-8.81.52-13.13,2.61-7.65,11.25-11.2,18.32-7.46,4.06,2.14,6.05,5.82,6.68,10.2.27,1.9.05,3.87.05,5.92h-18.48c-.49,3.24,1.06,6.91,3.41,8.19,2.93,1.59,5.96.71,9.93-2.96ZM453.12,407.1h11.91c-.21-4.27-2.4-6.75-5.95-6.71-3.47.04-5.8,2.32-5.96,6.71Z"/>
+  <path class="cls-1" d="M484.99,420.59h14.97v5.92h-24.42c0-1.66-.05-3.29.03-4.9.02-.47.38-.96.68-1.36,4.66-6.15,9.33-12.28,14.16-18.63h-13.62v-6.08h23.18c0,1.65.08,3.29-.04,4.9-.04.56-.55,1.11-.93,1.6-4.43,5.86-8.88,11.71-13.32,17.56-.18.24-.34.49-.7.99Z"/>
+  <path class="cls-1" d="M0,421.33c1.9-1.43,3.75-2.81,5.67-4.25.46.59.86,1.14,1.31,1.64,1.11,1.23,2.49,1.78,4.13,1.36,1.55-.4,2.12-1.66,2.34-3.08.15-.99.21-2,.21-2.99.02-9.67,0-19.34,0-29.01v-1.82h8.18c.02.44.07.89.07,1.35,0,10.36.02,20.71-.01,31.07,0,1.2-.13,2.44-.41,3.61-1.04,4.41-3.81,7.01-8.31,7.81-5.62,1-10.08-.85-13.19-5.69Z"/>
+  <path class="cls-1" d="M343.63,353.72c1.85,1.04,3.67,2.06,5.51,3.1-2.85,5.78-7.4,8.25-13.68,7.88-5.06-.3-9.43-3.36-11.22-8.62-1.87-5.47-1.85-11.02.5-16.39,2-4.55,5.64-7.05,10.59-7.38,5.46-.37,9.99,1.37,12.83,6.37.33.58.55,1.23.88,1.96-2.18.84-4.22,1.63-6.29,2.43-.38-.7-.68-1.31-1.03-1.89-1.3-2.2-3.29-3.06-5.76-2.82-2.45.24-3.94,1.74-4.6,4-1.2,4.1-1.22,8.22.05,12.32,1.43,4.65,6.91,4.9,9.49,2.34.96-.96,1.74-2.1,2.73-3.31Z"/>
+  <path class="cls-1" d="M290.12,358.04v6.14c-2.66.49-5.34.76-8.01.38-3.65-.52-5.56-2.84-5.58-6.53-.02-5.76,0-11.53,0-17.29v-1.74h-4.32v-6.08h4.26v-10.3h7.51v10.22h6.09v6.07h-5.99c-.04.54-.08.94-.08,1.34,0,5.08.04,10.15-.02,15.23-.03,2.8.8,3.42,3.75,3.08.78-.09,1.54-.32,2.39-.5Z"/>
+  <path class="cls-1" d="M379.07,401.46h-4.32v-6.03h4.27v-10.3h7.51v10.23h6.09v6.07h-6.02c-.03.55-.06.95-.06,1.34,0,5.08.04,10.15-.02,15.23-.03,2.75.75,3.37,3.6,3.08.83-.08,1.64-.33,2.53-.51v6.38c-2.64.06-5.28.36-7.87.12-3.72-.34-5.71-2.79-5.72-6.54-.02-5.76,0-11.53,0-17.29v-1.79Z"/>
+  <path class="cls-1" d="M212.66,320.61h7.28v43.34h-7.28v-43.34Z"/>
+  <path class="cls-1" d="M76.17,402.77c-2.25-.3-4.02.39-5.59,1.69-1.75,1.43-2.8,3.03-2.69,5.53.22,4.96.06,9.93.06,14.9v1.62h-7.4v-31h6.75v4.67c2.11-3.23,4.77-5.34,8.86-5.32v7.91Z"/>
+  <path class="cls-1" d="M373,402.72c-3.03-.35-5.2,1.1-7.08,3.18-.77.85-1.17,1.78-1.16,2.99.06,5.34.02,10.67.02,16.01v1.61h-7.4v-31h6.76v4.68c2.1-3.24,4.77-5.34,8.86-5.32v7.86Z"/>
+  <path class="cls-1" d="M162.76,363.95v-30.92h7.33v30.92h-7.33Z"/>
+  <path class="cls-1" d="M236.77,363.98h-7.28v-30.96h7.28v30.96Z"/>
+  <path class="cls-1" d="M398.7,395.47c.63,0,1.15,0,1.67,0,1.84,0,3.68,0,5.6,0v31.01h-7.28v-31.01Z"/>
+  <path class="cls-1" d="M299.62,455.75c1.37-.52,2.53-.97,3.83-1.46v2.37c-.76.15-1.55.31-2.15.43.27,1.41.8,2.75.73,4.05-.21,4.13-3.88,6.51-8.35,5.59-1.76-.36-2.25.05-2.09,2.03.68.11,1.43.25,2.18.34,2.19.27,4.4.41,6.57.82,1.38.26,2.51,1.07,3,2.53.59,1.78.13,3.59-1.44,4.62-.9.59-1.97,1.03-3.03,1.27-2.5.55-5.04.49-7.52-.18-1.51-.41-2.7-1.22-3.04-2.88-.35-1.76.47-2.94,1.93-3.79.14-.08.26-.19.47-.34-.74-.82-2.02-1.5-1.6-2.79.32-.97,1.09-1.79,1.65-2.67-.49-1.07-1.33-2.32-1.64-3.68-.82-3.56,1.85-6.95,5.52-7.18,1.75-.11,3.49-.03,4.98.92ZM295.48,456.78c-2.59,0-4.2,1.59-4.16,4.13.03,2.36,1.84,4.02,4.38,4.01,2.36,0,4.03-1.62,4.05-3.94.03-2.59-1.6-4.2-4.27-4.21ZM296.19,476.83c1.05-.27,2.59-.47,3.94-1.08,1.55-.7,1.49-2.32.02-3.22-.4-.24-.86-.48-1.31-.52-1.52-.15-3.05-.35-4.56-.25-.95.06-1.98.47-2.74,1.04-.53.4-.86,1.32-.89,2.03-.04.89.79,1.33,1.61,1.48,1.13.21,2.29.3,3.93.51Z"/>
+  <path class="cls-1" d="M16.67,448.51h2.65c.03.5.07.95.07,1.41,0,4.91,0,9.83,0,14.74,0,4.91-2.97,7.89-7.88,7.93-.84,0-1.7.04-2.53-.11-4.13-.74-6.38-3.36-6.41-7.57-.05-5.43-.01-10.86-.01-16.37h2.74c.02.42.07.87.07,1.32,0,4.97.12,9.94-.04,14.9-.12,3.67,2.54,5.53,5.48,5.55,3.71.03,5.81-1.89,5.85-5.52.04-4.86.01-9.72.01-14.58v-1.71Z"/>
+  <path class="cls-1" d="M406.65,461.49v10.7h-2.66v-23.64c3.42,0,6.86-.25,10.25.07,3.44.32,5.39,2.89,5.43,6.33.04,3.14-1.93,5.55-5.24,6.2-1.28.25-2.62.27-3.93.33-1.21.05-2.42.01-3.84.01ZM406.74,450.76v8.63c2.41-.15,4.73-.15,7.01-.47,2.13-.3,3.07-1.63,3.13-3.74.07-2.68-1.35-4.2-4.3-4.39-1.89-.12-3.8-.02-5.84-.02Z"/>
+  <path class="cls-1" d="M368.88,448.55h2.48v23.62h-2.02c-.11-.23-.27-.6-.44-.97-.1,0-.21-.02-.27.02-4.11,2.87-8.99,1.37-10.62-3.36-.97-2.82-.95-5.73.12-8.53,1.8-4.74,6.7-5.64,9.94-3.32.2.14.43.26.81.49v-7.94ZM368.88,468.32v-9.26c-.47-.39-.93-.83-1.44-1.19-3.03-2.15-6.18-1.1-7.11,2.5-.39,1.5-.46,3.14-.39,4.7.11,2.23.74,4.35,3.09,5.27,2.46.96,4.26-.31,5.85-2.02Z"/>
+  <path class="cls-1" d="M129.63,472.18c-.14-.35-.27-.69-.4-1.03-.14.03-.25.03-.32.08-3.98,2.79-8.78,1.41-10.48-3.12-1.11-2.96-1.11-6.03.09-8.97,1.92-4.7,6.73-5.33,9.77-3.19.24.17.52.3.95.54v-7.95h2.41v23.64h-2.01ZM129.2,459.05c-.58-.46-1.16-1.01-1.82-1.43-2.67-1.72-5.65-.75-6.64,2.24-.8,2.41-.85,4.9-.1,7.33,1.1,3.55,4.5,4.54,7.37,2.23.41-.33.79-.7,1.18-1.06v-9.31Z"/>
+  <path class="cls-1" d="M163.82,456.5v-7.95h2.41v23.63h-1.98c-.12-.26-.28-.63-.44-1-.12.02-.23,0-.3.05-4.54,3.19-9.91.93-10.99-4.75-.47-2.49-.48-5.05.62-7.47,1.87-4.09,5.83-5.34,9.71-3.06.26.15.52.31.95.56ZM163.8,459.05c-.58-.46-1.16-1.01-1.82-1.43-2.67-1.72-5.65-.76-6.64,2.24-.8,2.41-.85,4.9-.1,7.33,1.1,3.55,4.49,4.54,7.37,2.23.41-.33.79-.7,1.19-1.06v-9.31Z"/>
+  <path class="cls-1" d="M499.08,472.22h-2.08c-.1-.57-.19-1.17-.32-1.94-.57.39-1.09.7-1.56,1.07-1.52,1.19-3.28,1.45-5.1,1.2-1.75-.24-3.05-1.2-3.61-2.93-.62-1.94-.47-3.87,1.05-5.3,1.01-.94,2.32-1.66,3.62-2.16,1.71-.66,3.53-1,5.33-1.49.33-1.92-.06-2.94-1.39-3.55-2.15-.99-4.47-.19-6.39,2.26-.62-.32-1.26-.66-2.1-1.1.57-.67,1-1.31,1.56-1.81,2.08-1.86,6.07-2.3,8.49-.92,1.58.9,2.48,2.26,2.48,4.13,0,2.17,0,4.34,0,6.5,0,1.95,0,3.89,0,6.02ZM496.51,463.26c-2.48.43-4.84.88-6.75,2.53-1.21,1.05-1.46,2.23-.86,3.36.64,1.19,1.91,1.72,3.37,1.39,1.7-.39,3.03-1.38,4.23-2.58v-4.7Z"/>
+  <path class="cls-1" d="M138.18,459.42c-.68-.37-1.31-.71-1.95-1.05,1.93-3.66,7.5-4.85,10.59-2.33,1.17.95,1.79,2.18,1.78,3.72-.02,2.17,0,4.34,0,6.5,0,1.95,0,3.89,0,5.93h-2.13c-.07-.59-.14-1.18-.23-1.97-.74.52-1.32.93-1.91,1.34-1.58,1.1-3.37,1.3-5.16.91-3.5-.75-4.84-5.45-2.24-8.08,1-1.01,2.4-1.72,3.74-2.25,1.7-.66,3.53-1,5.3-1.48.25-2.02-.15-2.99-1.48-3.57-1.71-.75-4.2-.24-5.42,1.13-.31.35-.56.74-.9,1.19ZM146.03,463.27c-2.43.39-4.72.86-6.62,2.4-1.31,1.06-1.61,2.29-.99,3.46.66,1.24,2.02,1.89,3.5,1.32,1.48-.57,2.84-1.47,4.11-2.15v-5.03Z"/>
+  <path class="cls-1" d="M343.84,472.23h-2.09c-.09-.61-.18-1.21-.3-1.98-.7.49-1.28.9-1.87,1.31-1.58,1.11-3.35,1.28-5.16.93-1.67-.33-2.84-1.36-3.31-3.05-.54-1.91-.35-3.78,1.14-5.13,1.02-.93,2.33-1.64,3.63-2.14,1.71-.65,3.53-1,5.31-1.48.28-1.99-.12-2.97-1.44-3.57-2.15-.96-4.36-.19-6.37,2.28-.62-.33-1.26-.67-1.89-1.01,1.87-3.71,7.62-4.88,10.68-2.25,1.1.95,1.68,2.14,1.67,3.61-.01,2.17,0,4.34,0,6.5,0,1.95,0,3.89,0,5.99ZM341.28,463.25c-2.37.41-4.61.87-6.5,2.31-1.4,1.07-1.76,2.35-1.12,3.56.67,1.29,2.07,1.91,3.64,1.29,1.43-.56,2.74-1.45,3.98-2.12v-5.04Z"/>
+  <path class="cls-1" d="M80.13,464.07h-11.18c-.08,3.02,1.29,5.54,3.49,6.28,2.74.92,4.68-.36,6.24-2.59.6.3,1.15.58,1.77.89-.51,1.42-1.42,2.39-2.64,3.09-4,2.28-9.19.46-10.75-3.86-1.08-2.99-1-6.03.22-8.98,1.23-2.99,3.75-4.38,7.12-4.07,2.72.25,4.76,2.2,5.35,5.25.24,1.23.25,2.5.38,3.98ZM77.39,462.06c.19-3.13-1.38-5.24-3.87-5.28-2.75-.05-4.55,2.07-4.46,5.28h8.33Z"/>
+  <path class="cls-1" d="M198.16,464.01c-.09,3.06,1.27,5.59,3.48,6.34,2.74.93,4.68-.36,6.24-2.58.6.3,1.15.58,1.77.89-.5,1.41-1.41,2.39-2.63,3.08-3.99,2.29-9.19.46-10.75-3.85-1.08-2.99-1-6.03.21-8.98,1.23-2.99,3.74-4.39,7.12-4.08,2.72.25,4.76,2.19,5.35,5.25.24,1.23.25,2.5.38,3.93h-11.17ZM206.68,462.07c-.05-3.4-1.55-5.3-4.07-5.29-2.66.01-4.33,2-4.39,5.29h8.45Z"/>
+  <path class="cls-1" d="M389.34,464.07h-11.19c-.06,3.03,1.3,5.54,3.5,6.28,2.74.92,4.68-.37,6.23-2.59.6.31,1.16.59,1.77.89-.51,1.42-1.41,2.41-2.65,3.08-3.04,1.65-8.81,1.53-10.75-3.86-1.07-2.99-1-6.03.22-8.98,1.23-2.99,3.75-4.38,7.13-4.07,2.72.25,4.76,2.2,5.35,5.26.24,1.23.25,2.5.38,3.98ZM378.15,462.03h8.54c-.05-3.19-1.44-5.11-3.74-5.25-2.74-.17-4.33,1.53-4.8,5.25Z"/>
+  <path class="cls-1" d="M436,464.02h-11.1c-.27,2.82,1.15,5.45,3.33,6.32,2.13.85,4.25.02,6.35-2.56.55.28,1.14.57,1.79.89-1.26,2.62-3.24,3.79-5.95,3.94-3.22.17-5.76-.99-7.14-3.94-1.58-3.39-1.48-6.89.1-10.27,1.26-2.69,3.81-3.9,6.97-3.56,2.61.28,4.63,2.15,5.22,5.01.27,1.32.28,2.69.42,4.17ZM424.84,462.05h8.47c.09-3.14-1.39-5.16-3.78-5.26-2.74-.11-4.38,1.7-4.69,5.26Z"/>
+  <path class="cls-1" d="M461.93,467.8c.53.27,1.09.55,1.7.86-.51,1.42-1.42,2.39-2.64,3.09-4,2.28-9.18.45-10.75-3.87-1.08-2.99-1-6.03.22-8.98,1.23-2.98,3.75-4.38,7.13-4.07,2.72.26,4.76,2.2,5.35,5.26.24,1.23.25,2.5.37,3.89h-11.02c-.44,2.51.84,5.14,2.91,6.19,2.21,1.11,4.27.4,6.74-2.37ZM452.09,462.05h8.53c.04-3.1-1.37-5.1-3.66-5.27-2.74-.2-4.31,1.44-4.87,5.27Z"/>
+  <path class="cls-1" d="M272.07,463.8c.23-2.05.55-3.95,1.56-5.7,1.3-2.26,3.24-3.33,5.86-3.3,2.57.03,4.52,1.09,5.67,3.34,1.86,3.66,1.86,7.43.02,11.1-1.3,2.6-3.6,3.56-6.44,3.36-2.57-.18-4.41-1.51-5.36-3.82-.65-1.58-.89-3.32-1.31-4.99ZM284.21,463.71c-.34-1.47-.54-2.95-1.04-4.31-.62-1.66-1.93-2.61-3.78-2.62-1.85,0-3.14.95-3.8,2.6-1.15,2.85-1.15,5.77,0,8.63.66,1.65,1.95,2.61,3.79,2.61,1.85,0,3.16-.95,3.78-2.61.51-1.36.7-2.83,1.04-4.31Z"/>
+  <path class="cls-1" d="M261.02,463.78c-.46,1.75-.69,3.56-1.4,5.15-1.16,2.6-3.35,3.78-6.25,3.68-2.72-.09-4.65-1.39-5.72-3.79-1.48-3.33-1.5-6.78-.04-10.12,1.11-2.54,3.11-3.87,5.97-3.89,2.91-.03,5.02,1.25,6.12,3.87.66,1.57.87,3.32,1.32,5.1ZM258.47,463.73c-.31-1.42-.48-2.84-.94-4.16-.61-1.73-1.91-2.77-3.83-2.77-1.92,0-3.21,1.01-3.87,2.73-1.07,2.76-1.06,5.58-.02,8.34.65,1.72,1.93,2.76,3.85,2.77,1.92.01,3.24-1.01,3.86-2.74.47-1.32.64-2.74.96-4.17Z"/>
+  <path class="cls-1" d="M25.88,455.18h2.25c.05.59.1,1.15.17,1.89.5-.36.95-.65,1.37-.99,1.41-1.14,3.02-1.45,4.77-1.23,1.92.24,3.28,1.48,3.72,3.38.13.56.22,1.15.23,1.72.02,3.86.01,7.72,0,11.58,0,.2-.05.4-.08.67h-2.42c0-.5,0-1,0-1.51,0-3.54.02-7.09,0-10.63-.02-2.85-1.77-4.05-4.4-2.91-1.18.51-2.21,1.37-3.27,2.05v12.98h-2.32v-17.01Z"/>
+  <path class="cls-1" d="M232.66,459.2v12.98h-2.32v-16.95h2.25c.05.56.11,1.14.19,1.88.57-.43,1.02-.77,1.47-1.12,1.42-1.12,3.07-1.37,4.8-1.12,1.85.27,3.14,1.51,3.57,3.35.07.31.18.62.18.93.01,4.32,0,8.65,0,13.05h-2.38c-.02-.43-.07-.89-.07-1.34,0-3.6.01-7.19,0-10.79-.02-2.85-1.76-4.05-4.4-2.92-1.18.51-2.22,1.37-3.28,2.04Z"/>
+  <path class="cls-1" d="M103.69,459.16c-.51-.47-.95-.92-1.44-1.31-1.28-1.03-2.73-1.33-4.32-.88-1.01.29-1.61.95-1.75,2.02-.15,1.09.49,1.72,1.35,2.09,1.16.5,2.39.83,3.56,1.3,1.02.41,2.11.76,3,1.38,2.95,2.05,2.68,6.22-.44,8.03-2.92,1.7-8.53.8-10.43-2.26.09-.12.16-.28.28-.37.46-.36.93-.69,1.72-1.29.29.43.51.94.88,1.28,1.56,1.42,3.4,1.85,5.44,1.28,1.16-.33,1.96-1.28,2.05-2.35.1-1.16-.47-1.95-1.48-2.37-1.16-.49-2.37-.87-3.56-1.3-.65-.23-1.31-.4-1.94-.68-2.24-1-3.11-2.39-2.94-4.55.18-2.16,1.43-3.67,3.73-4.15,3.06-.64,5.74.08,7.97,2.64-.58.53-1.11,1.01-1.68,1.52Z"/>
+  <path class="cls-1" d="M196.75,448.57v2.07h-7.1v21.55h-2.62v-21.42h-7.16v-2.2h16.88Z"/>
+  <path class="cls-1" d="M57.99,468.63c1.37-4.44,2.74-8.87,4.14-13.39h2.5c-.85,2.85-1.69,5.65-2.53,8.46-.85,2.82-1.7,5.64-2.56,8.52h-3.32c-1.72-5.56-3.45-11.19-5.24-16.96h2.51c1.37,4.4,2.76,8.89,4.15,13.38.11,0,.23,0,.34,0Z"/>
+  <path class="cls-1" d="M326.18,467.49c.63.3,1.2.56,1.76.82-1.15,2.85-3.15,4.2-6.03,4.31-3.16.12-5.46-1.13-6.67-4.05-1.34-3.21-1.31-6.49-.01-9.71,1.67-4.14,5.97-4.79,9.11-3.5,1.59.65,2.35,1.62,3.31,3.95-.36.16-.71.34-1.08.48-.33.13-.68.23-1.06.35-.26-.48-.46-.91-.7-1.31-1.6-2.67-5.04-2.78-6.81-.22-1.59,2.29-1.6,7.84-.03,10.18,1.55,2.31,4.97,2.55,6.87.48.46-.5.83-1.09,1.34-1.78Z"/>
+  <path class="cls-1" d="M223.97,467.48c.65.32,1.2.59,1.75.86-1.47,3.26-3.46,4.42-7.2,4.26-2.66-.11-4.83-1.82-5.78-4.66-.97-2.9-.99-5.84.08-8.7,1.62-4.32,5.41-5.12,8.9-4.07,1.97.6,3,2.19,3.75,4.19-.72.26-1.39.5-2.15.77-.23-.41-.45-.82-.68-1.22-1.65-2.83-5.41-3-6.94-.13-1.72,3.21-1.7,6.66.02,9.87,1.34,2.51,4.99,2.7,6.92.56.45-.5.82-1.08,1.33-1.75Z"/>
+  <path class="cls-1" d="M403.07,382.43h8.74c-2.75,2.75-5.63,5.63-8.83,8.83h-5.55c1.93-3.02,3.77-5.91,5.63-8.83Z"/>
+  <path class="cls-1" d="M265.33,448.53h2.34v23.71h-2.34v-23.71Z"/>
+  <path class="cls-1" d="M86.05,472.25h-2.39v-17h2.35v2.56c1.5-1.81,3.08-3.21,5.64-2.94v2.09c-3.69.89-5.6,3.34-5.6,7.14,0,2.68,0,5.36,0,8.16Z"/>
+  <path class="cls-1" d="M447.55,454.85v2.19c-2.83.09-4.25,1.96-5.16,4.35-.27.72-.43,1.52-.44,2.29-.05,2.79-.02,5.59-.02,8.5h-2.4v-16.94h2.41v2.6c1.43-1.86,3.03-3.16,5.61-2.99Z"/>
+  <path class="cls-1" d="M476.34,455.21h2.36v3.03c1.53-2.18,3.07-3.66,5.65-3.35v2.05c-3.77,1-5.59,3.37-5.59,7.29,0,2.63,0,5.26,0,7.97h-2.42v-16.99Z"/>
+  <path class="cls-1" d="M229.47,326.98v-6.93h7.26v6.93h-7.26Z"/>
+  <path class="cls-1" d="M170.12,320.08v6.91h-7.33v-6.91h7.33Z"/>
+  <path class="cls-1" d="M44.69,455.19h2.33v17.04h-2.33v-17.04Z"/>
+  <path class="cls-1" d="M110.43,455.19h2.28v17.02h-2.28v-17.02Z"/>
+  <path class="cls-1" d="M307.56,455.19h2.33v17.04h-2.33v-17.04Z"/>
+  <path class="cls-1" d="M470.49,472.22h-2.33v-17.02h2.33v17.02Z"/>
+  <path class="cls-1" d="M280.07,448.54h3.73c-1.51,1.66-2.87,3.16-4.2,4.64h-2.39c1.01-1.64,1.94-3.15,2.86-4.64Z"/>
+  <path class="cls-1" d="M46.99,451.27h-2.32v-3.06h2.32v3.06Z"/>
+  <path class="cls-1" d="M307.52,451.2v-2.94h2.36v2.94h-2.36Z"/>
+  <path class="cls-1" d="M470.52,448.24v3.05h-2.33v-3.05h2.33Z"/>
+  <path class="cls-1" d="M110.38,448.22h2.32v3.03h-2.32v-3.03Z"/>
+  <path class="cls-1" d="M348.65,209.19c0,11.73-9.4,21.07-21.19,21.07-11.7,0-21.15-9.47-21.13-21.18.01-11.84,9.48-21.21,21.48-21.14,12.1.06,21.15,10.28,20.84,21.25Z"/>
+  <path class="cls-1" d="M150.96,209.08c.17-12.67,10.48-21.36,21.67-21.19,11.42.18,20.75,9.68,20.73,21.45-.02,11.62-9.54,20.94-21.39,20.92-11.55-.02-21.02-9.57-21.01-21.18Z"/></symbol></svg>
+
+<div class="wrap">
+  <header class="banner">
+    <div class="view-badge" id="usageCounter" title="Visualizaciones registradas" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7.5 11-7.5S23 12 23 12s-4 7.5-11 7.5S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      <b id="usageCountNum"></b>
+    </div>
+    <div class="header-inner">
+      <div class="logo-header"><svg viewBox="0 0 500 478.7" role="img" aria-label="Universidad Tecnológica de Pereira"><use href="#buho"/></svg></div>
+      <div class="header-text">
+        <span class="badge">Formación de usuarios · UTP</span>
+        <h1>Ruta Mendeley UTP</h1>
+        <p class="sub">Practica la gestión de referencias en un simulador: organiza tu biblioteca, corrige metadatos y cita mientras escribes, sin instalar nada.</p>
+        <p class="fuente">Entrenador de la Biblioteca Jorge Roa Martínez. Mendeley es un producto de Elsevier; esta herramienta no es oficial de Elsevier.</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Módulos"></nav>
+
+  <main id="view"></main>
+
+  <footer class="page-footer">
+    <span class="internal-badge"><svg viewBox="0 0 500 478.7" aria-hidden="true"><use href="#buho"/></svg>Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</span>
+    <p style="margin:10px 0 0">Material de apoyo para los procesos de formación y alfabetización informacional · Biblioteca Jorge Roa Martínez.</p>
+  </footer>
+</div>
+
+<script>
+/* ===================================================================
+   URL del backend (API propia en Render/Railway/PythonAnywhere, ver
+   /backend de esta misma herramienta en el repo). Editar esta linea
+   con la URL real antes de publicar el frontend.
+   =================================================================== */
+const API_BASE = "https://ruta-mendeley-api.onrender.com";
+
+/* Enlace para solicitar asesoría. Mientras esté vacío se muestra solo el texto de orientación. */
+const ASESORIA_URL = "";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ====================== Referencias de práctica (obras reales) ====================== */
+const P = s => s.split(";").map(x => { const [l, f = ""] = x.split("|"); return { l, f }; });
+const R = {
+  hirsch: { type: "article", authors: P("Hirsch|Jorge E."), year: "2005", title: "An index to quantify an individual's scientific research output", source: "Proceedings of the National Academy of Sciences", vol: "102", issue: "46", pages: "16569–16572", doi: "10.1073/pnas.0507655102" },
+  aria: { type: "article", authors: P("Aria|Massimo;Cuccurullo|Corrado"), year: "2017", title: "bibliometrix: An R-tool for comprehensive science mapping analysis", source: "Journal of Informetrics", vol: "11", issue: "4", pages: "959–975", doi: "10.1016/j.joi.2017.08.007" },
+  vaneck: { type: "article", authors: P("van Eck|Nees Jan;Waltman|Ludo"), year: "2010", title: "Software survey: VOSviewer, a computer program for bibliometric mapping", source: "Scientometrics", vol: "84", issue: "2", pages: "523–538", doi: "10.1007/s11192-009-0146-3" },
+  page: { type: "article", authors: P("Page|Matthew J.;McKenzie|Joanne E.;Bossuyt|Patrick M.;Boutron|Isabelle;Hoffmann|Tammy C.;Mulrow|Cynthia D.;Shamseer|Larissa;Tetzlaff|Jennifer M.;Akl|Elie A.;Brennan|Sue E.;Chou|Roger;Glanville|Julie;Grimshaw|Jeremy M.;Hróbjartsson|Asbjørn;Lalu|Manoj M.;Li|Tianjing;Loder|Elizabeth W.;Mayo-Wilson|Evan;McDonald|Steve;McGuinness|Luke A.;Stewart|Lesley A.;Thomas|James;Tricco|Andrea C.;Welch|Vivian A.;Whiting|Penny;Moher|David"), year: "2021", title: "The PRISMA 2020 statement: An updated guideline for reporting systematic reviews", source: "BMJ", vol: "372", issue: "", pages: "n71", doi: "10.1136/bmj.n71" },
+  priem: { type: "preprint", authors: P("Priem|Jason;Piwowar|Heather;Orr|Richard"), year: "2022", title: "OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts", source: "arXiv", doi: "10.48550/arXiv.2205.01833" },
+  apa: { type: "book", authors: P("American Psychological Association"), year: "2020", title: "Publication manual of the American Psychological Association", edition: "7th ed.", source: "American Psychological Association", doi: "10.1037/0000165-000" },
+  sampieri: { type: "book", authors: P("Hernández-Sampieri|Roberto;Mendoza Torres|Christian Paulina"), year: "2018", title: "Metodología de la investigación: Las rutas cuantitativa, cualitativa y mixta", source: "McGraw-Hill Education" }
+};
+const ORDER = ["hirsch", "aria", "vaneck", "page", "priem", "apa", "sampieri"];
+const TYPES = { article: "Journal Article", book: "Book", preprint: "Preprint" };
+
+/* ====================== Formato de citas ====================== */
+const ini = f => f.trim().split(/\s+/).filter(Boolean).map(p => p.split("-").map(q => q.charAt(0).toUpperCase() + ".").join("-")).join(" ");
+const dot = s => /[.?!]$/.test(s) ? s : s + ".";
+function apaAuthors(A) {
+  const n = A.filter(a => a.l || a.f).map(a => a.f ? `${a.l}, ${ini(a.f)}` : a.l);
+  if (n.length <= 1) return n[0] || "";
+  if (n.length === 2) return n[0] + ", & " + n[1];
+  if (n.length <= 20) return n.slice(0, -1).join(", ") + ", & " + n[n.length - 1];
+  return n.slice(0, 19).join(", ") + ", . . . " + n[n.length - 1];
+}
+function apaRef(r) {
+  const a = apaAuthors(r.authors), y = `(${esc(r.year) || "s.f."}).`;
+  const head = a ? dot(esc(a)) + " " + y : y;
+  const doi = r.doi ? ` https://doi.org/${esc(r.doi)}` : "";
+  if (r.type === "book") {
+    const ed = r.edition ? ` (${esc(r.edition)})` : "";
+    const pub = r.source && r.source !== (r.authors[0] || {}).l ? " " + dot(esc(r.source)) : "";
+    return `${head} <i>${esc(r.title)}</i>${ed}.${pub}${doi}`;
+  }
+  if (r.type === "preprint") return `${head} <i>${esc(r.title)}</i>. ${esc(r.source)}.${doi}`;
+  let s = r.source ? `<i>${esc(r.source)}</i>` : "";
+  if (r.vol) s += `, <i>${esc(r.vol)}</i>`;
+  if (r.issue) s += `(${esc(r.issue)})`;
+  if (r.pages) s += `, ${esc(r.pages)}`;
+  return `${head} ${dot(esc(r.title))}${s ? " " + s + "." : ""}${doi}`;
+}
+const apaNames = r => { const A = r.authors; return A.length === 1 ? A[0].l : A.length === 2 ? `${A[0].l} & ${A[1].l}` : `${A[0].l} et al.`; };
+function ieeeRef(r, n) {
+  const N = r.authors.map(a => a.f ? `${ini(a.f)} ${a.l}` : a.l);
+  const a = N.length > 6 ? N[0] + " et al." : N.length === 1 ? N[0] : N.length === 2 ? N.join(" and ") : N.slice(0, -1).join(", ") + ", and " + N[N.length - 1];
+  const doi = r.doi ? `, doi: ${esc(r.doi)}` : "";
+  if (r.type === "book") return `[${n}] ${esc(a)}, <i>${esc(r.title)}</i>${r.edition ? ", " + esc(r.edition) : "."} ${esc(r.source)}, ${r.year}${doi}.`;
+  if (r.type === "preprint") return `[${n}] ${esc(a)}, “${esc(r.title)},” ${esc(r.source)}, ${r.year}${doi}.`;
+  return `[${n}] ${esc(a)}, “${esc(r.title)},” <i>${esc(r.source)}</i>, vol. ${r.vol}${r.issue ? ", no. " + r.issue : ""}, ${/^\d/.test(r.pages) ? "pp. " : ""}${r.pages}, ${r.year}${doi}.`;
+}
+function vanRef(r, n) {
+  const N = r.authors.map(a => a.f ? `${a.l} ${ini(a.f).replace(/[.\s-]/g, "")}` : a.l);
+  const a = N.length > 6 ? N.slice(0, 6).join(", ") + ", et al" : N.join(", ");
+  const doi = r.doi ? ` doi:${esc(r.doi)}` : "";
+  if (r.type === "book") return `${n}. ${esc(a)}. ${esc(r.title)}.${r.edition ? " " + esc(r.edition) : ""} ${esc(r.source)}; ${r.year}.${doi}`;
+  if (r.type === "preprint") return `${n}. ${esc(a)}. ${esc(r.title)}. ${esc(r.source)}. ${r.year}.${doi}`;
+  return `${n}. ${esc(a)}. ${esc(r.title)}. ${esc(r.source)}. ${r.year};${r.vol}${r.issue ? "(" + r.issue + ")" : ""}:${r.pages}.${doi}`;
+}
+
+/* ====================== Estado y persistencia ====================== */
+const S = { nivel: null, perfil: null, puntaje: null, diag: {}, mod: { sim: false, reto: false, cite: false, quiz: false }, fallos: {}, quiz: null, constancia: false, sid: null, rutas: {} };
+try { Object.assign(S, JSON.parse(localStorage.getItem("ruta-mendeley-v1") || "{}")); } catch (e) {}
+function persist() { try { localStorage.setItem("ruta-mendeley-v1", JSON.stringify(S)); } catch (e) {} }
+
+/* "db" ya no es la capacidad de Claude Artifacts (solo disponible en el sandbox
+   de claude.ai): aquí es simplemente un indicador de que la API propia del
+   backend (ver /backend de esta misma herramienta en el repo) está en uso. */
+let db = true, writing = Promise.resolve(), dirty = false;
+function sync() {
+  persist(); renderTabs();
+  if (!db) return;
+  if (!S.sid) { S.sid = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); persist(); }
+  dirty = true;
+  writing = writing.then(async () => {
+    if (!dirty || !db) return; dirty = false;
+    try {
+      const resp = await fetch(API_BASE + "/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sid: S.sid, dia: new Date().toISOString().slice(0, 10), nivel: S.nivel, perfil: S.perfil, puntaje: S.puntaje, mod: S.mod, fallos: S.fallos, quiz: S.quiz, constancia: S.constancia })
+      });
+      if (!resp.ok) throw new Error("API respondió " + resp.status);
+    } catch (e) { /* fallo de red o API caída: se reintentará en la próxima sincronización */ }
+  });
+}
+
+/* ====================== Pestañas ====================== */
+const TABS = [["inicio", "Diagnóstico"], ["biblioteca", "Biblioteca"], ["reto", "Arregla la referencia"], ["citar", "Citar al escribir"], ["rutas", "Rutas por perfil"], ["evaluacion", "Evaluación"]];
+/* La pestaña "Indicadores" ya no depende de la capacidad "user"/canEdit
+   (solo existe en el sandbox de claude.ai): queda visible para cualquiera y
+   el contenido se protege con un token de personal (ver renderInd()). */
+let tab = "inicio", showInd = true;
+const tabDone = id => ({ inicio: !!S.nivel, biblioteca: S.mod.sim, reto: S.mod.reto, citar: S.mod.cite, evaluacion: S.mod.quiz })[id];
+function renderTabs() {
+  const list = showInd ? [...TABS, ["indicadores", "Indicadores"]] : TABS;
+  $("#tabs").innerHTML = list.map(([id, t]) => `<button class="tab${tabDone(id) ? " done" : ""}" role="tab" id="tab-${id}" aria-selected="${tab === id}" data-act="tab" data-id="${id}"><span class="ck">✓</span>${t}</button>`).join("");
+}
+function go(id) {
+  tab = id; renderTabs();
+  ({ inicio: renderInicio, biblioteca: renderSim, reto: renderReto, citar: renderCite, rutas: renderRutas, evaluacion: renderQuiz, indicadores: renderInd })[id]();
+  try { history.replaceState(null, "", "#" + id); } catch (e) {}
+}
+
+/* ====================== 1. Inicio y diagnóstico ====================== */
+const DIAG = [
+  ["¿Cómo organizas hoy tus referencias?", ["Guardo los PDF en carpetas y escribo las referencias a mano.", "Llevo una lista en Excel o en un documento.", "Uso un gestor de referencias (Mendeley, Zotero u otro)."]],
+  ["Encuentras un artículo útil en una base de datos. ¿Cómo lo llevarías a Mendeley?", ["No sabría cómo hacerlo.", "Descargo el PDF y lo arrastro a la biblioteca.", "Uso Web Importer o exporto el registro en RIS o BibTeX, y luego reviso los metadatos."]],
+  ["Importas un PDF y el título queda EN MAYÚSCULAS y sin año. ¿Qué haces?", ["Lo dejo así; el gestor lo arregla al citar.", "Lo corrijo en Word cuando vaya a entregar.", "Lo corrijo de inmediato en la ficha del registro."]],
+  ["¿Cómo insertas las citas en tu documento de Word?", ["Las escribo a mano.", "Copio la referencia con formato y la pego.", "Uso Mendeley Cite y genero la bibliografía automáticamente."]],
+  ["En un trabajo en equipo, ¿cómo comparten las fuentes?", ["Por correo o chat.", "En una carpeta compartida en la nube.", "En un grupo o biblioteca compartida dentro del gestor."]]
+];
+const PERFILES = { pregrado: "Pregrado", posgrado: "Posgrado", grupo: "Semillero o grupo de investigación", docente: "Docente o investigador" };
+const NIVELES = {
+  basico: ["Nivel básico", "Empieza por la biblioteca: lo primero es saber agregar y ordenar fuentes.", ["biblioteca", "reto", "citar", "evaluacion"]],
+  intermedio: ["Nivel intermedio", "Ya manejas lo esencial. Tu mayor ganancia está en la calidad de los metadatos.", ["reto", "citar", "biblioteca", "evaluacion"]],
+  avanzado: ["Nivel avanzado", "Ve directo a la evaluación y luego revisa la ruta de trabajo en grupo.", ["evaluacion", "reto", "rutas"]]
+};
+const TAB_TXT = { biblioteca: ["Simulador de biblioteca", "Agrega, importa, corrige, organiza y fusiona duplicados."], reto: ["Arregla la referencia", "Seis registros con errores frecuentes y su efecto en APA 7."], citar: ["Citar al escribir", "Inserta citas, cambia el estilo y genera la bibliografía."], evaluacion: ["Evaluación y constancia", "Ocho preguntas; con seis aciertos obtienes la constancia."], rutas: ["Rutas por perfil", "Lista de tareas para tu trabajo real."] };
+
+function renderInicio() {
+  const done = ["sim", "reto", "cite", "quiz"].filter(k => S.mod[k]).length;
+  let h = `<section class="panel"><h2>Mendeley hoy</h2>
+    <p class="lead">Mendeley ha cambiado en los últimos años. Esto es lo que vas a encontrar al instalarlo. <span class="muted small">Verificado en octubre de 2026.</span></p>
+    <div class="grid3">
+      <div class="comp"><span class="pill ok">Vigente</span><b>Mendeley Reference Manager</b><p>La aplicación actual, para Windows, macOS y Linux, con versión web. Aquí se concentran las funciones nuevas. Cuenta gratuita con 2 GB de almacenamiento.</p><a class="small" href="https://www.mendeley.com/reference-management/reference-manager">Sitio oficial</a></div>
+      <div class="comp"><span class="pill ok">Vigente</span><b>Mendeley Cite</b><p>Complemento de Microsoft Word para citar y generar la bibliografía. Funciona sin tener Reference Manager abierto ni instalado.</p><a class="small" href="https://www.mendeley.com/reference-management/mendeley-cite">Sitio oficial</a></div>
+      <div class="comp"><span class="pill ok">Vigente</span><b>Mendeley Web Importer</b><p>Extensión del navegador (Chrome y Firefox) que captura la referencia, y el PDF cuando está disponible, desde bases de datos y sitios web.</p><a class="small" href="https://www.mendeley.com/reference-management/web-importer">Sitio oficial</a></div>
+      <div class="comp"><span class="pill warn">Solo mantenimiento</span><b>Mendeley Desktop</b><p>La versión anterior. Ya no se ofrece para descarga y no recibe funciones nuevas; quien empieza hoy debe usar Reference Manager.</p></div>
+      <div class="comp"><span class="pill warn">Retiradas</span><b>Aplicaciones móviles</b><p>Las apps de iOS y Android salieron de las tiendas en marzo de 2021. Desde el celular se consulta la biblioteca en la versión web.</p></div>
+      <div class="comp"><span class="pill">Formatos</span><b>Importación de bibliotecas</b><p>Reference Manager importa archivos BibTeX (.bib), EndNote XML (.xml) y RIS (.ris), además de PDF arrastrados y registros manuales.</p></div>
+    </div>
+    <p class="small muted" style="margin:12px 0 0">Fuentes: <a href="https://service.elsevier.com/app/release_notes/supporthub/mendeley/">notas de versión de Mendeley (Elsevier)</a> · <a href="https://libguides.bodleian.ox.ac.uk/reference-management/mendeley">guía de Bodleian Libraries, Oxford</a> · <a href="https://researchguides.uoregon.edu/Mendeley/reference_manager">guía de University of Oregon Libraries</a>.</p>
+  </section>`;
+
+  h += `<section class="panel"><h2>Diagnóstico inicial</h2>`;
+  if (S.nivel) {
+    const [nom, desc, ruta] = NIVELES[S.nivel];
+    h += `<p class="lead"><span class="pill ok">${nom}</span> ${S.puntaje} de 10 puntos · Perfil: ${esc(PERFILES[S.perfil] || "")}. ${desc}</p>
+      <h3>Tu ruta recomendada</h3><ol class="steps">` + ruta.map((id, i) => `<li class="${tabDone(id) ? "done" : ""}"><span class="n">${tabDone(id) ? "✓" : i + 1}</span><span class="tx"><b>${TAB_TXT[id][0]}</b><br><span class="muted">${TAB_TXT[id][1]}</span></span><button class="btn sm" data-act="tab" data-id="${id}">${tabDone(id) ? "Repasar" : "Empezar"}</button></li>`).join("") + `</ol>
+      <div class="row-actions"><span class="muted small">Avance: ${done} de 4 módulos completados.</span><button class="btn ghost sm" data-act="diag-reset">Repetir el diagnóstico</button></div>`;
+  } else {
+    h += `<p class="lead">Cinco preguntas, dos minutos. Con tus respuestas se arma el orden en que te conviene recorrer los módulos.</p>
+      <fieldset class="q"><legend>¿Cuál es tu perfil?</legend>` + Object.entries(PERFILES).map(([k, v]) => `<label class="opt"><input type="radio" name="perfil" id="pf-${k}" value="${k}" ${S.diag.perfil === k ? "checked" : ""}>${v}</label>`).join("") + `</fieldset>` +
+      DIAG.map(([q, o], i) => `<fieldset class="q"><legend>${i + 1}. ${q}</legend>` + o.map((t, j) => `<label class="opt"><input type="radio" name="d${i}" id="d${i}-${j}" value="${j}" ${S.diag["d" + i] == j ? "checked" : ""}>${t}</label>`).join("") + `</fieldset>`).join("") +
+      `<div class="row-actions"><button class="btn" data-act="diag-go">Ver mi ruta</button><span class="small muted" id="diagMsg"></span></div>`;
+  }
+  h += `</section>`;
+  $("#view").innerHTML = h;
+}
+function diagGo() {
+  const pf = $('input[name="perfil"]:checked'); let tot = 0, ok = !!pf;
+  DIAG.forEach((_, i) => { const c = $(`input[name="d${i}"]:checked`); if (c) tot += +c.value; else ok = false; });
+  if (!ok) { $("#diagMsg").textContent = "Responde las seis preguntas para continuar."; return; }
+  S.perfil = pf.value; S.puntaje = tot; S.nivel = tot <= 3 ? "basico" : tot <= 7 ? "intermedio" : "avanzado";
+  sync(); renderInicio();
+}
+
+/* ====================== 2. Simulador de biblioteca ====================== */
+let uid = 0, sim = null;
+const toAu = r => r.authors.map(a => a.f ? `${a.l}, ${a.f}` : a.l).join("; ");
+function rec(key, over) { const r = R[key]; return Object.assign({ id: "r" + (++uid), key, type: r.type, title: r.title, au: toAu(r), year: r.year, source: r.source, vol: r.vol || "", issue: r.issue || "", pages: r.pages || "", doi: r.doi || "", coll: [] }, over || {}); }
+function simReset() {
+  uid = 0;
+  sim = { lib: [rec("hirsch"), rec("vaneck", { title: R.vaneck.title.toUpperCase(), year: "" }), rec("apa"), rec("sampieri"), rec("hirsch", { au: "Hirsch, J. E.", doi: "", pages: "" })], colls: [], view: "all", sel: null, checked: new Set(), form: null, found: null, q: "", recent: [], msg: "Biblioteca de ejemplo cargada: 5 registros. Sigue las misiones de arriba." };
+}
+const shortAu = au => { const p = au.split(";").map(x => x.split(",")[0].trim()).filter(Boolean); return p.length > 2 ? p[0] + " et al." : p.join(" & "); };
+const isUpper = t => { const L = t.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ]/g, ""); return L.length > 8 && L.replace(/[^A-ZÁÉÍÓÚÑ]/g, "").length / L.length > 0.6; };
+const normT = t => t.toLowerCase().replace(/[^a-z0-9]/g, "");
+function dupGroups() { const m = {}; sim.lib.forEach(r => (m[normT(r.title)] = m[normT(r.title)] || []).push(r)); return Object.values(m).filter(g => g.length > 1); }
+function simMissions() {
+  const has = k => sim.lib.some(r => r.doi === R[k].doi);
+  const ve = sim.lib.find(r => r.key === "vaneck");
+  return [
+    [has("aria"), `Agrega el artículo de Aria y Cuccurullo con <b>+ Add new → Add entry manually</b> y su DOI: <code>10.1016/j.joi.2017.08.007</code>`],
+    [has("priem") && has("page"), `Importa el archivo RIS de ejemplo con <b>+ Add new → Import library</b>.`],
+    [!!ve && ve.year === "2010" && !isUpper(ve.title) && ve.title.trim().length > 10, `Corrige el registro marcado con ⚠: pasa el título a minúsculas tipo oración y escribe el año (2010).`],
+    [sim.colls.some(c => sim.lib.filter(r => r.coll.includes(c)).length >= 2), `Crea una colección y agrégale dos referencias: marca sus casillas y elige la colección en «Add to».`],
+    [dupGroups().length === 0, `Abre <b>Duplicates</b> y fusiona el registro repetido.`]
+  ];
+}
+function simRows() {
+  let L = sim.lib;
+  if (sim.view === "recent") L = L.filter(r => sim.recent.includes(r.id));
+  else if (sim.view.startsWith("c:")) L = L.filter(r => r.coll.includes(sim.view.slice(2)));
+  const q = sim.q.trim().toLowerCase();
+  if (q) L = L.filter(r => (r.title + r.au + r.source + r.year).toLowerCase().includes(q));
+  return L;
+}
+function renderSim() {
+  if (!sim) simReset();
+  $("#view").innerHTML = `<section class="panel"><h2>Simulador de biblioteca</h2>
+    <p class="lead">Réplica simplificada de Mendeley Reference Manager, con los nombres de menú en inglés como en la aplicación. Nada de lo que hagas aquí toca una cuenta real.</p>
+    <ul class="missions" id="simMis"></ul>
+    <div class="sim"><div class="sim-nav" id="simNav"></div><div class="sim-main"><div id="simMain"></div><div class="sim-msg" id="simMsg" role="status"></div></div><div class="sim-info" id="simInfo"></div></div>
+    <div class="row-actions"><button class="btn ghost sm" data-act="sim-reset">Reiniciar el simulador</button><span class="small muted">La interfaz real puede variar según la versión instalada.</span></div>
+  </section>`;
+  simPaint(); simInfo();
+}
+function simPaint() {
+  const M = simMissions();
+  $("#simMis").innerHTML = M.map(([ok, t]) => `<li class="${ok ? "done" : ""}"><span>${t}</span></li>`).join("");
+  if (M.every(m => m[0]) && !S.mod.sim) { S.mod.sim = true; sim.msg = "Completaste las cinco misiones. Módulo terminado."; sync(); }
+  const dg = dupGroups(), nv = (id, t, n) => `<button class="nv${sim.view === id ? " on" : ""}" data-act="sim-view" data-id="${esc(id)}"><span>${esc(t)}</span><span class="muted">${n}</span></button>`;
+  $("#simNav").innerHTML = nv("all", "All References", sim.lib.length) + nv("recent", "Recently Added", sim.recent.length) + nv("dups", "Duplicates", dg.length) +
+    `<div class="hd">Collections</div>` + (sim.colls.map(c => nv("c:" + c, c, sim.lib.filter(r => r.coll.includes(c)).length)).join("") || `<div class="small muted" style="padding:0 8px">Aún no hay colecciones.</div>`) +
+    `<div class="newc"><input type="text" id="simNewC" placeholder="New collection" aria-label="Nombre de la colección"><button class="btn sm" data-act="sim-newc" aria-label="Crear colección">+</button></div>`;
+  let h = `<div class="sim-bar"><button class="btn sm" data-act="sim-add">+ Add new</button><input type="text" id="simQ" placeholder="Search" aria-label="Buscar" value="${esc(sim.q)}">
+    <select id="simAddTo" aria-label="Agregar a colección"><option value="">Add to…</option>${sim.colls.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>`;
+  if (sim.form === "menu") h += `<div class="sim-form"><b>Add new</b><div class="row-actions" style="margin-top:8px"><button class="btn ghost sm" data-act="sim-form" data-id="manual">Add entry manually</button><button class="btn ghost sm" data-act="sim-form" data-id="import">Import library (.bib, .xml, .ris)</button><button class="btn ghost sm" data-act="sim-form" data-id="">Cancelar</button></div><p class="small muted" style="margin:8px 0 0">En la aplicación real también puedes arrastrar los PDF o usar «File(s) from computer».</p></div>`;
+  if (sim.form === "manual") {
+    const f = sim.found && R[sim.found];
+    h += `<div class="sim-form"><b>Add entry manually</b><p class="small muted" style="margin:4px 0 8px">Escribe el identificador y Mendeley busca los metadatos. Este simulador consulta un catálogo local de ejemplo, no internet.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="simDoi" placeholder="DOI" aria-label="DOI" style="flex:1 1 200px;width:auto"><button class="btn sm" data-act="sim-lookup">Buscar</button><button class="btn ghost sm" data-act="sim-form" data-id="">Cancelar</button></div>` +
+      (f ? `<div class="box ok" style="margin-bottom:8px"><b>${esc(f.title)}</b><br>${esc(toAu(f))} · ${f.year} · <i>${esc(f.source)}</i></div><button class="btn gold sm" data-act="sim-addfound">Add entry</button>` : "") + `</div>`;
+  }
+  if (sim.form === "import") h += `<div class="sim-form"><b>Import library</b><p style="margin:6px 0 10px">📄 <code>busqueda_bibliometria.ris</code> · 2 registros (archivo de ejemplo, como el que exporta una base de datos).</p><div class="row-actions" style="margin-top:0"><button class="btn gold sm" data-act="sim-import">Import</button><button class="btn ghost sm" data-act="sim-form" data-id="">Cancelar</button></div></div>`;
+  if (sim.view === "dups") {
+    h += dg.length ? dg.map((g, i) => `<div class="dup"><b>${esc(g[0].title)}</b><ul>${g.map(r => `<li>${esc(r.au)} · ${esc(r.year)} · DOI: ${r.doi ? esc(r.doi) : "<span class='flag'>sin DOI</span>"} · páginas: ${r.pages ? esc(r.pages) : "<span class='flag'>sin páginas</span>"}</li>`).join("")}</ul><button class="btn sm" data-act="sim-merge" data-id="${i}">Merge</button> <span class="small muted">Se conserva un solo registro con los campos más completos.</span></div>`).join("") : `<div class="dup muted">No hay duplicados en tu biblioteca.</div>`;
+  } else {
+    const L = simRows();
+    h += `<div class="tblwrap"><table class="refs"><thead><tr><th></th><th>Authors</th><th>Year</th><th>Title</th><th>Source</th></tr></thead><tbody>` +
+      (L.map(r => `<tr class="r${sim.sel === r.id ? " sel" : ""}" data-act="sim-sel" data-id="${r.id}"><td><input type="checkbox" id="ck-${r.id}" data-ck="${r.id}" aria-label="Seleccionar" ${sim.checked.has(r.id) ? "checked" : ""}></td><td>${esc(shortAu(r.au))}</td><td class="y">${esc(r.year) || "<span class='flag' title='Falta el año'>⚠</span>"}</td><td>${isUpper(r.title) ? "<span class='flag' title='Título en mayúsculas'>⚠</span> " : ""}${esc(r.title)}</td><td>${esc(r.source)}</td></tr>`).join("") || `<tr><td colspan="5" class="muted">Sin referencias en esta vista.</td></tr>`) + `</tbody></table></div>`;
+  }
+  $("#simMain").innerHTML = h; $("#simMsg").textContent = sim.msg;
+}
+function simInfo() {
+  const r = sim.lib.find(x => x.id === sim.sel);
+  if (!r) { $("#simInfo").innerHTML = `<b>Info</b><p class="small muted" style="margin:0">Selecciona una referencia para ver y editar sus metadatos.</p>`; return; }
+  const f = (k, lb, ta) => `<div><label class="lb" for="si-${k}">${lb}</label>${ta ? `<textarea id="si-${k}" data-f="${k}">${esc(r[k])}</textarea>` : `<input type="text" id="si-${k}" data-f="${k}" value="${esc(r[k])}">`}</div>`;
+  $("#simInfo").innerHTML = `<b>Info</b><div><label class="lb" for="si-type">Document type</label><select id="si-type" data-f="type">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}" ${r.type === k ? "selected" : ""}>${v}</option>`).join("")}</select></div>` +
+    f("title", "Title", 1) + f("au", "Authors (Apellido, Nombre; …)", 1) + f("year", "Year") + f("source", "Journal / Publisher") + f("vol", "Volume") + f("issue", "Issue") + f("pages", "Pages") + f("doi", "DOI") +
+    `<p class="small muted" style="margin:0">Collections: ${r.coll.length ? esc(r.coll.join(", ")) : "ninguna"}</p>`;
+}
+
+/* ====================== 3. Arregla la referencia ====================== */
+const CASOS = [
+  { id: "mayusculas", key: "vaneck", t: "Título en mayúsculas", init: { title: R.vaneck.title.toUpperCase() }, pista: "El PDF traía el título en mayúsculas sostenidas y así quedó en el registro. APA 7 pide mayúscula inicial solo en la primera palabra, después de dos puntos y en nombres propios.", dato: "Título en la revista: «Software survey: VOSviewer, a computer program for bibliometric mapping».", ok: c => !isUpper(c.title) && /vosviewer/i.test(c.title) && c.title.trim().length > 30, exp: "El gestor no cambia las mayúsculas por ti: escribe lo que hay en el campo. Corrígelo en el registro y todas tus citas futuras saldrán bien." },
+  { id: "autor_corporativo", key: "apa", t: "Autor institucional mal capturado", init: { l: "Association", f: "American Psychological" }, pista: "El importador partió el nombre de la entidad como si fuera una persona, y la referencia la abrevia con iniciales.", dato: "El autor es una organización: American Psychological Association.", ok: c => c.l.trim().toLowerCase() === "american psychological association" && !c.f.trim(), exp: "Un autor institucional se escribe completo en el campo del apellido y el nombre se deja vacío. Así el gestor no lo invierte ni lo reduce a iniciales." },
+  { id: "doi_faltante", key: "aria", t: "DOI faltante", init: { doi: "" }, pista: "El registro no tiene DOI, así que la referencia queda sin el enlace permanente que APA 7 pide incluir cuando existe.", dato: "En la primera página del artículo: https://doi.org/10.1016/j.joi.2017.08.007", ok: c => c.doi.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, "").replace(/^doi:\s*/i, "").toLowerCase() === "10.1016/j.joi.2017.08.007", exp: "En el campo DOI va solo el identificador (10.xxxx/…). El gestor agrega el prefijo https://doi.org/ al generar la referencia." },
+  { id: "nombre_en_apellido", key: "hirsch", t: "Nombre y apellido en un solo campo", init: { l: "Jorge E. Hirsch", f: "" }, pista: "Todo el nombre quedó en el campo del apellido. La referencia no lo invierte y se ordenará por la «J» en la bibliografía.", dato: "Autor: Jorge E. Hirsch (apellido: Hirsch).", ok: c => c.l.trim().toLowerCase() === "hirsch" && /^j/i.test(c.f.trim()), exp: "Con apellido y nombre en campos separados, el gestor arma «Hirsch, J. E.» y ordena bien la lista de referencias." },
+  { id: "tipo_documento", key: "sampieri", t: "Tipo de documento equivocado", init: { type: "article" }, pista: "Es un libro, pero quedó como artículo de revista: la editorial aparece en cursiva como si fuera una revista y el título pierde la cursiva.", dato: "Libro publicado por McGraw-Hill Education.", ok: c => c.type === "book", exp: "El tipo de documento decide qué campos se usan y cómo se formatean. Es lo primero que conviene revisar al importar." },
+  { id: "anio_faltante", key: "priem", t: "Año faltante", init: { year: "" }, pista: "Sin año, la cita en el texto sale como «s.f.» aunque la fuente sí tiene fecha.", dato: "Preprint enviado a arXiv en mayo de 2022.", ok: c => c.year.trim() === "2022", exp: "«s.f.» solo se usa cuando la fuente de verdad no tiene fecha. Si la tiene, complétala en el registro." }
+];
+let reto = null;
+function retoReset() { reto = { i: 0, solved: new Set(), fb: null, c: CASOS.map(k => { const r = R[k.key]; return Object.assign({ type: r.type, l: r.authors[0].l, f: r.authors[0].f, year: r.year, title: r.title, source: r.source, doi: r.doi || "" }, k.init); }) }; }
+function retoRef(i) { const k = CASOS[i], c = reto.c[i], r = R[k.key]; return apaRef(Object.assign({}, r, { type: c.type, authors: [{ l: c.l.trim(), f: c.f.trim() }, ...r.authors.slice(1)], year: c.year.trim(), title: c.title, source: c.source, doi: c.doi.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, "") })); }
+function renderReto() {
+  if (!reto) retoReset();
+  const i = reto.i, k = CASOS[i], c = reto.c[i], solved = reto.solved.has(i);
+  const f = (key, lb) => `<div><label class="lb" for="rt-${key}">${lb}</label><input type="text" id="rt-${key}" data-rt="${key}" value="${esc(c[key])}"></div>`;
+  $("#view").innerHTML = `<section class="panel"><h2>Arregla la referencia</h2>
+    <p class="lead">Cada registro tiene un error frecuente al importar. Corrige el campo y mira cómo cambia la referencia en APA 7. <span class="muted">${reto.solved.size} de ${CASOS.length} resueltos.</span></p>
+    <div class="casebar">${CASOS.map((_, j) => `<button class="${j === i ? "on" : reto.solved.has(j) ? "ok" : ""}" data-act="reto-go" data-id="${j}" aria-label="Caso ${j + 1}">${reto.solved.has(j) && j !== i ? "✓" : j + 1}</button>`).join("")}</div>
+    <h3 style="margin-top:0">Caso ${i + 1}. ${k.t}</h3><p class="lead">${k.pista}</p><div class="box"><b>Dato de la fuente:</b> ${esc(k.dato)}</div>
+    <div class="grid2">
+      <div><label class="lb" for="rt-type">Tipo de documento</label><select id="rt-type" data-rt="type">${Object.entries(TYPES).map(([a, b]) => `<option value="${a}" ${c.type === a ? "selected" : ""}>${b}</option>`).join("")}</select></div>
+      ${f("year", "Año")}${f("l", "Primer autor · Apellido")}${f("f", "Primer autor · Nombre")}${f("title", "Título")}${f("source", "Revista o editorial")}${f("doi", "DOI")}
+    </div>
+    <div class="ficha" data-label="Así queda en tu bibliografía"><p class="ref" id="rtOut">${retoRef(i)}</p></div>
+    <div id="rtFb">${reto.fb || (solved ? `<div class="box ok"><b>Resuelto.</b> ${k.exp}</div>` : "")}</div>
+    <div class="row-actions"><button class="btn" data-act="reto-check">Comprobar</button>${i < CASOS.length - 1 ? `<button class="btn ghost" data-act="reto-go" data-id="${i + 1}">Siguiente caso</button>` : ""}<button class="btn ghost sm" data-act="reto-reset">Reiniciar el reto</button></div>
+    <p class="small muted" style="margin:14px 0 0">¿Necesitas la cita en el texto? Usa el Constructor de citas APA 7 de la biblioteca.</p></section>`;
+}
+function retoCheck() {
+  const i = reto.i, k = CASOS[i];
+  if (k.ok(reto.c[i])) {
+    reto.solved.add(i); reto.fb = `<div class="box ok"><b>Correcto.</b> ${k.exp}</div>`;
+    if (reto.solved.size === CASOS.length && !S.mod.reto) { S.mod.reto = true; sync(); }
+  } else {
+    reto.fb = `<div class="box err"><b>Todavía no.</b> Revisa el dato de la fuente y compara con la referencia de abajo.</div>`;
+    if (!S.fallos[k.id]) { S.fallos[k.id] = 1; sync(); }
+  }
+  renderReto();
+}
+
+/* ====================== 4. Citar al escribir ====================== */
+let ct = null;
+function citeReset() { ct = { slots: [null, null, null, null], on: 0, style: "apa", bib: false, changed: false, pick: new Set() }; }
+const TEXTO = ["Hirsch ", " propuso el índice h para estimar a la vez la productividad y el impacto de un investigador. Para construir y visualizar mapas de la ciencia se usan herramientas como bibliometrix y VOSviewer ", ". Las revisiones sistemáticas se reportan siguiendo lineamientos reconocidos ", ", y el manuscrito se prepara conforme al manual de estilo de la disciplina ", "."];
+function citeOrder() { const o = []; ct.slots.forEach(s => s && s.refs.forEach(k => { if (!o.includes(k)) o.push(k); })); return o; }
+function citeText(s) {
+  const o = citeOrder();
+  if (ct.style === "ieee") return s.refs.map(k => `[${o.indexOf(k) + 1}]`).join(", ");
+  if (ct.style === "vancouver") return "(" + s.refs.map(k => o.indexOf(k) + 1).sort((a, b) => a - b).join(",") + ")";
+  const parts = s.refs.map(k => R[k]).sort((a, b) => apaNames(a).localeCompare(apaNames(b), "es")).map(r => s.supr ? r.year : `${apaNames(r)}, ${r.year}`);
+  return "(" + parts.join("; ") + (s.pag ? `, p. ${s.pag}` : "") + ")";
+}
+function citeMissions() {
+  const n = ct.slots.filter(Boolean).length;
+  return [[n >= 3, "Inserta citas en al menos tres puntos del texto."], [ct.slots.some(s => s && s.refs.length >= 2), "Inserta una cita con dos fuentes (bibliometrix y VOSviewer)."], [ct.bib && n > 0, "Inserta la bibliografía con «Insert bibliography»."], [!!(ct.slots[0] && ct.slots[0].supr), "Vuelve narrativa la primera cita: selecciónala y marca «Suppress author»."], [ct.changed, "Cambia el estilo a IEEE o Vancouver y observa el documento."]];
+}
+function renderCite() {
+  if (!ct) citeReset();
+  const M = citeMissions();
+  if (M.every(m => m[0]) && !S.mod.cite) { S.mod.cite = true; sync(); }
+  let doc = `<h4>Indicadores y herramientas bibliométricas</h4><p style="margin:0">`;
+  TEXTO.forEach((t, i) => { doc += esc(t); if (i < 4) { const s = ct.slots[i]; doc += `<button class="slot${s ? " filled" : ""}${ct.on === i ? " on" : ""}" data-act="ct-slot" data-id="${i}" aria-label="Punto de cita ${i + 1}">${s ? esc(citeText(s)) : "＋ cita"}</button>`; } });
+  doc += `</p>`;
+  if (ct.bib) {
+    const o = citeOrder();
+    const items = ct.style === "apa" ? o.map(k => R[k]).sort((a, b) => apaAuthors(a.authors).localeCompare(apaAuthors(b.authors), "es")).map(apaRef) : o.map((k, i) => (ct.style === "ieee" ? ieeeRef : vanRef)(R[k], i + 1));
+    doc += `<div class="bib"><h4>Referencias</h4>${items.length ? items.map(x => `<p class="ref" style="font-size:.95rem">${x}</p>`).join("") : `<p class="muted" style="font-family:var(--font);font-size:.82rem">Aún no hay citas en el documento.</p>`}</div>`;
+  }
+  const s = ct.slots[ct.on];
+  const side = `<h3>Mendeley Cite</h3>
+    <div><label class="lb" for="ctStyle">Citation style</label><select id="ctStyle"><option value="apa" ${ct.style === "apa" ? "selected" : ""}>American Psychological Association 7th edition</option><option value="ieee" ${ct.style === "ieee" ? "selected" : ""}>IEEE</option><option value="vancouver" ${ct.style === "vancouver" ? "selected" : ""}>Vancouver</option></select></div>
+    <p class="small muted" style="margin:0">Punto de cita activo: <b>${ct.on + 1}</b>${s ? " (con cita)" : " (vacío)"}. Haz clic en otro punto del texto para moverte.</p>` +
+    (s ? `<div class="box" style="margin:0"><b>Editar cita</b><label class="opt" style="padding-left:0"><input type="checkbox" id="ctSupr" ${s.supr ? "checked" : ""}>Suppress author (cita narrativa)</label><label class="lb" for="ctPag">Page</label><input type="text" id="ctPag" value="${esc(s.pag || "")}" placeholder="Ej. 16570"><div class="row-actions" style="margin-top:8px"><button class="btn ghost sm" data-act="ct-del">Quitar cita</button></div></div>`
+      : `<div class="lst">${ORDER.map(k => `<label><input type="checkbox" id="pk-${k}" data-pk="${k}" ${ct.pick.has(k) ? "checked" : ""}><span><b>${esc(apaNames(R[k]))} (${R[k].year})</b><br>${esc(R[k].title)}</span></label>`).join("")}</div><button class="btn" data-act="ct-ins">Insert citation</button>`) +
+    `<button class="btn ghost" data-act="ct-bib">${ct.bib ? "Quitar bibliografía" : "Insert bibliography"}</button><button class="btn ghost sm" data-act="ct-reset">Reiniciar el documento</button>`;
+  $("#view").innerHTML = `<section class="panel"><h2>Citar al escribir</h2>
+    <p class="lead">Un documento de práctica y, a la derecha, el panel del complemento de Word. Elige un punto de cita en el texto, marca las fuentes e insértalas.</p>
+    <ul class="missions">${M.map(([ok, t]) => `<li class="${ok ? "done" : ""}"><span>${t}</span></li>`).join("")}</ul>
+    <div class="cite"><div class="doc">${doc}</div><div class="addin">${side}</div></div>
+    <div class="box warn"><b>Para tener en cuenta:</b> el estilo APA 7 de Mendeley une los autores con «&amp;». La guía de la biblioteca usa «y» cuando el autor va fuera del paréntesis. En una cita narrativa escribe tú el autor en la frase («Aria y Cuccurullo») y deja que Mendeley ponga solo el año con «Suppress author».</div>
+    ${S.mod.cite ? `<div class="box ok"><b>Módulo terminado.</b> Ya sabes insertar, editar y reformatear citas.</div>` : ""}</section>`;
+}
+
+/* ====================== 5. Rutas por perfil ====================== */
+const RUTAS = {
+  pregrado: ["Pregrado · trabajo de grado", ["Crea tu cuenta de Mendeley e instala Reference Manager.", "Instala Web Importer en el navegador y Mendeley Cite en Word.", "Crea una colección por capítulo: antecedentes, marco teórico, metodología.", "Agrega tus primeras diez fuentes y revisa sus metadatos una por una.", "Inserta citas y bibliografía en APA 7 en tu anteproyecto."]],
+  posgrado: ["Posgrado · tesis y artículo", ["Exporta los resultados de tus búsquedas en RIS o BibTeX desde las bases de datos e impórtalos.", "Fusiona los duplicados antes de empezar a leer.", "Usa etiquetas para marcar criterios de inclusión y estado de lectura.", "Resalta y anota los PDF dentro de la biblioteca.", "Cambia el estilo de cita según la revista a la que vas a enviar."]],
+  grupo: ["Semilleros y grupos · biblioteca compartida", ["Creen un grupo privado y definan quién lo administra.", "Acuerden nombres de colecciones y etiquetas antes de cargar fuentes.", "Regla de calidad: quien agrega una referencia revisa sus metadatos.", "Programen una revisión mensual de duplicados.", "Consulten los límites de miembros y almacenamiento de su plan antes de crecer."]]
+};
+function renderRutas() {
+  const rec = S.perfil === "docente" ? "posgrado" : S.perfil;
+  $("#view").innerHTML = `<section class="panel"><h2>Rutas por perfil</h2>
+    <p class="lead">Lo que practicaste aquí, llevado a tu trabajo real. Marca cada tarea cuando la hagas en tu propia cuenta; el avance se guarda en este navegador.</p>
+    <div class="grid3">${Object.entries(RUTAS).map(([k, [t, items]]) => `<div class="route${rec === k ? " rec" : ""}">${rec === k ? `<span class="pill ok" style="align-self:flex-start">Recomendada para ti</span>` : ""}<h3>${t}</h3>${items.map((x, i) => `<label><input type="checkbox" id="rt-${k}-${i}" data-ruta="${k}-${i}" ${S.rutas[k + "-" + i] ? "checked" : ""}><span>${x}</span></label>`).join("")}</div>`).join("")}</div>
+    <div class="box"><b>¿Necesitas acompañamiento?</b> Solicita una asesoría o una capacitación para tu grupo en la Biblioteca Jorge Roa Martínez.${ASESORIA_URL ? ` <a href="${esc(ASESORIA_URL)}">Solicitar asesoría</a>` : ""}</div></section>`;
+}
+
+/* ====================== 6. Evaluación y constancia ====================== */
+const QUIZ = [
+  ["¿En cuál aplicación concentra Elsevier las funciones nuevas de Mendeley?", ["Mendeley Desktop", "Mendeley Reference Manager", "La aplicación móvil de Mendeley"], 1, "Mendeley Desktop solo recibe mantenimiento y las apps móviles se retiraron en 2021."],
+  ["¿Qué es Mendeley Cite?", ["Una extensión del navegador para capturar referencias", "Un complemento de Word que funciona sin tener Reference Manager abierto", "Un buscador de artículos"], 1, "Cite es el complemento de Word; la extensión del navegador es Web Importer."],
+  ["¿Qué formatos de biblioteca importa Reference Manager?", ["BibTeX, EndNote XML y RIS", "Solo PDF", "Word y Excel"], 0, "Son los formatos que exportan las bases de datos y otros gestores."],
+  ["Acabas de importar un PDF. ¿Qué revisas primero?", ["El color de las etiquetas", "El tipo de documento y los metadatos", "Nada: la extracción automática es confiable"], 1, "La extracción automática falla con frecuencia; la referencia sale como esté el registro."],
+  ["¿Cómo se registra un autor institucional?", ["Nombre completo de la entidad en el campo del apellido, con el nombre vacío", "Repartido entre nombre y apellido", "Solo con la sigla, en el campo del nombre"], 0, "Así el gestor no invierte el nombre ni lo reduce a iniciales."],
+  ["El título de una referencia sale en MAYÚSCULAS en tu bibliografía. ¿Dónde lo corriges?", ["En Word, sobre la bibliografía", "En el registro, dentro de la biblioteca", "Cambiando el estilo de cita"], 1, "Lo que edites a mano en Word se pierde cuando la bibliografía se actualiza."],
+  ["Tu documento tiene treinta citas en APA y la revista pide IEEE. ¿Qué haces?", ["Reescribes cada cita", "Cambias el estilo en Mendeley Cite y todo se actualiza", "Creas un documento nuevo"], 1, "Citas y bibliografía se reformatean juntas."],
+  ["Quieres escribir «Hirsch (2005) propuso…». ¿Cómo lo logras?", ["Insertas la cita y borras el apellido a mano", "Escribes el autor en la frase y activas «Suppress author» en la cita", "No es posible con un gestor"], 1, "La cita queda enlazada y solo muestra el año."]
+];
+let qz = { ans: {}, done: false };
+function renderQuiz() {
+  let h = `<section class="panel"><h2>Evaluación</h2><p class="lead">Ocho preguntas sobre lo que practicaste. Con seis aciertos o más obtienes la constancia.</p>` +
+    QUIZ.map(([q, o, a, ex], i) => `<fieldset class="q"><legend>${i + 1}. ${q}</legend>` + o.map((t, j) => `<label class="opt${qz.done && j === a ? " good" : qz.done && qz.ans[i] === j ? " bad" : ""}"><input type="radio" name="q${i}" id="q${i}-${j}" value="${j}" ${qz.ans[i] === j ? "checked" : ""} ${qz.done ? "disabled" : ""}>${t}</label>`).join("") + (qz.done ? `<p class="small muted" style="margin:6px 4px 0">${ex}</p>` : "") + `</fieldset>`).join("");
+  if (!qz.done) h += `<div class="row-actions"><button class="btn" data-act="qz-go">Calificar</button><span class="small muted" id="qzMsg"></span></div>`;
+  else {
+    const sc = S.quiz, ok = sc >= 6;
+    h += `<div class="box ${ok ? "ok" : "err"}"><b>${sc} de 8.</b> ${ok ? "Aprobaste la evaluación." : "Necesitas seis aciertos. Repasa los módulos y vuelve a intentarlo."}</div><div class="row-actions"><button class="btn ghost" data-act="qz-reset">Repetir la evaluación</button></div>`;
+  }
+  h += `</section>`;
+  if (S.mod.quiz) h += `<section class="panel"><h2>Constancia de práctica</h2>
+    <p class="lead">Escribe tu nombre como debe aparecer. La constancia registra una práctica autónoma y no equivale a un certificado académico. Tu nombre no se guarda ni se envía.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end"><div style="flex:1 1 260px"><label class="lb" for="certName">Nombre completo</label><input type="text" id="certName" maxlength="70" autocomplete="name"></div><button class="btn" data-act="cert-make">Generar constancia</button><button class="btn gold" data-act="cert-save" id="certSave" hidden>Descargar imagen</button></div>
+    <p class="small muted" id="certMsg" style="margin:8px 0 0"></p><canvas id="cert" width="1600" height="1130" hidden></canvas></section>`;
+  $("#view").innerHTML = h;
+}
+function quizGo() {
+  if (Object.keys(qz.ans).length < QUIZ.length) { $("#qzMsg").textContent = "Responde todas las preguntas."; return; }
+  qz.done = true; const sc = QUIZ.filter((q, i) => qz.ans[i] === q[2]).length;
+  S.quiz = Math.max(sc, 0); if (sc >= 6) S.mod.quiz = true;
+  sync(); renderQuiz();
+}
+function owlImage(color) {
+  return new Promise(res => {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="478.7" viewBox="0 0 500 478.7"><style>.cls-1{fill:${color}}</style>${$("#buho").innerHTML}</svg>`;
+    const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null);
+    im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  });
+}
+async function certMake() {
+  const name = $("#certName").value.trim();
+  if (name.length < 3) { $("#certMsg").textContent = "Escribe tu nombre completo."; return; }
+  const cv = $("#cert"), x = cv.getContext("2d"), W = 1600, H = 1130, F = '"Segoe UI",Arial,sans-serif';
+  x.fillStyle = "#ffffff"; x.fillRect(0, 0, W, H);
+  const g = x.createLinearGradient(0, 0, W, 300); g.addColorStop(0, "#00204A"); g.addColorStop(1, "#003DA5");
+  x.fillStyle = g; x.fillRect(0, 0, W, 300); x.fillStyle = "#F2A900"; x.fillRect(0, 300, W, 10);
+  x.strokeStyle = "#003DA5"; x.lineWidth = 4; x.strokeRect(30, 30, W - 60, H - 60);
+  const owl = await owlImage("#ffffff"); if (owl) x.drawImage(owl, 110, 62, 190, 182);
+  x.textBaseline = "alphabetic"; x.fillStyle = "#F2A900"; x.font = `700 26px ${F}`; x.fillText("FORMACIÓN DE USUARIOS · BIBLIOTECA JORGE ROA MARTÍNEZ", 350, 120);
+  x.fillStyle = "#ffffff"; x.font = `700 68px ${F}`; x.fillText("Constancia de práctica", 350, 200);
+  x.font = `400 30px ${F}`; x.fillStyle = "#d7e2f5"; x.fillText("Ruta Mendeley UTP", 350, 250);
+  x.textAlign = "center"; x.fillStyle = "#5b6b81"; x.font = `400 32px ${F}`; x.fillText("Se deja constancia de que", W / 2, 420);
+  x.fillStyle = "#00204A"; let fs = 76; do { x.font = `700 ${fs}px ${F}`; fs -= 4; } while (x.measureText(name).width > W - 240 && fs > 30);
+  x.fillText(name, W / 2, 520);
+  x.fillStyle = "#F2A900"; x.fillRect(W / 2 - 160, 556, 320, 5);
+  x.fillStyle = "#16202e"; x.font = `400 32px ${F}`;
+  x.fillText("completó la práctica autónoma de gestión de referencias con Mendeley:", W / 2, 640);
+  x.fillText("organización de la biblioteca, corrección de metadatos y citación en el documento.", W / 2, 688);
+  const mods = ["sim", "reto", "cite"].filter(k => S.mod[k]).length;
+  x.fillStyle = "#003DA5"; x.font = `700 34px ${F}`;
+  x.fillText(`Evaluación: ${S.quiz} de 8   ·   Módulos de práctica: ${mods} de 3`, W / 2, 780);
+  x.fillStyle = "#5b6b81"; x.font = `400 28px ${F}`;
+  x.fillText("Pereira, " + new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" }), W / 2, 850);
+  x.font = `700 22px ${F}`; x.fillStyle = "#003DA5";
+  x.fillText("HERRAMIENTA INTERNA · BIBLIOTECA E INFORMACIÓN CIENTÍFICA (BIC) · UNIVERSIDAD TECNOLÓGICA DE PEREIRA", W / 2, 990);
+  x.font = `400 21px ${F}`; x.fillStyle = "#5b6b81";
+  x.fillText("Constancia generada automáticamente como evidencia de práctica. No equivale a un certificado académico.", W / 2, 1030);
+  x.textAlign = "left"; cv.hidden = false;
+  $("#certSave").hidden = false;
+  $("#certMsg").textContent = "Constancia lista.";
+  if (!S.constancia) { S.constancia = true; sync(); }
+}
+function certSave() {
+  /* Descarga estándar del navegador (Blob + enlace <a download>), sin depender
+     de la capacidad "downloads" de Claude Artifacts (solo disponible en el
+     sandbox de claude.ai). */
+  $("#cert").toBlob(b => {
+    try {
+      const url = URL.createObjectURL(b);
+      const a = document.createElement("a"); a.href = url; a.download = "constancia-ruta-mendeley-utp.png";
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+      $("#certMsg").textContent = "Constancia descargada.";
+    } catch (e) { $("#certMsg").textContent = "No se pudo descargar aquí. Toma una captura de pantalla."; }
+  }, "image/png");
+}
+
+/* ====================== 7. Indicadores (solo personal autorizado) ======================
+   Antes (en claude.ai) esta pestaña solo era visible para quien podía editar el
+   artefacto (capacidad "user"/canEdit). Fuera del sandbox de claude.ai ese
+   concepto no existe, así que la pestaña queda visible para cualquiera pero
+   los datos quedan protegidos por un token de personal que valida el backend
+   (variable de entorno STAFF_TOKEN, ver /backend). El personal de la
+   biblioteca lo introduce una sola vez por navegador. */
+let staffToken = sessionStorage.getItem("ruta-mendeley-staff-token") || "";
+async function renderInd() {
+  if (!staffToken) {
+    $("#view").innerHTML = `<section class="panel"><h2>Indicadores de uso</h2>
+      <p class="lead muted">Esta sección es solo para personal de la biblioteca. Introduce el token de acceso.</p>
+      <div class="row-actions"><input type="password" id="indToken" placeholder="Token de personal" style="flex:1"><button class="btn sm" id="indTokenGo">Entrar</button></div>
+      <p class="small muted" id="indTokenMsg"></p></section>`;
+    $("#indTokenGo").onclick = async () => {
+      const val = $("#indToken").value.trim();
+      if (!val) return;
+      $("#indTokenMsg").textContent = "Verificando…";
+      try {
+        const r = await fetch(API_BASE + "/api/indicadores?token=" + encodeURIComponent(val));
+        if (!r.ok) { $("#indTokenMsg").textContent = "Token incorrecto."; return; }
+        staffToken = val; sessionStorage.setItem("ruta-mendeley-staff-token", val);
+        renderInd();
+      } catch (e) { $("#indTokenMsg").textContent = "No se pudo verificar. Intenta de nuevo."; }
+    };
+    return;
+  }
+  $("#view").innerHTML = `<section class="panel"><h2>Indicadores de uso</h2><p class="lead muted" id="indBody">Cargando registros…</p></section>`;
+  let D = [];
+  try {
+    const r = await fetch(API_BASE + "/api/indicadores?token=" + encodeURIComponent(staffToken));
+    if (r.status === 401) { staffToken = ""; sessionStorage.removeItem("ruta-mendeley-staff-token"); return renderInd(); }
+    if (!r.ok) throw new Error("API respondió " + r.status);
+    D = (await r.json()).sessions || [];
+  }
+  catch (e) { $("#indBody").textContent = "No se pudieron leer los registros. Intenta de nuevo."; return; }
+  if (tab !== "indicadores") return;
+  const n = D.length, cnt = f => D.filter(f).length, pct = v => n ? Math.round(v / n * 100) : 0;
+  const bar = (t, v, max) => `<div class="barrow"><span>${t}</span><div class="bar"><i style="width:${max ? Math.round(v / max * 100) : 0}%"></i></div><span class="v">${v}</span></div>`;
+  const qs = D.filter(d => typeof d.quiz === "number"), avg = qs.length ? (qs.reduce((a, d) => a + d.quiz, 0) / qs.length).toFixed(1) : "—";
+  const fall = CASOS.map(k => [k.t, cnt(d => d.fallos && d.fallos[k.id])]).sort((a, b) => b[1] - a[1]), fmax = Math.max(1, ...fall.map(f => f[1]));
+  const niv = [["Básico", "basico"], ["Intermedio", "intermedio"], ["Avanzado", "avanzado"]].map(([t, k]) => [t, cnt(d => d.nivel === k)]);
+  const per = Object.entries(PERFILES).map(([k, t]) => [t, cnt(d => d.perfil === k)]);
+  const mods = [["Simulador de biblioteca", "sim"], ["Arregla la referencia", "reto"], ["Citar al escribir", "cite"], ["Evaluación aprobada", "quiz"]].map(([t, k]) => [t, cnt(d => d.mod && d.mod[k])]);
+  $("#view").innerHTML = `<section class="panel"><h2>Indicadores de uso</h2>
+    <p class="lead">Visible solo para quienes editan este artefacto. Cada sesión es una persona que hizo el diagnóstico o completó un módulo; no se guardan nombres ni correos.</p>
+    ${n ? "" : `<div class="box">Aún no hay sesiones registradas. Los datos aparecerán cuando los usuarios completen el diagnóstico.</div>`}
+    <div class="kpis"><div class="kpi"><b>${n}</b><span>Sesiones de práctica</span></div><div class="kpi"><b>${cnt(d => d.mod && d.mod.quiz)}</b><span>Evaluaciones aprobadas (${pct(cnt(d => d.mod && d.mod.quiz))} %)</span></div><div class="kpi"><b>${cnt(d => d.constancia)}</b><span>Constancias generadas</span></div><div class="kpi"><b>${avg}</b><span>Promedio en la evaluación (de 8)</span></div></div>
+    <h3>Nivel de entrada</h3>${niv.map(([t, v]) => bar(t, v, n)).join("")}
+    <h3>Perfil</h3>${per.map(([t, v]) => bar(t, v, n)).join("")}
+    <h3>Módulos completados</h3>${mods.map(([t, v]) => bar(t, v, n)).join("")}
+    <h3>Errores más frecuentes en «Arregla la referencia»</h3><p class="small muted" style="margin:0 0 6px">Sesiones que fallaron el caso en algún intento.</p>${fall.map(([t, v]) => bar(t, v, fmax)).join("")}
+    <div class="row-actions"><button class="btn ghost sm" data-act="tab" data-id="indicadores">Actualizar</button><span class="small muted">Se leen hasta 1000 sesiones.</span></div></section>`;
+}
+
+/* ====================== Eventos ====================== */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  if (e.target.matches("input[type=checkbox]")) return;
+  const a = t.dataset.act, id = t.dataset.id;
+  if (a === "tab") { go(id); window.scrollTo({ top: 0 }); }
+  else if (a === "diag-go") diagGo();
+  else if (a === "diag-reset") { S.nivel = null; S.diag = {}; persist(); renderTabs(); renderInicio(); }
+  else if (a === "sim-reset") { simReset(); renderSim(); }
+  else if (a === "sim-view") { sim.view = id; sim.form = null; simPaint(); }
+  else if (a === "sim-add") { sim.form = sim.form ? null : "menu"; simPaint(); }
+  else if (a === "sim-form") { sim.form = id || null; sim.found = null; simPaint(); }
+  else if (a === "sim-lookup") {
+    const d = $("#simDoi").value.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, "").toLowerCase();
+    sim.found = ORDER.find(k => (R[k].doi || "").toLowerCase() === d) || null;
+    sim.msg = sim.found ? "Se encontraron los metadatos. Revísalos y agrega la entrada." : "Ese DOI no está en el catálogo de ejemplo. Usa el de la misión 1.";
+    simPaint(); if (!sim.found) $("#simDoi").value = d;
+  }
+  else if (a === "sim-addfound") {
+    if (sim.lib.some(r => r.doi === R[sim.found].doi)) sim.msg = "Esa referencia ya está en tu biblioteca.";
+    else { const r = rec(sim.found); sim.lib.unshift(r); sim.recent.push(r.id); sim.sel = r.id; sim.msg = "Referencia agregada. Revisa sus metadatos en el panel Info."; }
+    sim.form = null; sim.found = null; sim.view = "all"; simPaint(); simInfo();
+  }
+  else if (a === "sim-import") {
+    let n = 0; ["priem", "page"].forEach(k => { if (!sim.lib.some(r => r.doi === R[k].doi)) { const r = rec(k); sim.lib.unshift(r); sim.recent.push(r.id); n++; } });
+    sim.form = null; sim.view = "recent"; sim.msg = n ? `Se importaron ${n} referencias. Las ves en Recently Added.` : "Esas referencias ya estaban en tu biblioteca."; simPaint();
+  }
+  else if (a === "sim-newc") {
+    const v = $("#simNewC").value.trim().slice(0, 30);
+    if (v && !sim.colls.includes(v)) { sim.colls.push(v); sim.msg = `Colección «${v}» creada. Marca referencias y usa «Add to».`; simPaint(); }
+  }
+  else if (a === "sim-sel") { sim.sel = id; simPaint(); simInfo(); }
+  else if (a === "sim-merge") {
+    const g = dupGroups()[+id]; if (!g) return; const keep = g[0];
+    g.slice(1).forEach(o => { ["year", "source", "vol", "issue", "pages", "doi"].forEach(k => { if (!keep[k]) keep[k] = o[k]; }); if (o.au.length > keep.au.length) keep.au = o.au; o.coll.forEach(c => { if (!keep.coll.includes(c)) keep.coll.push(c); }); sim.lib = sim.lib.filter(r => r !== o); sim.checked.delete(o.id); });
+    sim.msg = "Registros fusionados en uno solo."; simPaint(); simInfo();
+  }
+  else if (a === "reto-go") { reto.i = +id; reto.fb = null; renderReto(); }
+  else if (a === "reto-check") retoCheck();
+  else if (a === "reto-reset") { retoReset(); renderReto(); }
+  else if (a === "ct-slot") { ct.on = +id; ct.pick = new Set(); renderCite(); }
+  else if (a === "ct-ins") { if (!ct.pick.size) return; ct.slots[ct.on] = { refs: ORDER.filter(k => ct.pick.has(k)), supr: false, pag: "" }; ct.pick = new Set(); renderCite(); }
+  else if (a === "ct-del") { ct.slots[ct.on] = null; renderCite(); }
+  else if (a === "ct-bib") { ct.bib = !ct.bib; renderCite(); }
+  else if (a === "ct-reset") { citeReset(); renderCite(); }
+  else if (a === "qz-go") quizGo();
+  else if (a === "qz-reset") { qz = { ans: {}, done: false }; renderQuiz(); }
+  else if (a === "cert-make") certMake();
+  else if (a === "cert-save") certSave();
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.name === "perfil") { S.diag.perfil = t.value; persist(); }
+  else if (/^d\d$/.test(t.name)) { S.diag[t.name] = +t.value; persist(); }
+  else if (/^q\d$/.test(t.name)) qz.ans[+t.name.slice(1)] = +t.value;
+  else if (t.dataset.ck) { t.checked ? sim.checked.add(t.dataset.ck) : sim.checked.delete(t.dataset.ck); }
+  else if (t.id === "simAddTo" && t.value) {
+    const ids = sim.checked.size ? [...sim.checked] : sim.sel ? [sim.sel] : [];
+    if (!ids.length) sim.msg = "Marca primero las casillas de las referencias que quieres agregar.";
+    else { sim.lib.forEach(r => { if (ids.includes(r.id) && !r.coll.includes(t.value)) r.coll.push(t.value); }); sim.msg = `${ids.length} referencia(s) agregada(s) a «${t.value}».`; sim.checked.clear(); }
+    simPaint(); simInfo();
+  }
+  else if (t.dataset.f === "type") { sim.lib.find(r => r.id === sim.sel).type = t.value; }
+  else if (t.dataset.rt === "type") { reto.c[reto.i].type = t.value; $("#rtOut").innerHTML = retoRef(reto.i); }
+  else if (t.id === "ctStyle") { if (t.value !== ct.style) { ct.changed = ct.changed || t.value !== "apa"; ct.style = t.value; renderCite(); } }
+  else if (t.id === "ctSupr") { ct.slots[ct.on].supr = t.checked; renderCite(); }
+  else if (t.id === "ctPag") { ct.slots[ct.on].pag = t.value.trim(); renderCite(); }
+  else if (t.dataset.pk) { t.checked ? ct.pick.add(t.dataset.pk) : ct.pick.delete(t.dataset.pk); }
+  else if (t.dataset.ruta) { S.rutas[t.dataset.ruta] = t.checked; persist(); }
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.f && t.dataset.f !== "type") { const r = sim.lib.find(x => x.id === sim.sel); if (r) { r[t.dataset.f] = t.value; simPaint(); } }
+  else if (t.id === "simQ") { sim.q = t.value; const p = t.selectionStart; simPaint(); const n = $("#simQ"); n.focus(); n.setSelectionRange(p, p); }
+  else if (t.dataset.rt && t.dataset.rt !== "type") { reto.c[reto.i][t.dataset.rt] = t.value; $("#rtOut").innerHTML = retoRef(reto.i); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  if (e.target.id === "simNewC") $('[data-act="sim-newc"]').click();
+  else if (e.target.id === "simDoi") $('[data-act="sim-lookup"]').click();
+  else if (e.target.id === "certName") certMake();
+});
+
+/* ====================== Arranque ====================== */
+const h0 = (location.hash || "").slice(1);
+go(TABS.some(t => t[0] === h0) ? h0 : "inicio");
+
+(async function () {
+  if (S.sid) sync();
+  /* Contador de visualizaciones, igual al de los demás artefactos de la línea,
+     ahora respaldado por la API propia (ver /backend) en vez de la capacidad
+     "db" de Claude Artifacts. */
+  try {
+    const resp = await fetch(API_BASE + "/api/count", { method: "POST" });
+    if (!resp.ok) throw new Error("API respondió " + resp.status);
+    const data = await resp.json();
+    const next = data.count;
+    $("#usageCountNum").textContent = next.toLocaleString("es-CO");
+    $("#usageCounter").title = next === 1 ? "1 visualización registrada" : next + " visualizaciones registradas";
+    $("#usageCounter").hidden = false;
+  } catch (e) { /* API de contador no disponible; el contador queda oculto */ }
+})();
+</script>
+
+</body></html>

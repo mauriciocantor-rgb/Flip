@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ruta-mendeley-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: STAFF_TOKEN
+        sync: false

@@ -1,0 +1,7 @@
+# Bases de datos SQLite locales (no se versionan; cada despliegue las crea)
+*.db
+*.sqlite
+*.sqlite3
+__pycache__/
+*.pyc
+.env
