@@ -54,7 +54,7 @@ coleccion-apa/
 Código de inserción sugerido para el campus:
 
 ```html
-<iframe src="https://mauriciocantor-rgb.github.io/flip/biblioteca-utp/coleccion-apa/constructor-citas/"
+<iframe src="https://mauriciocantor-rgb.github.io/Flip/biblioteca-utp/coleccion-apa/constructor-citas/"
         title="Constructor de citas APA 7 · Biblioteca Jorge Roa Martínez"
         width="100%" height="900" loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
@@ -83,7 +83,7 @@ herramientas funcionan con normalidad y el distintivo del ojo no aparece.
 El repositorio ya tiene GitHub Pages activo desde la rama `main`; la colección
 queda disponible en:
 
-`https://mauriciocantor-rgb.github.io/flip/biblioteca-utp/coleccion-apa/`
+`https://mauriciocantor-rgb.github.io/Flip/biblioteca-utp/coleccion-apa/`
 
 Si Pages estuviera configurado de otra forma, en *Settings → Pages* elija
 *Deploy from a branch → main → / (root)*.
