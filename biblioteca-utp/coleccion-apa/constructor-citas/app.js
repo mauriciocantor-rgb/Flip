@@ -88,8 +88,8 @@ function construir(d){
     const A2 = a2 ? span('autor', a2) : `<span class="p-falta">[apellido]</span>`;
     let narrA, parenA;
     if(d.num==='1'){ narrA = A1; parenA = A1; }
-    else if(d.num==='2'){ narrA = `${A1} y ${A2}`; parenA = `${A1} &amp; ${A2}`; plural = true;
-      checks.push(['info','Dos autores: se unen con <b>y</b> en la forma narrativa y con <b>&amp;</b> dentro del paréntesis.']); }
+    else if(d.num==='2'){ narrA = `${A1} y ${A2}`; parenA = `${A1} y ${A2}`; plural = true;
+      checks.push(['info','Dos autores: en español se unen con <b>y</b>, tanto en la forma narrativa como dentro del paréntesis.']); }
     else { narrA = `${A1} ${span('autor','et al.')}`; parenA = narrA; plural = true;
       checks.push(['info','Tres o más autores: se escribe el primer apellido seguido de <b>et al.</b> desde la primera cita.']); }
     narrHead = `${narrA} (${anioH})`;

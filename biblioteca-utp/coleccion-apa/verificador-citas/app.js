@@ -134,7 +134,7 @@ function parseReferencias(txt){
     let a;
     while((a = re.exec(autor))) ref.autores.push(a[1].trim());
     if(!ref.autores.length) ref.inst = autor.replace(/[.\s]+$/,'');
-    if(/\s(&)\s/.test(autor)) ref.problemas.push(['info','En la lista de referencias en español se usa «y» antes del último autor; revisa el criterio de tu guía.']);
+    if(/\s(&)\s/.test(autor)) ref.problemas.push(['info','En la lista de referencias en español se usa “y” antes del último autor, sin coma previa: Apellido, A. y Apellido, B.']);
     ref.clave = norm(ref.inst || ref.autores.join(' ') || raw);
     return ref;
   });
@@ -164,8 +164,7 @@ function verificar(texto, refsTxt){
     const encontrados = [];
     if(c.secundaria) msgs.push(['info', `Cita secundaria: ${c.secundaria} no necesita entrada propia; debe figurar la fuente que leíste.`]);
     if(sg.secundaria) msgs.push(['info', `Cita secundaria: ${sg.secundaria} no necesita entrada propia; debe figurar la fuente que leíste.`]);
-    if(c.forma === 'narrativa' && autor.conector === '&') msgs.push(['warn','En la forma narrativa los dos autores se unen con «y», no con «&».']);
-    if(c.forma === 'parentetica' && autor.conector && autor.conector !== '&') msgs.push(['info','Dentro del paréntesis la guía de la biblioteca une los dos autores con «&».']);
+    if(autor.conector === '&') msgs.push(['warn','En español los dos autores se unen con “y”, también dentro del paréntesis: (Restrepo y Cardona, 2019).']);
 
     for(const y of sg.years){
       const porNombre = refs.filter(r => r.year !== null && coincideNombre(autor, r, alias));
@@ -178,8 +177,8 @@ function verificar(texto, refsTxt){
           const n = r.autores.length;
           if(autor.etAl && n === 2) msgs.push(['warn', `La fuente tiene dos autores: nómbralos a ambos (${r.autores[0]} y ${r.autores[1]}) en lugar de usar et al.`]);
           if(autor.etAl && n === 1) msgs.push(['warn','La fuente tiene un solo autor: no corresponde et al.']);
-          if(!autor.etAl && autor.personas.length === 1 && n === 2) msgs.push(['warn', `La fuente tiene dos autores: cítalos a ambos (${r.autores[0]} ${c.forma==='narrativa'?'y':'&'} ${r.autores[1]}).`]);
-          if(!autor.etAl && autor.personas.length >= 1 && n >= 3) msgs.push(['warn', `La fuente tiene ${n} autores: usa «${r.autores[0]} et al.» desde la primera cita.`]);
+          if(!autor.etAl && autor.personas.length === 1 && n === 2) msgs.push(['warn', `La fuente tiene dos autores: cítalos a ambos (${r.autores[0]} y ${r.autores[1]}).`]);
+          if(!autor.etAl && autor.personas.length >= 1 && n >= 3) msgs.push(['warn', `La fuente tiene ${n} autores: usa “${r.autores[0]} et al.” desde la primera cita.`]);
           if(autor.personas.length === 2 && n >= 2 && norm(autor.personas[1]) !== norm(r.autores[1]))
             msgs.push(['warn', `El segundo autor no coincide: en la referencia aparece ${r.autores[1]}.`]);
         }
@@ -228,13 +227,15 @@ function verificar(texto, refsTxt){
 
   /* Citas textuales sin localizador */
   const comillas = [];
-  const qre = /[“"]([^”"]{12,600})[”"]/g; let q;
+  const qre = /[“"«]([^”"»]{12,600})[”"»]/g; let q;
   while((q = qre.exec(texto))){
     const palabras = q[1].trim().split(/\s+/).length;
     if(palabras < 4 || palabras >= 40) continue;
     const despues = texto.slice(q.index + q[0].length, q.index + q[0].length + 160);
     const par = despues.match(/^[^.()]*\(([^()]*)\)/);
-    if(!par || !LOC_RE.test(par[1])) comillas.push({ inicio:q.index, fin:q.index + q[0].length, texto:q[1] });
+    const angulares = q[0][0] === '«';
+    const sinLoc = !par || !LOC_RE.test(par[1]);
+    if(sinLoc || angulares) comillas.push({ inicio:q.index, fin:q.index + q[0].length, texto:q[1], sinLoc, angulares });
   }
   return { resultados, refs, comillas, alias };
 }
@@ -248,7 +249,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 const ETQ = { ok:'Correcta', warn:'Revisar', err:'Error', info:'Información' };
 let tab = 'citas', filtro = 'problemas', ultimo = null, cargando = false, esEjemplo = false;
 
-const EJ_TEXTO = `Los repositorios institucionales se han consolidado como una vía para dar visibilidad a la producción académica. Gómez (2021) señala que su impacto depende de la calidad de los metadatos, una idea que comparten otros estudios (Restrepo & Cardona, 2019; Salazar, 2022).
+const EJ_TEXTO = `Los repositorios institucionales se han consolidado como una vía para dar visibilidad a la producción académica. Gómez (2021) señala que su impacto depende de la calidad de los metadatos, una idea que comparten otros estudios (Restrepo y Cardona, 2019; Salazar, 2022).
 
 Martínez et al. (2020) afirman que "la lectura crítica se fortalece cuando el estudiante contrasta varias fuentes" (p. 45). En la misma línea, el Instituto Colombiano de Lectura (ICL, 2022) recomienda formar a los estudiantes desde el primer semestre. Según el ICL (2022), la biblioteca debe liderar ese proceso.
 
@@ -325,7 +326,8 @@ function render(){
 
   /* Citas */
   let citas = res.resultados.map(r => ({...r}));
-  const quotes = res.comillas.map(q => ({ estado:'warn', c:{ raw:'“' + q.texto + '”', forma:'textual' }, msgs:[['warn','Cita textual sin localizador: agrega la página, el párrafo, la sección o la marca de tiempo después de la cita.']], refs:[] }));
+  const quotes = res.comillas.map(q => ({ estado:'warn', c:{ raw:'“' + q.texto + '”', forma:'textual' }, msgs:[].concat(q.sinLoc ? [['warn','Cita textual sin localizador: agrega la página, el párrafo, la sección o la marca de tiempo después de la cita.']] : [],
+    q.angulares ? [['warn','En APA las citas textuales van entre comillas dobles (“ ”), no entre comillas angulares (« »).']] : []), refs:[] }));
   citas = citas.concat(quotes);
   if(filtro==='problemas') citas = citas.filter(r => r.estado==='err' || r.estado==='warn');
   $('listaCitas').innerHTML = citas.length ? citas.map(r => {

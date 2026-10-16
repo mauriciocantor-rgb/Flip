@@ -11,6 +11,24 @@ el campus** siguiendo los lineamientos del **CRIE**:
 | HTML, CSS y JavaScript separados | Cada herramienta tiene `index.html`, `estilos.css` y `app.js`; sin estilos ni scripts en línea |
 | Despliegue en **GitHub Pages** | Sitio 100 % estático, rutas relativas, sin compilación |
 
+## Criterios APA 7 en español de la colección
+
+Las cuatro herramientas siguen el mismo criterio, tomado de guías
+universitarias basadas en la traducción oficial al español del manual APA 7:
+
+| Punto | Criterio | Ejemplo |
+|---|---|---|
+| Dos autores | “y” en la forma narrativa y dentro del paréntesis | Restrepo y Cardona (2019) · (Restrepo y Cardona, 2019) |
+| Sin fecha | s.f. | (Ministerio de Educación, s.f.) |
+| Citas textuales y títulos en el texto | Comillas dobles “ ” | (“Informe Anual”, 2013) |
+| Lista de referencias | “y” antes del último autor, sin coma previa | Gómez, L. y Torres, P. (2021). |
+| Cursiva | Títulos de obras independientes, términos clave al definirlos y palabras de otro idioma poco conocidas | — |
+
+Fuentes:
+- Biblioteca de la Sede de Occidente, Universidad de Costa Rica (2021). *APA 4*: [guía basada en la traducción al español de APA 7](https://biblioteca.so.ucr.ac.cr/sites/default/files/docs/APA%204%20(2021).pdf).
+- Centro de Escritura Javeriano, Pontificia Universidad Javeriana Cali: [Manual de Normas APA 7.ª edición](https://www.javerianacali.edu.co/sites/default/files/2022-06/Manual%20de%20Normas%20APA%207ma%20edicio%CC%81n.pdf).
+- American Psychological Association: [Use of italics](https://apastyle.apa.org/style-grammar-guidelines/italics-quotations/italics).
+
 ## Herramientas
 
 | Herramienta | Carpeta | Identificador del contador |
