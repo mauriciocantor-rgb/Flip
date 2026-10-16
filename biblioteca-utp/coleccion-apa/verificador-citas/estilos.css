@@ -1,0 +1,137 @@
+/* Verificador de citas y referencias APA 7 · v1.0 · Biblioteca Jorge Roa Martínez (UTP) */
+/* Layout: banda institucional + dos entradas lado a lado (texto | referencias) + panel de resultados con resumen y pestañas. */
+  :root{
+    --navy:#003DA5; --navy-dark:#00204A; --gold:#F2A900; --gold-ink:#7A5200;
+    --bg:#f3f5f9; --panel:#ffffff; --sunk:#eef2f8; --text:#15202e; --muted:#5a6a80; --border:#dbe2ec; --field:#a9b6cf;
+    --accent-soft:#e8effb; --link:#003DA5;
+    --ok:#17754A; --ok-bg:#e6f4ec; --warn:#8A5A00; --warn-bg:#fff3d4; --err:#B42318; --err-bg:#fdeceb; --info:#003DA5; --info-bg:#e8effb;
+    --hl-ok:#cdebd9; --hl-warn:#ffe5a3; --hl-err:#f9c9c4; --hl-q:#e2d5f7;
+    --doc:var(--fuente-texto);
+    --ui:var(--fuente-texto);
+    --r:10px; --shadow:0 6px 18px rgba(0,32,74,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1621; --panel:#17202e; --sunk:#121a26; --text:#eef1f6; --muted:#9aa8bd; --border:#2a3648; --field:#3a4a63;
+      --accent-soft:#16233b; --link:#8FB3F2; --gold-ink:#F2C35B;
+      --ok:#5FD39A; --ok-bg:#12301F; --warn:#F2C35B; --warn-bg:#33270A; --err:#FF8E82; --err-bg:#3A1512; --info:#8FB3F2; --info-bg:#16233b;
+      --hl-ok:#1d4a33; --hl-warn:#5a4410; --hl-err:#5c211c; --hl-q:#3d2d5e;
+      --shadow:0 6px 18px rgba(0,0,0,.35); color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1621; --panel:#17202e; --sunk:#121a26; --text:#eef1f6; --muted:#9aa8bd; --border:#2a3648; --field:#3a4a63;
+    --accent-soft:#16233b; --link:#8FB3F2; --gold-ink:#F2C35B;
+    --ok:#5FD39A; --ok-bg:#12301F; --warn:#F2C35B; --warn-bg:#33270A; --err:#FF8E82; --err-bg:#3A1512; --info:#8FB3F2; --info-bg:#16233b;
+    --hl-ok:#1d4a33; --hl-warn:#5a4410; --hl-err:#5c211c; --hl-q:#3d2d5e;
+    --shadow:0 6px 18px rgba(0,0,0,.35); color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--ui); font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased}
+  .gutter{padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+  .shell{max-width:1120px; margin:0 auto}
+  h1,h2,h3{text-wrap:balance}
+  button{font:inherit}
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+
+  /* Encabezado institucional (igual al de la línea APA) */
+  header.band{background:linear-gradient(135deg,var(--navy-dark),var(--navy)); color:#fff; padding-block:22px}
+  .band .shell{position:relative}
+  .view-badge{position:absolute; top:0; right:0; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.35); border-radius:20px; padding:5px 12px; font-size:.78rem; color:#fff}
+  .view-badge svg{width:15px; height:15px; color:var(--gold)}
+  .view-badge .vb-num{font-weight:800; font-variant-numeric:tabular-nums}
+  .head-row{display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding-right:110px}
+  .logo-header{flex:0 0 auto; width:54px}
+  .logo-header img{display:block; width:100%; height:auto}
+  .head-text{min-width:0; flex:1 1 300px}
+  .badge{display:inline-block; background:var(--gold); color:var(--navy-dark); font-size:.7rem; font-weight:800; letter-spacing:.06em;
+    padding:3px 10px; border-radius:20px; text-transform:uppercase; margin-bottom:8px}
+  .head-text h1{margin:0 0 4px; font-size:1.45rem; line-height:1.25}
+  .head-text .sub{margin:0; font-size:.9rem; color:#d7e2f5; max-width:62ch}
+  .head-text .fuente{margin:8px 0 0; font-size:.72rem; color:rgba(255,255,255,.6)}
+  @media (max-width:620px){
+    .head-row{padding-right:0; justify-content:center; text-align:center}
+    .head-text{flex-basis:100%}
+    .view-badge{position:static; margin:0 auto 14px; width:max-content}
+    .logo-header{width:42px}
+  }
+
+  main.shell{padding-block:24px 40px; display:grid; gap:20px}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); padding:20px; min-width:0}
+  .step-head{display:flex; align-items:baseline; gap:10px; margin:0 0 12px}
+  .step-n{flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--navy); color:#fff; font-weight:800; font-size:.82rem;
+    display:grid; place-items:center; transform:translateY(5px)}
+  .step-head h2{margin:0; font-size:1.02rem}
+  .step-head p{margin:2px 0 0; font-size:.82rem; color:var(--muted)}
+
+  .entradas{display:grid; grid-template-columns:1fr; gap:20px}
+  @media (min-width:900px){ .entradas{grid-template-columns:1.25fr 1fr} }
+  textarea{width:100%; min-height:260px; padding:12px 14px; border:1px solid var(--field); border-radius:8px; font-family:var(--doc); font-size:.95rem;
+    line-height:1.6; background:var(--sunk); color:var(--text); resize:vertical}
+  .meta{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-size:.78rem; color:var(--muted); margin-top:6px}
+  .barra{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .btn{border:0; border-radius:8px; padding:10px 18px; font-weight:700; font-size:.88rem; cursor:pointer}
+  .btn.primary{background:var(--navy); color:#fff}
+  .btn.ghost{background:transparent; color:var(--link); border:1px solid var(--field)}
+  .btn:hover{filter:brightness(1.06)}
+  .privacidad{display:flex; gap:8px; align-items:center; font-size:.8rem; color:var(--muted); margin-left:auto}
+  .privacidad svg{width:16px; height:16px; color:var(--ok); flex:0 0 auto}
+  .ej-flag{font-size:.72rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--gold-ink); background:var(--warn-bg); border-radius:20px; padding:3px 10px}
+
+  /* Resumen */
+  .resumen{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px}
+  @media (max-width:720px){ .resumen{grid-template-columns:1fr 1fr} }
+  .tile{border:1px solid var(--border); border-radius:9px; padding:12px 14px; background:var(--sunk)}
+  .tile b{display:block; font-size:1.7rem; line-height:1.1; font-variant-numeric:tabular-nums}
+  .tile span{font-size:.78rem; color:var(--muted)}
+  .tile.err b{color:var(--err)} .tile.ok b{color:var(--ok)} .tile.warn b{color:var(--warn)}
+  .veredicto{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border-radius:9px; margin-bottom:16px; font-size:.9rem}
+  .veredicto.ok{background:var(--ok-bg)} .veredicto.warn{background:var(--warn-bg)} .veredicto.err{background:var(--err-bg)}
+  .veredicto strong{display:block}
+
+  /* Pestañas */
+  .tabs{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:14px; overflow-x:auto}
+  .tab{background:none; border:0; border-bottom:3px solid transparent; padding:10px 14px; font-weight:700; font-size:.88rem; color:var(--muted); cursor:pointer; white-space:nowrap}
+  .tab[aria-selected="true"]{color:var(--text); border-bottom-color:var(--gold)}
+  .tab .n{display:inline-block; min-width:20px; padding:0 6px; margin-left:6px; border-radius:20px; background:var(--accent-soft); color:var(--link); font-size:.72rem}
+  .filtro{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px}
+  .chip{border:1px solid var(--field); background:var(--panel); color:var(--text); border-radius:20px; padding:4px 12px; font-size:.78rem; font-weight:600; cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--navy); border-color:var(--navy); color:#fff}
+
+  .items{display:grid; gap:10px}
+  .item{display:grid; grid-template-columns:4px 1fr; border:1px solid var(--border); border-radius:9px; overflow:hidden; background:var(--panel)}
+  .item .stripe{background:var(--border)}
+  .item.ok .stripe{background:var(--ok)} .item.warn .stripe{background:var(--warn)} .item.err .stripe{background:var(--err)} .item.info .stripe{background:var(--info)}
+  .item .body{padding:10px 14px; min-width:0}
+  .item .top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap}
+  .item .cita{font-family:var(--doc); font-size:.95rem; overflow-wrap:anywhere}
+  .pill{display:inline-flex; border-radius:20px; padding:2px 10px; font-size:.68rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap}
+  .pill.ok{background:var(--ok-bg); color:var(--ok)} .pill.warn{background:var(--warn-bg); color:var(--warn)} .pill.err{background:var(--err-bg); color:var(--err)} .pill.info{background:var(--info-bg); color:var(--info)}
+  .msgs{list-style:none; margin:6px 0 0; padding:0; display:grid; gap:3px; font-size:.84rem}
+  .msgs li::before{content:"•"; margin-right:6px; color:var(--muted)}
+  .msgs li.err::before{color:var(--err)} .msgs li.warn::before{color:var(--warn)} .msgs li.ok::before{color:var(--ok)} .msgs li.info::before{color:var(--info)}
+  .refmatch{margin-top:6px; font-size:.78rem; color:var(--muted); font-family:var(--doc); overflow-wrap:anywhere}
+  .tipo{font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700}
+  .vacio{padding:18px; text-align:center; color:var(--muted); font-size:.88rem; border:1px dashed var(--field); border-radius:9px}
+
+  .revisado{font-family:var(--doc); font-size:.98rem; line-height:1.9; white-space:pre-wrap; overflow-wrap:anywhere; background:var(--sunk);
+    border:1px solid var(--border); border-radius:8px; padding:18px}
+  mark{color:inherit; border-radius:3px; padding:1px 2px}
+  mark.ok{background:var(--hl-ok)} mark.warn{background:var(--hl-warn)} mark.err{background:var(--hl-err)} mark.q{background:var(--hl-q)}
+  .leyenda{display:flex; gap:14px; flex-wrap:wrap; font-size:.78rem; color:var(--muted); margin-bottom:10px}
+  .leyenda i{display:inline-block; width:14px; height:10px; border-radius:3px; vertical-align:middle; margin-right:5px}
+
+  .ficha-tec{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; font-size:.82rem}
+  .ficha-tec dt{font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:800}
+  .ficha-tec dd{margin:2px 0 0}
+  footer.pie{text-align:center; font-size:.74rem; color:var(--muted); padding-block:6px 30px}
+  .internal-badge{display:inline-flex; align-items:center; gap:6px; font-size:.68rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--link); background:var(--accent-soft); border:1px solid var(--border); border-radius:20px; padding:4px 12px}
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important; scroll-behavior:auto!important} }
+
+  /* Separación HTML/CSS (CRIE): colores de la leyenda antes en atributos style="" */
+  .leyenda i.lg-ok{background:var(--hl-ok)} .leyenda i.lg-warn{background:var(--hl-warn)} .leyenda i.lg-err{background:var(--hl-err)} .leyenda i.lg-q{background:var(--hl-q)}
+  /* Títulos con Atkinson Hyperlegible */
+  .veredicto strong{font-family:var(--fuente-titulos)}

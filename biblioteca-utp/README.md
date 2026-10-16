@@ -7,10 +7,17 @@ como Claude Artifacts:
 
 | Herramienta | Carpeta | Qué hace |
 |---|---|---|
-| Constructor de citas APA 7 | [`constructor-citas-apa7/`](constructor-citas-apa7) | Genera citas en formato APA 7 (parentética y narrativa) a partir de los datos de la fuente. |
-| Preguntas frecuentes sobre APA 7 | [`faq-apa7/`](faq-apa7) | Guía de referencia rápida con las dudas más comunes sobre la norma APA 7. |
+| Colección APA 7 (constructor, verificador, FAQ, infografía) | [`coleccion-apa/`](coleccion-apa) | Línea de herramientas APA con los lineamientos del CRIE (Noto Sans, Atkinson Hyperlegible, HTML/CSS/JS separados, GitHub Pages) y un único servicio de contador para el servidor de la UTP. |
 | Ruta Mendeley UTP | [`ruta-mendeley/`](ruta-mendeley) | Ruta de aprendizaje autónomo de Mendeley: diagnóstico, simulador, retos, evaluación y constancia de práctica. |
 | Vigilancia Tecnológica BIC | [`vigilancia-tecnologica/`](vigilancia-tecnologica) | Ficha de validación de productos de vigilancia tecnológica (modelo de medición de Minciencias). |
+
+> **Actualización (15 de octubre de 2026):** el Constructor de citas y el FAQ
+> APA 7 se movieron a [`coleccion-apa/`](coleccion-apa), junto con el
+> Verificador de citas y la Infografía de formato, para cumplir los
+> lineamientos del CRIE. Sus antiguas carpetas `constructor-citas-apa7/` y
+> `faq-apa7/` (con backends individuales para Render) se retiraron; el
+> contador de la colección lo aloja ahora el CRIE en el servidor de la UTP.
+> Lo que sigue describe Ruta Mendeley y Vigilancia Tecnológica.
 
 ## Por qué esta migración
 
@@ -88,8 +95,8 @@ quien prefiera que el conteo nunca se reinicie.
 
 | Herramienta | Frontend migrado | Backend construido y probado | Nota |
 |---|---|---|---|
-| Constructor de citas APA 7 | ✅ | ✅ (probado extremo a extremo con navegador real) | — |
-| FAQ APA 7 | ✅ | ✅ (mismo patrón que el Constructor) | Existían dos artefactos publicados con ese nombre; se migró la versión "…-versión_contador" por coincidir con lo pedido. Ver el README de esta carpeta. |
+| Constructor de citas APA 7 | — | — | Trasladado a `coleccion-apa/` |
+| FAQ APA 7 | — | — | Trasladado a `coleccion-apa/` (versión "…-versión_contador", confirmada como definitiva) |
 | Ruta Mendeley UTP | ✅ | ✅ (probado extremo a extremo con navegador real) | La pestaña "Indicadores" (antes solo visible para quien podía editar el artefacto en claude.ai) ahora queda protegida por un token de personal. Ver el README de esta carpeta. |
 | Vigilancia Tecnológica BIC | ✅ | ✅ (contador probado extremo a extremo; la descarga en PDF usa la misma técnica estándar de navegador, no se pudo probar el clic en este entorno por restricciones de red del sandbox de pruebas, pero no depende de ninguna capacidad retirada) | — |
 

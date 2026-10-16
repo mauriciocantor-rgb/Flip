@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://*.utp.edu.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Constructor de citas APA 7 · Biblioteca Jorge Roa Martínez</title>
+<meta name="description" content="Herramienta académica para construir citas en el texto según la norma APA 7.ª edición.">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<meta name="generator" content="Constructor de citas APA 7 · v2.0 · octubre de 2026">
+<link rel="icon" href="../assets/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/fuentes.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="../assets/js/config.js" defer></script>
+<script src="app.js" defer></script>
+<script src="../assets/js/contador.js" defer></script>
+</head>
+<body data-contador="constructor-citas">
+<header class="band gutter">
+  <div class="shell">
+    <div class="view-badge" id="usageCounter" title="Visualizaciones registradas" role="status" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7.5 11-7.5S23 12 23 12s-4 7.5-11 7.5S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="vb-num" id="usageCountNum">&nbsp;</span>
+    </div>
+    <div class="head-row">
+      <div class="logo-header" aria-hidden="true"><img src="../assets/img/logo-bic-utp.svg" alt="" width="54" height="52"></div>
+      <div class="head-text">
+        <span class="badge">Biblioteca Jorge Roa Martínez · UTP</span>
+        <h1>Constructor de citas APA 7</h1>
+        <p class="sub">Arma tus citas en el texto paso a paso. La herramienta aplica la norma, verifica cada elemento y te explica por qué la cita queda así.</p>
+        <p class="fuente">Basado en el Manual de publicaciones APA (7.ª ed.) y en la Guía de citas y referencias de la Biblioteca Jorge Roa Martínez.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="shell gutter">
+  <div class="layout">
+    <!-- ===== Columna del formulario ===== -->
+    <form class="col" id="form" autocomplete="off">
+
+      <section class="panel" aria-labelledby="s1">
+        <div class="step-head"><span class="step-n">1</span><div><h2 id="s1">¿Qué vas a hacer con la fuente?</h2><p>Esto define si la cita lleva comillas y localizador.</p></div></div>
+        <div class="choice two" role="radiogroup">
+          <div class="opt"><input type="radio" name="modo" id="modoPara" value="parafraseo"><label for="modoPara"><b>Parafrasear</b><span>Expresas con tus palabras la idea de otro autor.</span></label></div>
+          <div class="opt"><input type="radio" name="modo" id="modoTextual" value="textual" checked><label for="modoTextual"><b>Citar textualmente</b><span>Copias las palabras exactas. La herramienta decide si es cita corta o en bloque.</span></label></div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="s2">
+        <div class="step-head"><span class="step-n">2</span><div><h2 id="s2">¿Quién es el autor?</h2><p>Escribe solo los apellidos, tal como aparecen en la fuente.</p></div></div>
+        <div class="stack">
+          <div class="seg" role="radiogroup" aria-label="Tipo de autor">
+            <div class="opt"><input type="radio" name="tipoAutor" id="taPer" value="personas" checked><label for="taPer">Persona(s)</label></div>
+            <div class="opt"><input type="radio" name="tipoAutor" id="taInst" value="institucion"><label for="taInst">Institución u organización</label></div>
+          </div>
+
+          <div id="bloquePersonas" class="stack">
+            <div>
+              <label class="lbl" for="numAutores">Número de autores</label>
+              <select id="numAutores">
+                <option value="1">1 autor</option>
+                <option value="2">2 autores</option>
+                <option value="3">3 o más autores (se usa et al.)</option>
+              </select>
+            </div>
+            <div class="grid2">
+              <div>
+                <label class="lbl" for="autor1">Apellido del primer autor</label>
+                <input type="text" id="autor1" placeholder="Ej. Gómez Restrepo">
+                <div class="hint">Con dos apellidos, escríbelos ambos si así aparecen en la fuente.</div>
+              </div>
+              <div id="autor2Wrap">
+                <label class="lbl" for="autor2">Apellido del segundo autor</label>
+                <input type="text" id="autor2" placeholder="Ej. Cardona">
+              </div>
+            </div>
+          </div>
+
+          <div id="bloqueInst" class="stack" hidden>
+            <div class="grid2">
+              <div>
+                <label class="lbl" for="instNombre">Nombre completo</label>
+                <input type="text" id="instNombre" placeholder="Ej. Ministerio de Educación Nacional">
+              </div>
+              <div>
+                <label class="lbl" for="instSigla">Sigla (opcional)</label>
+                <input type="text" id="instSigla" placeholder="Ej. MEN">
+              </div>
+            </div>
+            <div id="mencionWrap">
+              <label class="lbl">¿Es la primera vez que la citas en tu trabajo?</label>
+              <div class="seg" role="radiogroup" aria-label="Mención">
+                <div class="opt"><input type="radio" name="mencion" id="menPrimera" value="primera" checked><label for="menPrimera">Primera mención</label></div>
+                <div class="opt"><input type="radio" name="mencion" id="menSig" value="siguientes"><label for="menSig">Menciones siguientes</label></div>
+              </div>
+              <div class="hint">La sigla se presenta una vez con el nombre completo; después se usa solo la sigla.</div>
+            </div>
+          </div>
+
+          <div>
+            <label class="check" for="secundaria"><input type="checkbox" id="secundaria"><span><b>La idea es de otro autor que no consulté directamente</b><br><span class="hint m-0">Cita secundaria: el autor original aparece citado dentro de la fuente que leíste.</span></span></label>
+            <div id="bloqueSec" class="sub-box" hidden>
+              <div class="grid2">
+                <div>
+                  <label class="lbl" for="origAutor">Autor original</label>
+                  <input type="text" id="origAutor" placeholder="Ej. Pérez">
+                </div>
+                <div>
+                  <label class="lbl" for="origAnio">Año de la obra original</label>
+                  <input type="text" id="origAnio" placeholder="Ej. 1998 (si se conoce)">
+                </div>
+              </div>
+              <div class="hint">Los datos del paso 2 y 3 corresponden a la fuente que <strong>sí leíste</strong>.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="s3">
+        <div class="step-head"><span class="step-n">3</span><div><h2 id="s3">¿De cuándo es?</h2><p>Año de publicación de la fuente que consultaste.</p></div></div>
+        <label class="lbl" for="anio">Año</label>
+        <input type="text" id="anio" placeholder="Ej. 2021" inputmode="text">
+        <div class="chips">
+          <button type="button" class="chip" data-anio="s.f.">Sin fecha (s.f.)</button>
+          <button type="button" class="chip" data-anio="en prensa">En prensa</button>
+        </div>
+        <div class="hint">Si citas dos obras del mismo autor y año, agrega una letra: 2021a, 2021b.</div>
+      </section>
+
+      <section class="panel" aria-labelledby="s4">
+        <div class="step-head"><span class="step-n">4</span><div><h2 id="s4">¿Dónde está en la fuente?</h2><p id="locAyuda">El localizador es obligatorio en las citas textuales.</p></div></div>
+        <div class="grid2">
+          <div>
+            <label class="lbl" for="locTipo">Tipo de localizador</label>
+            <select id="locTipo">
+              <option value="pagina">Página(s)</option>
+              <option value="parrafo">Párrafo(s) · fuentes sin paginación</option>
+              <option value="seccion">Sección o encabezado</option>
+              <option value="tiempo">Marca de tiempo · audio o video</option>
+            </select>
+          </div>
+          <div>
+            <label class="lbl" for="locValor" id="locLbl">Página o rango</label>
+            <input type="text" id="locValor" placeholder="Ej. 84 · 84-86 · 84, 90">
+          </div>
+        </div>
+        <div class="hint" id="locHint">Una página usa <strong>p.</strong>; un rango o varias páginas usan <strong>pp.</strong> La herramienta lo asigna sola.</div>
+      </section>
+
+      <section class="panel" aria-labelledby="s5">
+        <div class="step-head"><span class="step-n">5</span><div><h2 id="s5">¿Cómo la integras en tu texto?</h2><p>Las dos formas son correctas; elige según la redacción.</p></div></div>
+        <div class="choice two" role="radiogroup">
+          <div class="opt"><input type="radio" name="forma" id="fNarr" value="narrativa" checked><label for="fNarr"><b>Narrativa</b><span>El autor es parte de tu oración: Gómez (2021) señala…</span></label></div>
+          <div class="opt"><input type="radio" name="forma" id="fParen" value="parentetica"><label for="fParen"><b>Parentética</b><span>Autor y año van entre paréntesis al final: (Gómez, 2021).</span></label></div>
+        </div>
+        <div id="verboWrap" class="mt-12">
+          <label class="lbl" for="verbo">Verbo para introducir la cita</label>
+          <select id="verbo">
+            <option value="afirma">afirma</option>
+            <option value="señala">señala</option>
+            <option value="sostiene">sostiene</option>
+            <option value="plantea">plantea</option>
+            <option value="explica">explica</option>
+            <option value="argumenta">argumenta</option>
+            <option value="advierte">advierte</option>
+            <option value="concluye">concluye</option>
+          </select>
+          <div class="hint">Varía los verbos a lo largo del texto; el verbo concuerda solo con el número de autores.</div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="s6" id="panelTexto">
+        <div class="step-head"><span class="step-n">6</span><div><h2 id="s6">Texto que vas a citar</h2><p>Pégalo exactamente como aparece en la fuente.</p></div></div>
+        <label class="lbl" for="textoCita">Fragmento textual</label>
+        <textarea id="textoCita" placeholder="Pega aquí el fragmento exacto…"></textarea>
+        <div class="wc"><span id="wcNum">0 palabras</span><span class="pill corta" id="wcPill">Cita corta</span></div>
+        <div class="hint">No hace falta escribir las comillas ni el punto final: la herramienta los ubica según la norma.</div>
+      </section>
+    </form>
+
+    <!-- ===== Columna del resultado ===== -->
+    <div class="col result-col">
+      <section class="panel" aria-labelledby="sr" aria-live="polite">
+        <div class="result-head">
+          <h2 id="sr">Tu cita</h2>
+          <span class="ej-flag" id="ejFlag" hidden>Ejemplo cargado</span>
+          <label class="toggle-anat" for="verPartes"><input type="checkbox" id="verPartes" checked> Ver partes de la cita</label>
+        </div>
+        <div class="doc anat" id="salida"></div>
+        <div class="legend" id="leyenda">
+          <span><i class="lg-autor"></i>Autor</span>
+          <span><i class="lg-anio"></i>Año</span>
+          <span><i class="lg-loc"></i>Localizador</span>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="btnCopiar">Copiar cita</button>
+          <button type="button" class="btn ghost" id="btnLimpiar">Limpiar formulario</button>
+          <span class="copied" id="copiedMsg" role="status">Copiada</span>
+        </div>
+
+        <p class="sec-title">Verificación APA</p>
+        <ul class="checks" id="checks"></ul>
+
+        <p class="sec-title">Cómo va en tu documento</p>
+        <ul class="formato" id="formato"></ul>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel mt-20" aria-labelledby="se">
+    <div class="step-head"><div><h2 id="se">Ejemplos para practicar</h2><p>Toca un caso para cargarlo en el formulario y observar cómo se arma.</p></div></div>
+    <div class="ej-grid" id="ejGrid"></div>
+    <p class="aviso">Autores, instituciones y fragmentos ficticios, creados con fines didácticos.</p>
+  </section>
+
+  <section class="panel mt-20" aria-labelledby="sf">
+    <div class="step-head"><div><h2 id="sf">Ficha técnica</h2></div></div>
+    <dl class="ficha-tec">
+      <div><dt>Herramienta</dt><dd>Constructor de citas APA 7 · versión 2.0, octubre de 2026</dd></div>
+      <div><dt>Base normativa</dt><dd>American Psychological Association (2020), <i>Publication Manual</i>, 7.ª ed.; Guía de citas y referencias, Biblioteca Jorge Roa Martínez.</dd></div>
+      <div><dt>Alcance</dt><dd>Citas en el texto: parafraseo, cita textual corta y en bloque, autores institucionales y citas secundarias. No genera la lista de referencias.</dd></div>
+      <div><dt>Desarrollo</dt><dd>Biblioteca e Información Científica (BIC), Universidad Tecnológica de Pereira.</dd></div>
+    </dl>
+  </section>
+</main>
+
+<button type="button" class="ir-cita" id="irCita" hidden>Ver mi cita ↓</button>
+
+<footer class="pie gutter">
+  <span class="internal-badge">Herramienta académica · BIC · UTP</span>
+  <p class="mt-10-b0">Recuerda: cada cita en el texto debe tener su entrada correspondiente en la lista de referencias.</p>
+</footer>
+</body>
+</html>

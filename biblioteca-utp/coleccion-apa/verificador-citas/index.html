@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://*.utp.edu.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Verificador de citas y referencias APA 7 · Biblioteca Jorge Roa Martínez</title>
+<meta name="description" content="Revisa que cada cita en el texto tenga su referencia y que cada referencia esté citada, según APA 7.">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<meta name="generator" content="Verificador de citas y referencias APA 7 · v1.0 · octubre de 2026">
+<link rel="icon" href="../assets/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/fuentes.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="../assets/js/config.js" defer></script>
+<script src="app.js" defer></script>
+<script src="../assets/js/contador.js" defer></script>
+</head>
+<body data-contador="verificador-citas">
+<header class="band gutter">
+  <div class="shell">
+    <div class="view-badge" id="usageCounter" title="Visualizaciones registradas" role="status" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7.5 11-7.5S23 12 23 12s-4 7.5-11 7.5S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="vb-num" id="usageCountNum">&nbsp;</span>
+    </div>
+    <div class="head-row">
+      <div class="logo-header" aria-hidden="true"><img src="../assets/img/logo-bic-utp.svg" alt="" width="54" height="52"></div>
+      <div class="head-text">
+        <span class="badge">Biblioteca Jorge Roa Martínez · UTP</span>
+        <h1>Verificador de citas y referencias</h1>
+        <p class="sub">Pega tu texto y tu lista de referencias: la herramienta comprueba que cada cita tenga su referencia, que cada referencia esté citada y que autores y años coincidan.</p>
+        <p class="fuente">Basado en el Manual de publicaciones APA (7.ª ed.) y en la Guía de citas y referencias de la Biblioteca Jorge Roa Martínez.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="shell gutter">
+  <div class="entradas">
+    <section class="panel" aria-labelledby="s1">
+      <div class="step-head"><span class="step-n">1</span><div><h2 id="s1">Pega el texto de tu trabajo</h2><p>Puede ser un capítulo o el documento completo, sin la lista de referencias.</p></div></div>
+      <textarea id="texto" aria-label="Texto del trabajo" placeholder="Pega aquí el cuerpo de tu trabajo…"></textarea>
+      <div class="meta"><span id="metaTexto">0 palabras</span><span>Detecta citas narrativas y parentéticas</span></div>
+    </section>
+    <section class="panel" aria-labelledby="s2">
+      <div class="step-head"><span class="step-n">2</span><div><h2 id="s2">Pega tu lista de referencias</h2><p>Una referencia por línea, tal como aparece en tu documento.</p></div></div>
+      <textarea id="refs" aria-label="Lista de referencias" placeholder="Apellido, A. (2021). Título de la obra. Editorial."></textarea>
+      <div class="meta"><span id="metaRefs">0 referencias</span><span>El encabezado «Referencias» se ignora</span></div>
+    </section>
+  </div>
+
+  <div class="barra">
+    <button type="button" class="btn ghost" id="btnEjemplo">Cargar ejemplo</button>
+    <button type="button" class="btn ghost" id="btnLimpiar">Limpiar</button>
+    <span class="ej-flag" id="ejFlag" hidden>Ejemplo cargado</span>
+    <span class="privacidad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Tu texto se analiza en este navegador; no se envía ni se guarda.</span>
+  </div>
+
+  <section class="panel" aria-labelledby="s3" aria-live="polite">
+    <div class="step-head"><span class="step-n">3</span><div><h2 id="s3">Resultado de la verificación</h2><p>Se actualiza mientras escribes o pegas.</p></div></div>
+    <div class="veredicto" id="veredicto"></div>
+    <div class="resumen" id="resumen"></div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tabCitas" aria-selected="true" aria-controls="panCitas">Citas en el texto<span class="n" id="nCitas">0</span></button>
+      <button class="tab" role="tab" id="tabRefs" aria-selected="false" aria-controls="panRefs">Lista de referencias<span class="n" id="nRefs">0</span></button>
+      <button class="tab" role="tab" id="tabTexto" aria-selected="false" aria-controls="panTexto">Texto resaltado</button>
+    </div>
+    <div class="filtro" id="filtro">
+      <button type="button" class="chip" data-f="todo" aria-pressed="false">Todo</button>
+      <button type="button" class="chip" data-f="problemas" aria-pressed="true">Solo lo que hay que corregir</button>
+    </div>
+    <div id="panCitas" role="tabpanel" aria-labelledby="tabCitas"><div class="items" id="listaCitas"></div></div>
+    <div id="panRefs" role="tabpanel" aria-labelledby="tabRefs" hidden><div class="items" id="listaRefs"></div></div>
+    <div id="panTexto" role="tabpanel" aria-labelledby="tabTexto" hidden>
+      <div class="leyenda">
+        <span><i class="lg-ok"></i>Cita con referencia</span>
+        <span><i class="lg-warn"></i>Revisar</span>
+        <span><i class="lg-err"></i>Error</span>
+        <span><i class="lg-q"></i>Cita textual sin localizador</span>
+      </div>
+      <div class="revisado" id="revisado"></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="sf">
+    <div class="step-head"><div><h2 id="sf">Ficha técnica</h2></div></div>
+    <dl class="ficha-tec">
+      <div><dt>Herramienta</dt><dd>Verificador de citas y referencias APA 7 · versión 1.0, octubre de 2026</dd></div>
+      <div><dt>Qué revisa</dt><dd>Citas sin referencia, referencias no citadas, años y letras que no coinciden, número de autores y uso de et al., conectores y &amp;, orden alfabético, duplicados y citas textuales sin localizador.</dd></div>
+      <div><dt>Alcance y límites</dt><dd>La detección es automática y puede omitir formatos poco comunes. Úsala como revisión asistida: la lectura final sigue siendo tuya.</dd></div>
+      <div><dt>Desarrollo</dt><dd>Biblioteca e Información Científica (BIC), Universidad Tecnológica de Pereira.</dd></div>
+    </dl>
+  </section>
+</main>
+
+<footer class="pie gutter">
+  <span class="internal-badge">Herramienta interna · Biblioteca e Información Científica (BIC) · UTP</span>
+  <p class="mt-10-b0">Complementa el Constructor de citas APA 7 y la Plantilla APA 7 de la Biblioteca Jorge Roa Martínez.</p>
+</footer>
+</body>
+</html>

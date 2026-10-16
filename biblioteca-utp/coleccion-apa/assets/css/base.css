@@ -1,0 +1,31 @@
+/*
+  Base compartida de la colección APA · Biblioteca Jorge Roa Martínez (UTP)
+  Aplica el lineamiento tipográfico del CRIE a todas las herramientas:
+    - Texto (cuerpo, formularios, tablas, ejemplos): Noto Sans
+    - Títulos y encabezados: Atkinson Hyperlegible
+  Cada herramienta carga después su propia hoja (estilos.css), que conserva
+  su diseño y solo usa las variables --fuente-texto / --fuente-titulos.
+*/
+:root{
+  --fuente-texto:"Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --fuente-titulos:"Atkinson Hyperlegible","Noto Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--fuente-texto)}
+h1,h2,h3,h4,h5,h6,summary,.titulo{font-family:var(--fuente-titulos)}
+input,select,textarea,button{font-family:inherit}
+[hidden]{display:none!important}
+
+/* Distintivo de visualizaciones (contador de uso compartido) */
+.view-badge[hidden]{display:none!important}
+
+/* Utilidades que reemplazan los atributos style="" del HTML original,
+   necesarias para que la política de seguridad de contenido (CSP) no
+   tenga que permitir estilos en línea. */
+.m-0{margin:0!important}
+.mt-2{margin-top:2px!important}
+.mt-12{margin-top:12px!important}
+.mt-20{margin-top:20px!important}
+.mt-10-b0{margin:10px 0 0!important}
+.min-w-0{min-width:0}
+.txt-muted{color:var(--muted)}

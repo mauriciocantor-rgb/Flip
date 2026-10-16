@@ -1,0 +1,39 @@
+/* Portada de la colección APA · Biblioteca Jorge Roa Martínez (UTP) */
+:root{
+  --navy:#003DA5; --navy-dark:#00204A; --gold:#F2A900;
+  --bg:#f3f5f9; --panel:#fff; --text:#15202e; --muted:#5a6a80; --border:#dbe2ec; --link:#003DA5;
+  --shadow:0 6px 18px rgba(0,32,74,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0f1621; --panel:#17202e; --text:#eef1f6; --muted:#9aa8bd; --border:#2a3648; --link:#8FB3F2; --shadow:0 6px 18px rgba(0,0,0,.35); color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#0f1621; --panel:#17202e; --text:#eef1f6; --muted:#9aa8bd; --border:#2a3648; --link:#8FB3F2; --shadow:0 6px 18px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--text); font-size:16px; line-height:1.55}
+.shell{max-width:1040px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--gold); outline-offset:3px}
+
+.band{background:linear-gradient(135deg,var(--navy-dark),var(--navy)); color:#fff; padding-block:32px}
+.head-row{display:flex; align-items:center; gap:22px}
+.logo{flex:0 0 auto; width:64px; height:auto}
+.badge{display:inline-block; background:var(--gold); color:var(--navy-dark); font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 10px; border-radius:20px}
+h1{margin:10px 0 6px; font-size:2rem; line-height:1.15}
+.sub{margin:0; color:#d7e2f5; max-width:62ch}
+
+main{padding-block:28px 40px}
+.tarjetas{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px}
+.tarjeta{display:flex; flex-direction:column; gap:8px; height:100%; padding:22px; background:var(--panel); border:1px solid var(--border); border-top:5px solid var(--gold);
+  border-radius:12px; box-shadow:var(--shadow); color:inherit; text-decoration:none; transition:transform .15s, border-color .15s}
+.tarjeta:hover{transform:translateY(-2px); border-color:var(--navy)}
+.num{width:32px; height:32px; border-radius:50%; background:var(--navy); color:var(--gold); display:grid; place-items:center; font-weight:700; font-family:var(--fuente-titulos)}
+.tarjeta h2{margin:4px 0 0; font-size:1.2rem; line-height:1.3}
+.tarjeta p{margin:0; color:var(--muted); font-size:.95rem}
+.ir{margin-top:auto; padding-top:6px; color:var(--link); font-weight:700; font-size:.9rem}
+.pie{text-align:center; font-size:.8rem; color:var(--muted); padding:0 16px 32px}
+
+@media (max-width:640px){
+  .head-row{flex-direction:column; text-align:center; gap:12px}
+  h1{font-size:1.6rem}
+  .tarjetas{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.tarjeta{transition:none}}

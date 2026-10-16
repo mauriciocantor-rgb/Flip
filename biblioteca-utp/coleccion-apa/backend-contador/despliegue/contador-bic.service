@@ -1,0 +1,22 @@
+# Unidad systemd de ejemplo · /etc/systemd/system/contador-bic.service
+# sudo systemctl daemon-reload && sudo systemctl enable --now contador-bic
+[Unit]
+Description=Contador de uso - Coleccion APA - Biblioteca Jorge Roa Martinez (UTP)
+After=network.target
+
+[Service]
+User=contador-bic
+Group=contador-bic
+WorkingDirectory=/opt/contador-bic
+EnvironmentFile=/etc/contador-bic/contador.env
+ExecStart=/opt/contador-bic/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8010 --access-logfile - app:app
+Restart=on-failure
+# Endurecimiento básico
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/contador-bic
+
+[Install]
+WantedBy=multi-user.target

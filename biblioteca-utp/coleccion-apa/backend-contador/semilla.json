@@ -1,0 +1,9 @@
+{
+  "nota": "Conteos heredados de los artefactos de Claude (capacidad db), leídos el 15 de octubre de 2026. Se cargan solo la primera vez que arranca el servicio; antes de desplegar, actualícelos con el valor que muestre cada artefacto ese día.",
+  "contadores": {
+    "constructor-citas": 39,
+    "preguntas-frecuentes": 24,
+    "verificador-citas": 3,
+    "infografia-formato": 0
+  }
+}
