@@ -13,21 +13,26 @@ el campus** siguiendo los lineamientos del **CRIE**:
 
 ## Criterios APA 7 en español de la colección
 
-Las cuatro herramientas siguen el mismo criterio, tomado de guías
-universitarias basadas en la traducción oficial al español del manual APA 7:
+Las reglas se contrastaron con el sitio oficial [APA Style](https://apastyle.apa.org) en octubre de 2026. Los puntos propios del idioma son una adaptación al español:
+
+| Punto | En la colección | APA en inglés (fuente oficial) |
+|---|---|---|
+| Dos autores en la cita | (Restrepo y Cardona, 2019) | (Restrepo & Cardona, 2019) |
+| Dos autores en la referencia | Gómez, L. y Torres, P. (2021). | Gómez, L., & Torres, P. (2021). |
+| Sin fecha | (s.f.) | (n.d.) |
+| Fecha de consulta | Recuperado el 15 de octubre de 2026 de URL | Retrieved October 15, 2026, from URL |
+
+Otros criterios comunes:
 
 | Punto | Criterio | Ejemplo |
 |---|---|---|
-| Dos autores | “y” en la forma narrativa y dentro del paréntesis | Restrepo y Cardona (2019) · (Restrepo y Cardona, 2019) |
-| Sin fecha | s.f. | (Ministerio de Educación, s.f.) |
 | Citas textuales y títulos en el texto | Comillas dobles “ ” | (“Informe Anual”, 2013) |
-| Lista de referencias | “y” antes del último autor, sin coma previa | Gómez, L. y Torres, P. (2021). |
 | Cursiva | Títulos de obras independientes, términos clave al definirlos y palabras de otro idioma poco conocidas | — |
 
 Fuentes:
 - Biblioteca de la Sede de Occidente, Universidad de Costa Rica (2021). *APA 4*: [guía basada en la traducción al español de APA 7](https://biblioteca.so.ucr.ac.cr/sites/default/files/docs/APA%204%20(2021).pdf).
 - Centro de Escritura Javeriano, Pontificia Universidad Javeriana Cali: [Manual de Normas APA 7.ª edición](https://www.javerianacali.edu.co/sites/default/files/2022-06/Manual%20de%20Normas%20APA%207ma%20edicio%CC%81n.pdf).
-- American Psychological Association: [Use of italics](https://apastyle.apa.org/style-grammar-guidelines/italics-quotations/italics).
+- American Psychological Association: sitio oficial [APA Style](https://apastyle.apa.org) (formato, citas, tablas y figuras, referencias y formato de IA generativa de 2025).
 
 ## Herramientas
 

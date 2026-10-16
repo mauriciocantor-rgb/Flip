@@ -135,6 +135,7 @@ function parseReferencias(txt){
     while((a = re.exec(autor))) ref.autores.push(a[1].trim());
     if(!ref.autores.length) ref.inst = autor.replace(/[.\s]+$/,'');
     if(/\s(&)\s/.test(autor)) ref.problemas.push(['info','En la lista de referencias en español se usa “y” antes del último autor, sin coma previa: Apellido, A. y Apellido, B.']);
+    else if(/\.,\s+y\s+[\p{Lu}]/u.test(autor)) ref.problemas.push(['info','Antes de la “y” del último autor no va coma: Apellido, A. y Apellido, B.']);
     ref.clave = norm(ref.inst || ref.autores.join(' ') || raw);
     return ref;
   });

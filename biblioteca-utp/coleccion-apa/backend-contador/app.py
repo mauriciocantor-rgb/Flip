@@ -68,8 +68,8 @@ app.config["JSON_AS_ASCII"] = False
 
 # ---------------------------------------------------------------- base de datos
 def conectar() -> sqlite3.Connection:
+    # El modo WAL queda guardado en el archivo (se fija una vez en inicializar).
     conn = sqlite3.connect(DB_PATH, timeout=10)
-    conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA busy_timeout=5000")
     return conn
 
@@ -81,23 +81,40 @@ def inicializar() -> None:
     cada herramienta. Nunca sobrescribe un conteo que ya esté en la base.
     """
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with conectar() as conn:
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS contadores ("
-            " herramienta TEXT PRIMARY KEY,"
-            " total INTEGER NOT NULL DEFAULT 0 CHECK (total >= 0),"
-            " actualizado TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))"
-            ")"
-        )
-        semilla = {}
-        if SEMILLA.exists():
-            datos = json.loads(SEMILLA.read_text(encoding="utf-8"))
-            semilla = {k: int(v) for k, v in datos.get("contadores", {}).items() if k in HERRAMIENTAS}
-        for herramienta in sorted(HERRAMIENTAS):
+    semilla = {}
+    if SEMILLA.exists():
+        datos = json.loads(SEMILLA.read_text(encoding="utf-8"))
+        semilla = {k: int(v) for k, v in datos.get("contadores", {}).items() if k in HERRAMIENTAS}
+
+    # Con varios procesos de gunicorn, todos ejecutan esta función al arrancar.
+    # Si otro proceso tiene la base bloqueada en ese instante, se reintenta en
+    # lugar de abortar el arranque ("database is locked").
+    for intento in range(40):
+        conn = sqlite3.connect(DB_PATH, timeout=10, isolation_level=None)
+        try:
+            conn.execute("PRAGMA busy_timeout=5000")
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("BEGIN IMMEDIATE")
             conn.execute(
-                "INSERT OR IGNORE INTO contadores (herramienta, total) VALUES (?, ?)",
-                (herramienta, max(0, semilla.get(herramienta, 0))),
+                "CREATE TABLE IF NOT EXISTS contadores ("
+                " herramienta TEXT PRIMARY KEY,"
+                " total INTEGER NOT NULL DEFAULT 0 CHECK (total >= 0),"
+                " actualizado TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))"
+                ")"
             )
+            for herramienta in sorted(HERRAMIENTAS):
+                conn.execute(
+                    "INSERT OR IGNORE INTO contadores (herramienta, total) VALUES (?, ?)",
+                    (herramienta, max(0, semilla.get(herramienta, 0))),
+                )
+            conn.execute("COMMIT")
+            return
+        except sqlite3.OperationalError as error:
+            if "locked" not in str(error).lower() or intento == 39:
+                raise
+            time.sleep(0.25)
+        finally:
+            conn.close()
 
 
 inicializar()

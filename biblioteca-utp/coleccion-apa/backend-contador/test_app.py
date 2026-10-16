@@ -54,3 +54,16 @@ def test_limite(tmp_path):
     c = cargar_app(tmp_path, limite="3")
     codigos = [c.post("/api/contadores/infografia-formato").status_code for _ in range(5)]
     assert codigos == [200, 200, 200, 429, 429]
+
+
+def test_arranque_concurrente(tmp_path):
+    """Varios procesos inicializando la misma base a la vez no deben fallar."""
+    import subprocess
+    db = tmp_path / "concurrente.db"
+    codigo = (
+        "import os,sys; sys.path.insert(0, %r); os.environ['CONTADOR_DB']=%r; import app"
+        % (str(Path(__file__).parent), str(db))
+    )
+    procs = [subprocess.Popen([sys.executable, "-c", codigo], stderr=subprocess.PIPE) for _ in range(8)]
+    errores = [p.communicate()[1].decode() for p in procs]
+    assert all(p.returncode == 0 for p in procs), errores
