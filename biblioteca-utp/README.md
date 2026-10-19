@@ -11,6 +11,8 @@ como Claude Artifacts:
 | Ruta Mendeley UTP | [`ruta-mendeley/`](ruta-mendeley) | Ruta de aprendizaje autónomo de Mendeley: diagnóstico, simulador, retos, evaluación y constancia de práctica. |
 | Vigilancia Tecnológica BIC | [`vigilancia-tecnologica/`](vigilancia-tecnologica) | Ficha de validación de productos de vigilancia tecnológica (modelo de medición de Minciencias). |
 | Laboratorio de Patología Clínica (provisional) | [`laboratorio-patologia/`](laboratorio-patologia) | Turno de urgencias gamificado, modelo anatómico 3D masculino y femenino y lectura de radiografías. Alojamiento provisional para pruebas con un médico general. |
+| Grid Masters (provisional) | [`grid-masters/`](grid-masters) | Laboratorio de eléctrica: estabilidad de frecuencia de la red, sala de control con cuatro roles y banco de siete instrumentos de medición. Alojamiento provisional para pruebas. |
+| Laboratorio de Tensión Continua (provisional) | [`tension-continua/`](tension-continua) | Osciloscopio y multímetro para fuentes de corriente continua. Reservado para el proyecto de CC. Alojamiento provisional para pruebas. |
 
 > **Actualización (15 de octubre de 2026):** el Constructor de citas y el FAQ
 > APA 7 se movieron a [`coleccion-apa/`](coleccion-apa), junto con el

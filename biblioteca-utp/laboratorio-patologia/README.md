@@ -22,7 +22,7 @@ Salud.
 
 Con GitHub Pages activado sobre la rama `main` (carpeta raíz), la dirección es:
 
-`https://mauriciocantor-rgb.github.io/flip/biblioteca-utp/laboratorio-patologia/`
+`https://mauriciocantor-rgb.github.io/Flip/biblioteca-utp/laboratorio-patologia/`
 
 Para activarlo: *Settings → Pages → Build and deployment → Source: Deploy
 from a branch → Branch: `main` / `(root)` → Save*. La primera publicación

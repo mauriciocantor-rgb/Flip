@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laboratorio de Tensión Continua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Share+Tech+Mono&display=swap">
+<style>
+/* Layout: mesa de laboratorio sobre papel milimetrado; cada módulo es un instrumento sobre el banco */
+:root{
+  --bg:#F3F5FA; --surface:#FFFFFF; --ink:#0E1B33; --muted:#51607A; --line:#CCD5E6; --grid:#E9EEF8;
+  --accent:#003DA5; --accent-soft:#E9EEF8; --accent-ink:#FFFFFF;
+  --navy:#003DA5; --navy-deep:#00204A; --gold:#F2A900; --gold-ink:#7A5500;
+  --instrument:#252B32; --inst-ink:#E9EEF2; --inst-muted:#9AA8B4; --holster:#E0700F;
+  --lcd:#C7D3BD; --lcd-ink:#1C2419; --lcd-ghost:#B3C0A8;
+  --scope-bg:#0D1916; --scope-grid:#27463D; --scope-axis:#3F6B5E; --trace:#F4C54E; --trace-dim:#8C7633;
+  --red:#D3263B; --black:#2F3944;
+  --ok:#2B8A3E; --ok-soft:#E1F3E5; --warn:#B86E00; --warn-soft:#FDF0D9; --bad:#C0262D; --bad-soft:#FBE3E4;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --f-lcd:"Share Tech Mono","IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#07142B; --surface:#0E2145; --ink:#EAF0FB; --muted:#A6B4CF; --line:#2A4273; --grid:#0B1A36;
+  --accent:#8FB4FF; --accent-soft:#16305F; --accent-ink:#00204A; --gold-ink:#F2A900;
+  --instrument:#2B323A; --inst-ink:#EDF1F4; --inst-muted:#A3B0BB; --holster:#C9620C;
+  --lcd:#AFBDA5; --lcd-ink:#161D13; --lcd-ghost:#A0AE96;
+  --scope-bg:#08110F; --scope-grid:#21392F; --scope-axis:#36594D; --trace:#F6CA5A; --trace-dim:#7F6A2E;
+  --red:#F0566A; --black:#C3CDD6;
+  --ok:#5BC273; --ok-soft:#18301E; --warn:#F0A73A; --warn-soft:#33270F; --bad:#FF6B70; --bad-soft:#3A1A1C;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#07142B; --surface:#0E2145; --ink:#EAF0FB; --muted:#A6B4CF; --line:#2A4273; --grid:#0B1A36;
+  --accent:#8FB4FF; --accent-soft:#16305F; --accent-ink:#00204A; --gold-ink:#F2A900;
+  --instrument:#2B323A; --inst-ink:#EDF1F4; --inst-muted:#A3B0BB; --holster:#C9620C;
+  --lcd:#AFBDA5; --lcd-ink:#161D13; --lcd-ghost:#A0AE96;
+  --scope-bg:#08110F; --scope-grid:#21392F; --scope-axis:#36594D; --trace:#F6CA5A; --trace-dim:#7F6A2E;
+  --red:#F0566A; --black:#C3CDD6;
+  --ok:#5BC273; --ok-soft:#18301E; --warn:#F0A73A; --warn-soft:#33270F; --bad:#FF6B70; --bad-soft:#3A1A1C;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:clamp(16px,4vw,40px)}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);line-height:1.08;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.9rem,4vw,2.6rem);font-weight:700;letter-spacing:.005em}
+h3{font-size:1.35rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink);font-weight:600}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+.tab{font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:1.25rem;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
+.brand-mark{font-family:var(--f-mono);font-size:.9rem;background:var(--ink);color:var(--bg);border-radius:4px;padding:1px 6px}
+.top nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.top nav a{text-decoration:none;color:var(--muted);font-size:.88rem;padding:4px 10px;border-radius:999px}
+.top nav a:hover{color:var(--ink);background:var(--surface)}
+
+/* Hero */
+.hero{padding-block:clamp(36px,6vw,64px) 28px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(24px,4vw,48px);align-items:center}
+.hero h1{font-size:clamp(2.6rem,6.4vw,4.6rem);font-weight:700;letter-spacing:-.005em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.lead{font-size:1.1rem;color:var(--muted);margin-top:16px;max-width:58ch}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;text-decoration:none;color:var(--ink);font-weight:600;font-size:.92rem}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:hover{border-color:var(--accent)}
+.hero-figure{background:var(--scope-bg);border-radius:14px;padding:14px;border:1px solid var(--line)}
+.hero-figure svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.82rem;color:var(--inst-muted);font-family:var(--f-mono)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px}
+
+section.block{padding-block:clamp(40px,6vw,72px);border-top:1px solid var(--line)}
+.sec-head{display:grid;gap:10px;margin-bottom:26px;max-width:72ch}
+.sec-head p{color:var(--muted)}
+
+/* Concept cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card .sym{font-family:var(--f-mono);font-size:1.3rem;color:var(--accent);font-weight:600}
+.card p{font-size:.95rem}
+.formula{font-family:var(--f-mono);font-size:.9rem;background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:6px 10px;overflow-x:auto}
+.src{font-size:.78rem;color:var(--muted);margin-top:auto}
+.src a{color:var(--muted)}
+.tablebox{overflow-x:auto;margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.93rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600}
+
+/* Scope module */
+.lab{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:start}
+.scope{background:var(--instrument);color:var(--inst-ink);border-radius:16px;padding:16px;display:grid;gap:14px}
+.scope-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.scope-name{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.06em;text-transform:uppercase}
+.scope-name small{font-family:var(--f-mono);font-size:.7rem;color:var(--inst-muted);letter-spacing:.08em;margin-left:6px}
+.screen{border-radius:8px;overflow:hidden;border:6px solid #00000055;background:var(--scope-bg)}
+.screen canvas{display:block;width:100%;height:auto}
+.front{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
+.ctl{display:grid;gap:6px;min-width:0}
+.ctl label,.ctl .lbl{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--inst-muted)}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:32px;height:32px;border-radius:50%;border:1px solid #ffffff30;background:#ffffff12;color:var(--inst-ink);cursor:pointer;font-weight:700;flex:none}
+.stepper button:hover{background:#ffffff26}
+.stepper output{flex:1;text-align:center;font-family:var(--f-mono);font-size:.95rem;background:#00000040;border-radius:6px;padding:5px 4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.seg{display:flex;border:1px solid #ffffff30;border-radius:8px;overflow:hidden}
+.seg button{flex:1;padding:6px 4px;border:0;background:transparent;color:var(--inst-ink);cursor:pointer;font-family:var(--f-mono);font-size:.8rem}
+.seg button[aria-pressed="true"]{background:var(--trace);color:#1b1500;font-weight:600}
+.scope input[type=range]{width:100%;accent-color:var(--trace)}
+.scope .btn{background:#ffffff12;color:var(--inst-ink);border-color:#ffffff30}
+
+.side{display:grid;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.panel h3{font-size:1.15rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.85rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.param{display:grid;gap:4px}
+.param .row{display:flex;justify-content:space-between;gap:8px;font-size:.88rem}
+.param .row b{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums}
+.param input[type=range]{width:100%;accent-color:var(--accent)}
+.switch{display:flex;align-items:center;gap:10px;font-size:.9rem;cursor:pointer}
+.switch input{width:18px;height:18px;accent-color:var(--accent)}
+.meas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.m{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);min-width:0}
+.m span{display:block;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.m b{font-family:var(--f-mono);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:600}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0;padding:10px 12px;font-size:.92rem}
+.note.ok{border-color:var(--ok);background:var(--ok-soft)}
+.note.warn{border-color:var(--warn);background:var(--warn-soft)}
+.note.bad{border-color:var(--bad);background:var(--bad-soft)}
+.small{font-size:.82rem}
+
+/* Multimeter module */
+.mm-lab{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr) minmax(0,300px);gap:18px;align-items:start}
+.meter{background:var(--instrument);color:var(--inst-ink);border:12px solid var(--holster);border-radius:30px;padding:16px 16px 18px;display:grid;gap:14px;width:100%;max-width:340px;margin-inline:auto}
+.meter-head{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;color:var(--inst-muted)}
+.typeseg{display:flex;border:1px solid #ffffff30;border-radius:999px;overflow:hidden}
+.typeseg button{border:0;background:transparent;color:var(--inst-ink);padding:3px 10px;cursor:pointer;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em}
+.typeseg button[aria-pressed="true"]{background:var(--inst-ink);color:var(--instrument)}
+.lcd{background:var(--lcd);color:var(--lcd-ink);border-radius:8px;padding:8px 12px 10px;box-shadow:inset 0 2px 6px #0000004d;min-height:118px;display:grid;align-content:space-between}
+.ann{display:flex;gap:8px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.66rem;font-weight:600;letter-spacing:.04em;min-height:1.1em}
+.ann span{opacity:.18}
+.ann span.on{opacity:1}
+.digits{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;font-family:var(--f-lcd);font-size:clamp(2.6rem,11vw,3.5rem);line-height:1;font-variant-numeric:tabular-nums;position:relative}
+.digits .ghost{position:absolute;right:2.2ch;color:var(--lcd-ghost);z-index:0}
+.digits .val{position:relative;z-index:1}
+.digits .unit{font-size:1.2rem;min-width:2.2ch;text-align:left}
+.analog{background:#F6F2E6;border-radius:8px;box-shadow:inset 0 2px 6px #0000004d;padding:6px}
+.analog svg{display:block;width:100%;height:auto}
+.mbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mbtns button{border:0;border-radius:8px;padding:8px 2px;background:#3B444E;color:var(--inst-ink);font-family:var(--f-mono);font-size:.7rem;font-weight:600;cursor:pointer;box-shadow:0 2px 0 #00000066}
+.mbtns button:active{transform:translateY(1px);box-shadow:none}
+.mbtns button[aria-pressed="true"]{background:var(--trace);color:#1b1500}
+.mbtns button:disabled{opacity:.35;cursor:not-allowed}
+.dial{position:relative;width:230px;height:230px;margin:0 auto;max-width:100%}
+.knob{position:absolute;left:50%;top:50%;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#59636e,#1b2026 70%);box-shadow:0 4px 10px #00000080,inset 0 0 0 6px #2f363e;transition:transform .25s ease}
+.knob::after{content:"";position:absolute;left:50%;top:6px;width:6px;height:34px;margin-left:-3px;border-radius:3px;background:var(--holster)}
+.dpos{position:absolute;transform:translate(-50%,-50%);border:0;background:transparent;color:var(--inst-ink);font-family:var(--f-mono);font-weight:600;font-size:.86rem;cursor:pointer;padding:6px 6px;border-radius:6px;line-height:1;white-space:nowrap}
+.dpos[aria-pressed="true"]{background:var(--holster);color:#1b0d00}
+.dpos small{display:block;font-size:.58rem;color:inherit;opacity:.75;margin-top:2px}
+.jacks{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.jack{border:0;background:transparent;color:var(--inst-ink);cursor:pointer;display:grid;justify-items:center;gap:4px;font-family:var(--f-mono);font-size:.66rem;padding:4px 0;border-radius:8px}
+.jack .hole{width:30px;height:30px;border-radius:50%;background:#101317;box-shadow:inset 0 0 0 4px #4a535d;display:grid;place-items:center}
+.jack .plug{width:18px;height:18px;border-radius:50%}
+.jack.red-in .plug{background:var(--red)}
+.jack.black-in .plug{background:#0b0d10;box-shadow:0 0 0 2px #8995a1}
+.jack:disabled{cursor:default}
+.jack-note{font-size:.7rem;color:var(--inst-muted);text-align:center;margin-top:-4px}
+
+.bench{display:grid;gap:14px;min-width:0}
+.devsvg{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px}
+.devsvg svg{display:block;width:100%;height:auto;max-height:240px}
+.term{cursor:pointer}
+.term circle.post{fill:var(--surface);stroke:var(--ink);stroke-width:2.5}
+.term:hover circle.post,.term:focus-visible circle.post{stroke:var(--accent)}
+.probebar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.probe{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-weight:600;font-size:.86rem}
+.probe i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.probe.r i{background:var(--red)} .probe.b i{background:var(--black)}
+.probe[aria-pressed="true"].r{border-color:var(--red)}
+.probe[aria-pressed="true"].b{border-color:var(--black)}
+.status{font-family:var(--f-mono);font-size:.82rem;color:var(--muted)}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.steps li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:.88rem;align-items:start}
+.steps li .ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.7rem;font-weight:700;color:transparent;margin-top:2px}
+.steps li.done .ck{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.steps li.done{color:var(--muted)}
+
+/* Quiz */
+.quiz{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
+.q h3{font-family:var(--f-body);font-size:1rem;font-weight:700;line-height:1.4}
+.q .qn{font-family:var(--f-mono);font-size:.72rem;color:var(--accent);letter-spacing:.1em}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:.92rem}
+.opt input{margin-top:5px;accent-color:var(--accent)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{font-size:.88rem}
+.score{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.score b{font-family:var(--f-mono);font-size:1.4rem}
+
+/* Refs */
+.refs{display:grid;gap:8px;padding-left:1.2em;margin:0}
+.refs li{font-size:.94rem}
+.refs li span{color:var(--muted);font-size:.85rem}
+footer{padding-block:28px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+
+@media (max-width:1060px){.mm-lab{grid-template-columns:minmax(0,340px) minmax(0,1fr)}.mm-guide{grid-column:1/-1}}
+@media (max-width:860px){.hero-grid,.lab{grid-template-columns:minmax(0,1fr)}.mm-lab{grid-template-columns:minmax(0,1fr)}}
+
+/* Identidad BIC: banner institucional navy con búho oficial y etiqueta dorada */
+.hero{background:linear-gradient(135deg,#00204A,#003DA5);color:#fff;border-bottom:4px solid #F2A900}
+.hero h1{color:#fff;font-weight:800;font-size:clamp(2.2rem,5vw,3.6rem)}
+.hero h1 em{color:#F2A900}
+.hero .lead{color:#D7E2F5}
+.hero .eyebrow{color:#F2A900}
+.owl{width:92px;margin-bottom:14px}
+.owl svg{display:block;width:100%;height:auto}
+.mark{display:inline-block;background:#F2A900;color:#00204A;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:14px;line-height:1.4}
+.hero .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+.hero .btn:hover{border-color:#F2A900}
+.hero .btn.primary{background:#F2A900;color:#00204A;border-color:#F2A900}
+.hero .hero-figure,.hero .plate{border-color:rgba(255,255,255,.25)}
+.brand-mark{background:var(--navy)!important;color:#fff!important}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.toast{background:#00204A!important;color:#fff!important;border:1px solid #F2A900}
+footer{text-align:center}
+@media (max-width:640px){.owl{width:72px}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#inicio"><span class="brand-mark">V⎓</span> Laboratorio de Tensión Continua</a>
+    <nav aria-label="Secciones">
+      <a href="#conceptos">Conceptos</a>
+      <a href="#osciloscopio">Osciloscopio</a>
+      <a href="#multimetro">Multímetro</a>
+      <a href="#evaluacion">Autoevaluación</a>
+      <a href="#referencias">Referencias</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="inicio">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="owl"><svg role="img" aria-label="Búho · Biblioteca Jorge Roa Martínez, UTP" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 478.7">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M255.53,213.91c-.15-5.5,0-10.98.96-16.42,2.46-14.06,8.48-26.37,18.15-36.84,10.88-11.79,24.24-19.36,40.04-22.13,22.04-3.87,42,1.18,59.39,15.36,12.66,10.32,21.03,23.56,24.46,39.54,5.38,25.03-.57,47.26-17.98,66.13-10.73,11.63-24.11,18.83-39.68,21.51-21.19,3.64-40.5-1.09-57.6-14.24-7.42-5.7-13.41-12.71-18.12-20.79-.1-.18-.24-.34-.37-.51.13-.56.23-1.13.38-1.69.96-3.56.91-7.15.22-10.73-.53-2.78-1.95-5.2-3.35-7.62-2.21-3.83-4.34-7.7-6.5-11.56ZM383.47,209.76c0-30.54-24.86-55.46-55.43-55.54-30.56-.08-55.67,24.88-55.61,55.49.06,30.76,24.72,55.41,55.41,55.53,30.64.12,55.63-24.9,55.63-55.48Z"/>
+  <path class="cls-1" d="M235.21,246.5c-3.09,4.87-6.46,9.51-10.5,13.65-10.17,10.41-22.28,17.45-36.53,20.35-24.67,5.02-46.58-.9-65.14-17.94-12.32-11.3-19.82-25.48-22.04-42.1-3.52-26.33,4.83-48.45,24.77-65.97,10.49-9.22,22.88-14.69,36.75-16.48,22.66-2.92,42.61,3.26,59.45,18.7,12.6,11.55,20,26.02,22.42,42.94.57,4.01.52,8.11.76,12.17-.28.57-.54,1.15-.85,1.69-2.65,4.68-5.3,9.36-7.97,14.04-1.93,3.39-2.99,7.03-2.64,10.91.24,2.7,1,5.36,1.52,8.04ZM172.57,265.27c30.51,0,55.51-24.89,55.53-55.3.02-30.8-24.86-55.78-55.55-55.75-30.57.03-55.47,24.97-55.45,55.53.02,30.59,24.92,55.51,55.46,55.52Z"/>
+  <path class="cls-1" d="M252.09,157.48c-.74.8-1.47,1.59-2.31,2.5-.63-.66-1.22-1.28-1.81-1.9-.12-.23-.24-.46-.36-.68l.02.03c-.11-.11-.23-.23-.34-.34l.02.03c-.11-.11-.23-.23-.34-.34l.02.02c-.19-.35-.33-.74-.57-1.05-1.29-1.7-2.64-3.36-3.9-5.08-.34-.46-.42-1.1-.62-1.66.12-1.53.24-3.05.35-4.58.42-1.93.87-3.86,1.23-5.81.08-.43-.08-.94-.25-1.37-4.07-10.35-9.17-20.17-15.28-29.45-2.17-3.29-4.64-6.38-6.98-9.57-.11-.17-.23-.33-.34-.5l.02.03c-.11-.22-.23-.44-.34-.66l.02.03c-.11-.11-.23-.22-.34-.34h.02c-1.26-1.72-2.44-3.51-3.78-5.18-12.79-15.88-27.74-29.46-44.27-41.32-21.56-15.47-43.71-30.08-65.89-44.64-.42-.28-.82-.59-1.45-1.05,5.86-1.56,11.44-3.05,17.18-4.58,6.95,4.41,13.98,8.82,20.94,13.32,13.24,8.55,26.21,17.48,38.8,26.95,11.08,8.34,21.76,17.14,31.4,27.15,12.78,13.27,24.21,27.55,32.78,43.95,1.39,2.66,2.66,5.38,4.06,8.21.6-1.28,1.15-2.46,1.71-3.64,5.71-12,13.1-22.92,21.45-33.21,6.87-8.47,14.33-16.41,22.35-23.8,10.67-9.83,22.24-18.54,34.04-26.97,15.32-10.94,31.07-21.22,47.1-31.09.98-.6,1.86-.76,2.97-.46,5.09,1.4,10.19,2.74,15.55,4.17-.64.45-1.13.8-1.64,1.13-11.01,7.3-22.06,14.54-33.02,21.93-13.68,9.22-27.39,18.39-40.48,28.44-6.42,4.93-12.52,10.24-18.38,15.82-7.63,7.28-14.65,15.09-21.08,23.44-.31.41-.45.96-.66,1.44,0,0,.02-.01.02-.01-.11.11-.22.22-.34.34,0,0,.02-.02.02-.02-.11.11-.23.22-.34.34,0,0,.02-.03.02-.03-.11.17-.23.33-.34.5-.42.47-.9.91-1.25,1.42-2.43,3.51-4.92,6.97-7.23,10.55-5.4,8.35-9.81,17.23-13.6,26.41-.33.81-.7,1.73-.6,2.55.22,1.87.73,3.7,1.11,5.55l.65,4.45c-.57,1.02-1.08,2.08-1.73,3.05-.97,1.45-2.02,2.85-3.04,4.26l.02-.02c-.12.22-.23.43-.35.65l.02-.02c-.11.11-.23.23-.34.34l.02-.03c-.11.14-.22.27-.33.41Z"/>
+  <path class="cls-1" d="M241.91,148.99c.2.56.29,1.2.62,1.66,1.26,1.72,2.61,3.38,3.9,5.08.24.31.39.7.57,1.05-.26-.13-.57-.22-.78-.41-10.02-9.23-21.55-16.09-33.89-21.67-14.36-6.48-29.39-10.78-44.88-13.54-10.89-1.94-21.85-3.2-32.9-3.54-10.93-.33-21.88-.45-32.82-.45-6.97,0-13.94.32-20.91.61-10.13.42-20.26.93-30.39,1.42-7.12.34-14.24.7-21.36,1.04-.41.02-.83,0-1.57,0,3.81-4.75,7.45-9.31,11.22-14,2.21-.17,4.52-.38,6.83-.5,7.49-.38,14.98-.77,22.48-1.07,9.4-.37,18.8-.69,28.2-.95,8.66-.24,17.33-.67,25.99-.46,8.7.21,17.4.96,26.08,1.74,10.95.98,21.79,2.79,32.46,5.46,5.88,1.47,11.65,3.37,17.47,5.07.49.14,1,.22,1.51.33l-.03-.02c.2.14.4.28.6.42,1.22.62,2.47,1.16,3.64,1.86,9.32,5.57,18.06,11.95,26.08,19.28,4.09,3.74,7.95,7.73,11.91,11.6Z"/>
+  <path class="cls-1" d="M253.05,156.16c1.02-1.42,2.08-2.81,3.04-4.26.64-.97,1.16-2.03,1.73-3.05,5.24-4.99,10.3-10.19,15.77-14.92,7.95-6.88,16.47-13.04,25.9-17.82,4.38-1.37,8.72-2.85,13.14-4.09,10.03-2.8,20.26-4.68,30.58-6.08,14.11-1.92,28.28-2.99,42.52-2.74,9.88.17,19.76.52,29.63.86,9.24.32,18.48.7,27.72,1.11,5.07.23,10.13.56,15.19.86.84.05,1.68.15,2.59.23,3.66,4.57,7.32,9.13,11.19,13.95-1.15,0-2.01.04-2.86,0-6.86-.33-13.72-.7-20.58-1.02-9.34-.44-18.68-.89-28.03-1.26-7.02-.28-14.05-.51-21.07-.63-7.45-.13-14.91-.25-22.36-.12-20.65.36-41.13,2.24-61.19,7.52-16.13,4.24-31.51,10.26-45.74,19.03-5.68,3.5-11.05,7.43-16.04,11.87-.3.27-.73.39-1.1.57Z"/>
+  <path class="cls-1" d="M299.48,116.1c-9.43,4.78-17.94,10.94-25.9,17.82-5.47,4.73-10.52,9.93-15.77,14.92l-.65-4.45c.13-.09.29-.16.38-.28,3.13-4.41,6.07-8.97,9.42-13.19,4.11-5.17,8.47-10.16,12.92-15.05,2.76-3.03,5.86-5.76,8.84-8.58.83-.79,1.8-1.44,2.7-2.15.11-.15.23-.3.34-.45l-.03.02c.22-.11.44-.22.66-.34,0,0-.01.03-.01.03,1.78-1,3.57-1.99,5.34-3.01,12.18-7.06,25.18-12.12,38.67-16.02,16.13-4.67,32.42-8.67,48.89-11.94,11.9-2.36,23.87-4.43,35.82-6.52,6.03-1.05,12.11-1.84,18.16-2.77,1.42-.22,2.56-.02,3.71,1.08,3.03,2.86,6.24,5.54,9.38,8.3.43.38.85.78,1.51,1.39-1.48.3-2.72.6-3.97.81-10.2,1.73-20.39,3.46-30.59,5.17-26.24,4.42-52.35,9.46-77.78,17.47-13.67,4.31-27,9.46-39.66,16.23-.83.44-1.6,1.01-2.4,1.52Z"/>
+  <path class="cls-1" d="M241.91,148.99c-3.96-3.87-7.83-7.86-11.91-11.6-8.01-7.33-16.75-13.71-26.08-19.28-1.17-.7-2.42-1.24-3.64-1.86-.2-.14-.4-.28-.6-.42l.03.02c-3.25-1.72-6.45-3.56-9.77-5.14-17.86-8.5-36.66-14.27-55.8-19.01-14.86-3.68-29.87-6.66-44.96-9.25-13.52-2.32-27.05-4.63-40.58-6.94-.87-.15-1.73-.34-2.97-.59,4.32-3.8,8.37-7.37,12.51-11.01,3.66.5,7.34.93,10.98,1.51,8.6,1.39,17.21,2.68,25.76,4.32,12.54,2.41,25.06,4.95,37.53,7.7,13.51,2.98,26.88,6.5,40.02,10.85,11.57,3.83,22.61,8.86,33,15.27.39.24.85.36,1.27.54,0,0-.01-.02-.01-.02.22.11.44.22.66.33,0,0-.03-.02-.03-.02.17.11.34.23.51.34,1.7,1.49,3.48,2.9,5.07,4.49,3.73,3.73,7.43,7.5,11.04,11.34,2.34,2.49,4.66,5.03,6.71,7.75,3.98,5.29,7.76,10.73,11.62,16.11-.12,1.53-.24,3.05-.35,4.58Z"/>
+  <path class="cls-1" d="M242.26,144.41c-3.86-5.38-7.64-10.82-11.62-16.11-2.05-2.73-4.37-5.26-6.71-7.75-3.61-3.85-7.31-7.61-11.04-11.34-1.59-1.59-3.38-3-5.07-4.49-.17-.11-.34-.23-.51-.34l.03.02c-.22-.11-.44-.22-.66-.33v.02c-.29-.41-.52-.91-.9-1.23-14.76-12.61-31.02-22.86-48.6-31.05-26.43-12.31-53.33-23.46-80.94-32.84-.29-.1-.56-.24-.99-.43,5.3-3.03,10.48-5.99,15.8-9.03,2.95,1.05,5.98,2.09,8.99,3.21,22.18,8.27,43.96,17.45,65.06,28.19,14.94,7.61,29.5,15.87,42.87,26.06,3.69,2.82,7.14,5.96,10.71,8.94.41.34.9.59,1.36.88h-.02c.11.1.23.21.34.32,0,0-.02-.03-.02-.03.11.22.23.44.34.66,0,0-.02-.03-.02-.03.11.17.23.33.34.5,2.33,3.18,4.81,6.27,6.98,9.57,6.11,9.28,11.21,19.11,15.28,29.45.17.43.33.94.25,1.37-.36,1.94-.81,3.87-1.23,5.81Z"/>
+  <path class="cls-1" d="M291.44,105.15c-.9.71-1.87,1.36-2.7,2.15-2.98,2.82-6.08,5.55-8.84,8.58-4.45,4.89-8.81,9.88-12.92,15.05-3.36,4.23-6.29,8.79-9.42,13.19-.09.12-.25.19-.38.28-.39-1.85-.89-3.68-1.11-5.55-.1-.82.27-1.75.6-2.55,3.79-9.18,8.2-18.06,13.6-26.41,2.32-3.58,4.8-7.05,7.23-10.55.36-.52.83-.95,1.25-1.42.11-.17.23-.33.34-.5,0,0-.02.03-.02.03.11-.11.23-.22.34-.34l-.02.02c.11-.11.22-.22.34-.34h-.02c2.24-1.9,4.45-3.85,6.72-5.73,9.35-7.75,19.51-14.31,30.01-20.37,19.2-11.08,39.24-20.42,59.75-28.78,10.21-4.16,20.59-7.93,30.89-11.87.49-.19.99-.33,1.5-.5,5.2,2.97,10.38,5.93,15.8,9.03-2.35.82-4.46,1.54-6.56,2.28-19.73,6.93-39.12,14.73-58.25,23.16-11.6,5.11-23.17,10.28-34.18,16.61-11.39,6.55-22.12,14.06-32.07,22.66-.36.31-.6.76-.89,1.14,0,0,.01-.03.01-.03-.22.11-.44.22-.66.34l.03-.02c-.11.15-.23.3-.34.45Z"/>
+  <path class="cls-1" d="M235.21,246.5c-.53-2.68-1.28-5.34-1.52-8.04-.35-3.87.71-7.52,2.64-10.91,2.67-4.67,5.32-9.36,7.97-14.04.31-.55.57-1.13.85-1.69,1.51-2.49,3.03-4.99,4.64-7.66,1.98,3.36,3.86,6.56,5.75,9.75,2.16,3.86,4.29,7.73,6.5,11.56,1.4,2.42,2.82,4.84,3.35,7.62.69,3.58.74,7.17-.22,10.73-.15.56-.25,1.13-.38,1.69-2.11,4.83-4.24,9.66-6.33,14.5-2.66,6.16-5.29,12.33-7.93,18.49-.2.47-.44.93-.78,1.64-1.41-3.29-2.71-6.33-4.02-9.36-3.38-7.86-6.77-15.71-10.15-23.57-.1-.24-.24-.47-.36-.71Z"/>
+  <path class="cls-1" d="M298.87,413.43c2.86-10.36,5.63-20.35,8.39-30.34h11.74v43.39h-7.18v-33.27c-.09-.01-.17-.02-.26-.03-3.14,11.09-6.29,22.17-9.45,33.32h-6.43c-3.12-11.14-6.24-22.28-9.36-33.42-.07.01-.14.03-.22.04v33.34h-7.2v-43.31h11.64c2.72,9.89,5.48,19.92,8.33,30.29Z"/>
+  <path class="cls-1" d="M147.13,341.13c.72.37,1.31.69,1.91,1,2.81,1.45,4.67,3.64,4.99,6.85.19,1.88.38,3.82.13,5.68-.55,4.12-3.13,6.77-6.96,8.05-2.08.7-4.31,1.21-6.49,1.27-5.97.17-11.95.06-18.04.06v-43.54c1.01,0,2,0,2.99,0,4.81.02,9.63-.08,14.44.1,2.18.08,4.43.47,6.51,1.13,4.16,1.33,6.35,4.44,6.71,8.72.37,4.43-1.14,7.99-5.26,10.15-.26.14-.51.29-.92.52ZM130.88,357.44c3.61-.13,7.04-.11,10.44-.42,2.63-.24,4.07-1.74,4.5-4.35.19-1.17.15-2.42-.03-3.59-.34-2.3-1.84-3.82-4.06-4.04-3.59-.36-7.21-.35-10.84-.5v12.9ZM130.89,337.75c3.28,0,6.5.18,9.69-.06,2.81-.21,4.48-2.32,4.51-5.01.03-2.75-1.66-4.93-4.54-5.16-3.18-.25-6.4-.06-9.66-.06v10.28Z"/>
+  <path class="cls-1" d="M183.78,407.51c3.06,6.25,6.14,12.54,9.29,18.97h-9.25c-2.66-5.76-5.38-11.63-8.12-17.55h-7.06v17.54h-8.21v-43.43c.88,0,1.72,0,2.55,0,5.29.02,10.58-.02,15.87.09,1.56.03,3.17.32,4.66.81,5.01,1.63,7.41,5.36,7.89,10.42.37,3.93-.25,7.66-3.41,10.42-1.21,1.06-2.71,1.77-4.21,2.73ZM168.69,390.02v12.06c2.57,0,5.05.02,7.52-.01.68,0,1.37-.13,2.04-.26,1.59-.3,3.07-.81,4.02-2.25,2.53-3.84.3-9.03-4.26-9.48-3.03-.3-6.11-.06-9.32-.06Z"/>
+  <path class="cls-1" d="M83.25,424.57c-6.81-2.97-4.81-8.18.31-10.79-.38-.37-.72-.74-1.1-1.07-5.76-5.02-3.5-14.2,3.5-16.93,4.44-1.73,8.74-1.24,13.19,1.61,1.94-2.13,4.43-2.77,7.31-2.54v4.9c-1.56.21-3.05.41-4.31.58.44,2,1.09,3.75,1.16,5.53.21,5.27-2.86,8.98-8.08,9.89-1.81.32-3.68.26-5.52.41-.84.07-1.74.06-2.49.38-.58.25-1.34.94-1.35,1.45-.01.52.7,1.36,1.26,1.53,1.35.4,2.79.53,4.2.7,2.93.35,5.9.48,8.79,1.03,2.82.54,5.1,2.02,5.96,5.03.94,3.29-.1,6.38-2.89,8.59-2.46,1.94-5.35,2.74-8.38,3.02-3.59.33-7.19.25-10.68-.81-.95-.29-1.9-.65-2.78-1.13-2.59-1.41-3.69-3.53-3.37-6.26.3-2.61,1.7-4.09,4.64-4.93.15-.04.3-.09.63-.18ZM92.45,433.18c1.27-.25,3-.44,4.63-.95,1.21-.38,2.35-1.23,2.34-2.69,0-1.45-1.25-2.03-2.37-2.47-2.65-1.05-5.44-1.26-8.26-1-.57.05-1.14.26-1.66.48-1.5.65-2.4,1.97-2.3,3.29.1,1.31,1.03,2.31,2.74,2.67,1.44.3,2.92.41,4.87.67ZM91.24,410.51c2.74.11,5.12-2.08,5.26-4.83.14-2.77-2.15-5.21-4.98-5.28-2.91-.07-5.32,2.07-5.44,4.84-.13,2.85,2.13,5.15,5.16,5.27Z"/>
+  <path class="cls-1" d="M185.16,360.88c-.3,1.09-.56,2.06-.84,3.12h-5.76v-43.36h7.36v14.85c.95-.66,1.67-1.26,2.48-1.71,4.98-2.8,10.75-1.56,14.27,3.03,1.92,2.5,2.98,5.36,3.28,8.45.42,4.31-.02,8.55-1.82,12.56-3.49,7.73-12.72,8.99-18.07,3.84-.23-.22-.47-.41-.89-.77ZM185.95,355.87c.61.51,1.12.97,1.66,1.39,3.37,2.58,8.03,1.56,9.7-2.33,1.83-4.25,1.78-8.65-.01-12.92-1.09-2.59-3.44-3.89-6.09-3.65-2.15.19-3.87,1.22-5.26,2.69v14.82Z"/>
+  <path class="cls-1" d="M343.14,406.62c.02-.35.05-.61.06-.87.08-4.41-2.46-6.3-6.76-5.07-1.97.56-3.37,1.88-4.69,3.55-1.64-1.24-3.21-2.43-5.08-3.84,1.26-1.13,2.27-2.3,3.52-3.11,4.75-3.07,9.86-3.24,15.03-1.33,3.61,1.33,4.91,4.46,5.27,8.01.21,2.15.17,4.33.19,6.49.05,4.33.05,8.67.12,13,.02.99.23,1.99.36,3.05h-7.18c-.17-.76-.34-1.52-.53-2.42-.6.34-1.16.66-1.72.97-3.33,1.88-6.86,2.75-10.65,1.83-2.66-.64-4.43-2.37-5.34-4.94-1.44-4.08.03-8.56,3.63-11.08,3.01-2.11,6.49-2.97,10.03-3.64,1.24-.23,2.48-.4,3.75-.61ZM343.15,411.51c-2.44.72-4.71,1.25-6.86,2.07-1.03.39-2.02,1.19-2.73,2.05-1.1,1.33-1.13,2.95-.23,4.45.88,1.46,2.31,1.74,3.87,1.45,2.36-.44,4.23-1.78,5.95-3.19v-6.82Z"/>
+  <path class="cls-1" d="M252.74,426.51h-7.18c-.17-.78-.34-1.53-.53-2.43-.6.34-1.17.66-1.73.98-3.33,1.88-6.87,2.74-10.65,1.82-2.66-.64-4.42-2.37-5.33-4.95-1.43-4.08.03-8.56,3.64-11.07,3.02-2.11,6.49-2.97,10.04-3.64,1.24-.23,2.48-.4,3.75-.61.02-.35.05-.61.05-.87.07-4.4-2.47-6.3-6.77-5.05-1.56.46-2.86,1.33-3.88,2.61-.22.28-.48.54-.82.91-1.6-1.2-3.14-2.37-4.75-3.58.43-1.29,1.42-2.09,2.41-2.84,3.58-2.69,7.64-3.41,12-2.85.26.03.52.1.78.14,5.14.85,7.85,3.7,8.31,8.87.17,1.89.16,3.8.18,5.7.05,4.6.05,9.2.12,13.8.01.99.23,1.98.37,3.04ZM244.74,411.52c-2.42.71-4.69,1.23-6.84,2.06-1.07.41-2.11,1.25-2.83,2.16-1.07,1.35-1.04,2.99-.09,4.45.88,1.35,2.27,1.62,3.78,1.34,2.37-.44,4.24-1.77,5.98-3.2v-6.81Z"/>
+  <path class="cls-1" d="M359.35,341.71c-1.69-1.29-3.23-2.46-5.06-3.86,1.25-1.12,2.26-2.29,3.5-3.1,4.74-3.07,9.86-3.24,15.03-1.34,3.61,1.33,4.91,4.46,5.28,8,.2,1.94.17,3.9.19,5.86.05,4.55.05,9.09.12,13.64.01.99.23,1.99.36,3.05h-7.18c-.18-.78-.35-1.58-.55-2.47-2.26,1.47-4.55,2.73-7.17,2.98-1.71.16-3.51.21-5.17-.16-3.2-.7-5.06-2.94-5.66-6.12-.81-4.26.79-7.88,4.45-10.21,2.95-1.88,6.27-2.71,9.66-3.31,1.19-.21,2.38-.39,3.6-.59.03-.34.06-.6.06-.86.08-4.47-2.54-6.37-6.9-5.03-1.9.58-3.26,1.87-4.56,3.51ZM370.75,348.99c-2.37.69-4.64,1.21-6.79,2.04-1.07.41-2.11,1.24-2.84,2.15-1.08,1.35-1.06,2.98-.12,4.45.87,1.36,2.26,1.64,3.77,1.37,2.38-.42,4.24-1.78,6.05-3.23,0-1.99,0-3.89,0-5.79,0-.21-.03-.42-.07-.99Z"/>
+  <path class="cls-1" d="M414.72,395.54h6.8v3.1c.78-.49,1.32-.83,1.86-1.16,2.27-1.38,4.61-2.59,7.36-2.65,5.68-.12,9.35,3.04,9.51,8.72.21,7.6.05,15.22.05,22.92h-7.45v-1.69c0-5.82.03-11.64-.02-17.45-.01-1.36-.17-2.74-.44-4.07-.29-1.47-1.37-2.25-2.83-2.35-2.83-.2-5.16.95-7.09,2.9-.36.36-.38,1.17-.38,1.77-.03,6.4-.02,12.8-.02,19.2v1.68h-7.38v-30.92Z"/>
+  <path class="cls-1" d="M270.46,348.41c-.19,3.04-.64,5.95-1.87,8.69-2.16,4.76-5.87,7.3-11.11,7.59-8.41.45-13.28-5.07-14.25-12.77-.48-3.81-.33-7.6,1.08-11.23,2.3-5.91,6.8-8.67,13.58-8.39,5.26.22,9.73,3.79,11.32,9.3.64,2.21.85,4.53,1.25,6.81ZM262.88,348.54c-.33-2.03-.47-4.16-1.04-6.16-.76-2.71-2.66-4.03-5.19-4.04-2.56-.01-4.4,1.26-5.25,3.97-1.28,4.07-1.27,8.22-.03,12.3.83,2.73,2.65,4.03,5.2,4.04,2.6.02,4.52-1.33,5.3-4.12.53-1.91.68-3.93,1.01-5.99Z"/>
+  <path class="cls-1" d="M224.42,410.97c-.19,3.04-.64,5.95-1.89,8.68-2.2,4.81-5.97,7.36-11.29,7.55-5.73.21-10.12-2.05-12.5-7.36-2.44-5.43-2.46-11.1-.43-16.66,2.18-5.95,6.78-8.67,13.57-8.37,5.26.23,9.71,3.81,11.29,9.33.63,2.21.84,4.53,1.25,6.81ZM216.93,411.02c-.44-2.27-.67-4.48-1.33-6.56-.79-2.48-2.6-3.59-5.01-3.59-2.39,0-4.26,1.14-5.08,3.54-1.48,4.37-1.49,8.82-.01,13.2.82,2.41,2.67,3.57,5.06,3.57,2.41,0,4.24-1.1,5.03-3.56.68-2.13.91-4.4,1.34-6.59Z"/>
+  <path class="cls-1" d="M55.68,411c-.03,3.01-.47,5.92-1.72,8.65-2.2,4.81-5.96,7.37-11.28,7.57-5.73.22-10.12-2.04-12.51-7.34-2.45-5.43-2.46-11.1-.44-16.66,2.17-5.96,6.78-8.67,13.56-8.38,5.26.23,9.65,3.82,11.33,9.31.28.9.5,1.83.63,2.77.19,1.35.29,2.72.42,4.08ZM48.37,411.16c-.45-2.29-.72-4.65-1.41-6.89-.71-2.31-2.57-3.4-4.98-3.4-2.43,0-4.16,1.18-4.99,3.43-.49,1.32-.77,2.74-.93,4.14-.34,3.01-.24,6.01.76,8.9.58,1.66,1.57,2.97,3.34,3.53,2.99.94,5.78-.2,6.81-3.15.72-2.05.93-4.28,1.4-6.56Z"/>
+  <path class="cls-1" d="M115.87,412.24c.34,3.47.6,6.81,4.02,8.32,3.9,1.72,6.94-.09,9.52-3.09,1.78,1.1,3.52,2.18,5.37,3.32-1.3,2.3-3.12,3.93-5.41,4.97-3.64,1.65-7.49,1.99-11.32,1.01-4.74-1.21-7.48-4.61-8.77-9.16-1.32-4.62-1.28-9.29.25-13.89,2.02-6.07,6.77-9.17,13.55-8.9,5.29.21,9.85,4.13,11.13,9.87.53,2.39.53,4.9.79,7.54h-19.14ZM127.89,407.15c-.25-4.49-2.65-6.99-6.3-6.74-3.52.24-5.86,3.09-5.48,6.74h11.78Z"/>
+  <path class="cls-1" d="M300.32,349.71c.34,3.47.6,6.81,4.02,8.32,3.9,1.72,6.94-.09,9.52-3.09,1.78,1.1,3.52,2.18,5.37,3.32-1.3,2.3-3.12,3.93-5.41,4.97-3.64,1.65-7.49,1.99-11.32,1.01-4.74-1.21-7.48-4.62-8.77-9.16-1.32-4.62-1.28-9.29.25-13.89,2.02-6.07,6.77-9.17,13.55-8.9,5.29.21,9.85,4.13,11.13,9.87.53,2.39.53,4.9.79,7.54h-19.14ZM312.33,344.61c-.19-4.42-2.59-6.96-6.25-6.74-3.52.21-5.8,2.95-5.57,6.74h11.81Z"/>
+  <path class="cls-1" d="M466.62,417.5c1.78,1.1,3.48,2.15,5.3,3.28-.95,1.81-2.3,3.19-3.98,4.19-4.34,2.58-9.02,3.02-13.74,1.47-4.58-1.51-6.94-5.2-8.01-9.69-1.04-4.39-.96-8.81.52-13.13,2.61-7.65,11.25-11.2,18.32-7.46,4.06,2.14,6.05,5.82,6.68,10.2.27,1.9.05,3.87.05,5.92h-18.48c-.49,3.24,1.06,6.91,3.41,8.19,2.93,1.59,5.96.71,9.93-2.96ZM453.12,407.1h11.91c-.21-4.27-2.4-6.75-5.95-6.71-3.47.04-5.8,2.32-5.96,6.71Z"/>
+  <path class="cls-1" d="M484.99,420.59h14.97v5.92h-24.42c0-1.66-.05-3.29.03-4.9.02-.47.38-.96.68-1.36,4.66-6.15,9.33-12.28,14.16-18.63h-13.62v-6.08h23.18c0,1.65.08,3.29-.04,4.9-.04.56-.55,1.11-.93,1.6-4.43,5.86-8.88,11.71-13.32,17.56-.18.24-.34.49-.7.99Z"/>
+  <path class="cls-1" d="M0,421.33c1.9-1.43,3.75-2.81,5.67-4.25.46.59.86,1.14,1.31,1.64,1.11,1.23,2.49,1.78,4.13,1.36,1.55-.4,2.12-1.66,2.34-3.08.15-.99.21-2,.21-2.99.02-9.67,0-19.34,0-29.01v-1.82h8.18c.02.44.07.89.07,1.35,0,10.36.02,20.71-.01,31.07,0,1.2-.13,2.44-.41,3.61-1.04,4.41-3.81,7.01-8.31,7.81-5.62,1-10.08-.85-13.19-5.69Z"/>
+  <path class="cls-1" d="M343.63,353.72c1.85,1.04,3.67,2.06,5.51,3.1-2.85,5.78-7.4,8.25-13.68,7.88-5.06-.3-9.43-3.36-11.22-8.62-1.87-5.47-1.85-11.02.5-16.39,2-4.55,5.64-7.05,10.59-7.38,5.46-.37,9.99,1.37,12.83,6.37.33.58.55,1.23.88,1.96-2.18.84-4.22,1.63-6.29,2.43-.38-.7-.68-1.31-1.03-1.89-1.3-2.2-3.29-3.06-5.76-2.82-2.45.24-3.94,1.74-4.6,4-1.2,4.1-1.22,8.22.05,12.32,1.43,4.65,6.91,4.9,9.49,2.34.96-.96,1.74-2.1,2.73-3.31Z"/>
+  <path class="cls-1" d="M290.12,358.04v6.14c-2.66.49-5.34.76-8.01.38-3.65-.52-5.56-2.84-5.58-6.53-.02-5.76,0-11.53,0-17.29v-1.74h-4.32v-6.08h4.26v-10.3h7.51v10.22h6.09v6.07h-5.99c-.04.54-.08.94-.08,1.34,0,5.08.04,10.15-.02,15.23-.03,2.8.8,3.42,3.75,3.08.78-.09,1.54-.32,2.39-.5Z"/>
+  <path class="cls-1" d="M379.07,401.46h-4.32v-6.03h4.27v-10.3h7.51v10.23h6.09v6.07h-6.02c-.03.55-.06.95-.06,1.34,0,5.08.04,10.15-.02,15.23-.03,2.75.75,3.37,3.6,3.08.83-.08,1.64-.33,2.53-.51v6.38c-2.64.06-5.28.36-7.87.12-3.72-.34-5.71-2.79-5.72-6.54-.02-5.76,0-11.53,0-17.29v-1.79Z"/>
+  <path class="cls-1" d="M212.66,320.61h7.28v43.34h-7.28v-43.34Z"/>
+  <path class="cls-1" d="M76.17,402.77c-2.25-.3-4.02.39-5.59,1.69-1.75,1.43-2.8,3.03-2.69,5.53.22,4.96.06,9.93.06,14.9v1.62h-7.4v-31h6.75v4.67c2.11-3.23,4.77-5.34,8.86-5.32v7.91Z"/>
+  <path class="cls-1" d="M373,402.72c-3.03-.35-5.2,1.1-7.08,3.18-.77.85-1.17,1.78-1.16,2.99.06,5.34.02,10.67.02,16.01v1.61h-7.4v-31h6.76v4.68c2.1-3.24,4.77-5.34,8.86-5.32v7.86Z"/>
+  <path class="cls-1" d="M162.76,363.95v-30.92h7.33v30.92h-7.33Z"/>
+  <path class="cls-1" d="M236.77,363.98h-7.28v-30.96h7.28v30.96Z"/>
+  <path class="cls-1" d="M398.7,395.47c.63,0,1.15,0,1.67,0,1.84,0,3.68,0,5.6,0v31.01h-7.28v-31.01Z"/>
+  <path class="cls-1" d="M299.62,455.75c1.37-.52,2.53-.97,3.83-1.46v2.37c-.76.15-1.55.31-2.15.43.27,1.41.8,2.75.73,4.05-.21,4.13-3.88,6.51-8.35,5.59-1.76-.36-2.25.05-2.09,2.03.68.11,1.43.25,2.18.34,2.19.27,4.4.41,6.57.82,1.38.26,2.51,1.07,3,2.53.59,1.78.13,3.59-1.44,4.62-.9.59-1.97,1.03-3.03,1.27-2.5.55-5.04.49-7.52-.18-1.51-.41-2.7-1.22-3.04-2.88-.35-1.76.47-2.94,1.93-3.79.14-.08.26-.19.47-.34-.74-.82-2.02-1.5-1.6-2.79.32-.97,1.09-1.79,1.65-2.67-.49-1.07-1.33-2.32-1.64-3.68-.82-3.56,1.85-6.95,5.52-7.18,1.75-.11,3.49-.03,4.98.92ZM295.48,456.78c-2.59,0-4.2,1.59-4.16,4.13.03,2.36,1.84,4.02,4.38,4.01,2.36,0,4.03-1.62,4.05-3.94.03-2.59-1.6-4.2-4.27-4.21ZM296.19,476.83c1.05-.27,2.59-.47,3.94-1.08,1.55-.7,1.49-2.32.02-3.22-.4-.24-.86-.48-1.31-.52-1.52-.15-3.05-.35-4.56-.25-.95.06-1.98.47-2.74,1.04-.53.4-.86,1.32-.89,2.03-.04.89.79,1.33,1.61,1.48,1.13.21,2.29.3,3.93.51Z"/>
+  <path class="cls-1" d="M16.67,448.51h2.65c.03.5.07.95.07,1.41,0,4.91,0,9.83,0,14.74,0,4.91-2.97,7.89-7.88,7.93-.84,0-1.7.04-2.53-.11-4.13-.74-6.38-3.36-6.41-7.57-.05-5.43-.01-10.86-.01-16.37h2.74c.02.42.07.87.07,1.32,0,4.97.12,9.94-.04,14.9-.12,3.67,2.54,5.53,5.48,5.55,3.71.03,5.81-1.89,5.85-5.52.04-4.86.01-9.72.01-14.58v-1.71Z"/>
+  <path class="cls-1" d="M406.65,461.49v10.7h-2.66v-23.64c3.42,0,6.86-.25,10.25.07,3.44.32,5.39,2.89,5.43,6.33.04,3.14-1.93,5.55-5.24,6.2-1.28.25-2.62.27-3.93.33-1.21.05-2.42.01-3.84.01ZM406.74,450.76v8.63c2.41-.15,4.73-.15,7.01-.47,2.13-.3,3.07-1.63,3.13-3.74.07-2.68-1.35-4.2-4.3-4.39-1.89-.12-3.8-.02-5.84-.02Z"/>
+  <path class="cls-1" d="M368.88,448.55h2.48v23.62h-2.02c-.11-.23-.27-.6-.44-.97-.1,0-.21-.02-.27.02-4.11,2.87-8.99,1.37-10.62-3.36-.97-2.82-.95-5.73.12-8.53,1.8-4.74,6.7-5.64,9.94-3.32.2.14.43.26.81.49v-7.94ZM368.88,468.32v-9.26c-.47-.39-.93-.83-1.44-1.19-3.03-2.15-6.18-1.1-7.11,2.5-.39,1.5-.46,3.14-.39,4.7.11,2.23.74,4.35,3.09,5.27,2.46.96,4.26-.31,5.85-2.02Z"/>
+  <path class="cls-1" d="M129.63,472.18c-.14-.35-.27-.69-.4-1.03-.14.03-.25.03-.32.08-3.98,2.79-8.78,1.41-10.48-3.12-1.11-2.96-1.11-6.03.09-8.97,1.92-4.7,6.73-5.33,9.77-3.19.24.17.52.3.95.54v-7.95h2.41v23.64h-2.01ZM129.2,459.05c-.58-.46-1.16-1.01-1.82-1.43-2.67-1.72-5.65-.75-6.64,2.24-.8,2.41-.85,4.9-.1,7.33,1.1,3.55,4.5,4.54,7.37,2.23.41-.33.79-.7,1.18-1.06v-9.31Z"/>
+  <path class="cls-1" d="M163.82,456.5v-7.95h2.41v23.63h-1.98c-.12-.26-.28-.63-.44-1-.12.02-.23,0-.3.05-4.54,3.19-9.91.93-10.99-4.75-.47-2.49-.48-5.05.62-7.47,1.87-4.09,5.83-5.34,9.71-3.06.26.15.52.31.95.56ZM163.8,459.05c-.58-.46-1.16-1.01-1.82-1.43-2.67-1.72-5.65-.76-6.64,2.24-.8,2.41-.85,4.9-.1,7.33,1.1,3.55,4.49,4.54,7.37,2.23.41-.33.79-.7,1.19-1.06v-9.31Z"/>
+  <path class="cls-1" d="M499.08,472.22h-2.08c-.1-.57-.19-1.17-.32-1.94-.57.39-1.09.7-1.56,1.07-1.52,1.19-3.28,1.45-5.1,1.2-1.75-.24-3.05-1.2-3.61-2.93-.62-1.94-.47-3.87,1.05-5.3,1.01-.94,2.32-1.66,3.62-2.16,1.71-.66,3.53-1,5.33-1.49.33-1.92-.06-2.94-1.39-3.55-2.15-.99-4.47-.19-6.39,2.26-.62-.32-1.26-.66-2.1-1.1.57-.67,1-1.31,1.56-1.81,2.08-1.86,6.07-2.3,8.49-.92,1.58.9,2.48,2.26,2.48,4.13,0,2.17,0,4.34,0,6.5,0,1.95,0,3.89,0,6.02ZM496.51,463.26c-2.48.43-4.84.88-6.75,2.53-1.21,1.05-1.46,2.23-.86,3.36.64,1.19,1.91,1.72,3.37,1.39,1.7-.39,3.03-1.38,4.23-2.58v-4.7Z"/>
+  <path class="cls-1" d="M138.18,459.42c-.68-.37-1.31-.71-1.95-1.05,1.93-3.66,7.5-4.85,10.59-2.33,1.17.95,1.79,2.18,1.78,3.72-.02,2.17,0,4.34,0,6.5,0,1.95,0,3.89,0,5.93h-2.13c-.07-.59-.14-1.18-.23-1.97-.74.52-1.32.93-1.91,1.34-1.58,1.1-3.37,1.3-5.16.91-3.5-.75-4.84-5.45-2.24-8.08,1-1.01,2.4-1.72,3.74-2.25,1.7-.66,3.53-1,5.3-1.48.25-2.02-.15-2.99-1.48-3.57-1.71-.75-4.2-.24-5.42,1.13-.31.35-.56.74-.9,1.19ZM146.03,463.27c-2.43.39-4.72.86-6.62,2.4-1.31,1.06-1.61,2.29-.99,3.46.66,1.24,2.02,1.89,3.5,1.32,1.48-.57,2.84-1.47,4.11-2.15v-5.03Z"/>
+  <path class="cls-1" d="M343.84,472.23h-2.09c-.09-.61-.18-1.21-.3-1.98-.7.49-1.28.9-1.87,1.31-1.58,1.11-3.35,1.28-5.16.93-1.67-.33-2.84-1.36-3.31-3.05-.54-1.91-.35-3.78,1.14-5.13,1.02-.93,2.33-1.64,3.63-2.14,1.71-.65,3.53-1,5.31-1.48.28-1.99-.12-2.97-1.44-3.57-2.15-.96-4.36-.19-6.37,2.28-.62-.33-1.26-.67-1.89-1.01,1.87-3.71,7.62-4.88,10.68-2.25,1.1.95,1.68,2.14,1.67,3.61-.01,2.17,0,4.34,0,6.5,0,1.95,0,3.89,0,5.99ZM341.28,463.25c-2.37.41-4.61.87-6.5,2.31-1.4,1.07-1.76,2.35-1.12,3.56.67,1.29,2.07,1.91,3.64,1.29,1.43-.56,2.74-1.45,3.98-2.12v-5.04Z"/>
+  <path class="cls-1" d="M80.13,464.07h-11.18c-.08,3.02,1.29,5.54,3.49,6.28,2.74.92,4.68-.36,6.24-2.59.6.3,1.15.58,1.77.89-.51,1.42-1.42,2.39-2.64,3.09-4,2.28-9.19.46-10.75-3.86-1.08-2.99-1-6.03.22-8.98,1.23-2.99,3.75-4.38,7.12-4.07,2.72.25,4.76,2.2,5.35,5.25.24,1.23.25,2.5.38,3.98ZM77.39,462.06c.19-3.13-1.38-5.24-3.87-5.28-2.75-.05-4.55,2.07-4.46,5.28h8.33Z"/>
+  <path class="cls-1" d="M198.16,464.01c-.09,3.06,1.27,5.59,3.48,6.34,2.74.93,4.68-.36,6.24-2.58.6.3,1.15.58,1.77.89-.5,1.41-1.41,2.39-2.63,3.08-3.99,2.29-9.19.46-10.75-3.85-1.08-2.99-1-6.03.21-8.98,1.23-2.99,3.74-4.39,7.12-4.08,2.72.25,4.76,2.19,5.35,5.25.24,1.23.25,2.5.38,3.93h-11.17ZM206.68,462.07c-.05-3.4-1.55-5.3-4.07-5.29-2.66.01-4.33,2-4.39,5.29h8.45Z"/>
+  <path class="cls-1" d="M389.34,464.07h-11.19c-.06,3.03,1.3,5.54,3.5,6.28,2.74.92,4.68-.37,6.23-2.59.6.31,1.16.59,1.77.89-.51,1.42-1.41,2.41-2.65,3.08-3.04,1.65-8.81,1.53-10.75-3.86-1.07-2.99-1-6.03.22-8.98,1.23-2.99,3.75-4.38,7.13-4.07,2.72.25,4.76,2.2,5.35,5.26.24,1.23.25,2.5.38,3.98ZM378.15,462.03h8.54c-.05-3.19-1.44-5.11-3.74-5.25-2.74-.17-4.33,1.53-4.8,5.25Z"/>
+  <path class="cls-1" d="M436,464.02h-11.1c-.27,2.82,1.15,5.45,3.33,6.32,2.13.85,4.25.02,6.35-2.56.55.28,1.14.57,1.79.89-1.26,2.62-3.24,3.79-5.95,3.94-3.22.17-5.76-.99-7.14-3.94-1.58-3.39-1.48-6.89.1-10.27,1.26-2.69,3.81-3.9,6.97-3.56,2.61.28,4.63,2.15,5.22,5.01.27,1.32.28,2.69.42,4.17ZM424.84,462.05h8.47c.09-3.14-1.39-5.16-3.78-5.26-2.74-.11-4.38,1.7-4.69,5.26Z"/>
+  <path class="cls-1" d="M461.93,467.8c.53.27,1.09.55,1.7.86-.51,1.42-1.42,2.39-2.64,3.09-4,2.28-9.18.45-10.75-3.87-1.08-2.99-1-6.03.22-8.98,1.23-2.98,3.75-4.38,7.13-4.07,2.72.26,4.76,2.2,5.35,5.26.24,1.23.25,2.5.37,3.89h-11.02c-.44,2.51.84,5.14,2.91,6.19,2.21,1.11,4.27.4,6.74-2.37ZM452.09,462.05h8.53c.04-3.1-1.37-5.1-3.66-5.27-2.74-.2-4.31,1.44-4.87,5.27Z"/>
+  <path class="cls-1" d="M272.07,463.8c.23-2.05.55-3.95,1.56-5.7,1.3-2.26,3.24-3.33,5.86-3.3,2.57.03,4.52,1.09,5.67,3.34,1.86,3.66,1.86,7.43.02,11.1-1.3,2.6-3.6,3.56-6.44,3.36-2.57-.18-4.41-1.51-5.36-3.82-.65-1.58-.89-3.32-1.31-4.99ZM284.21,463.71c-.34-1.47-.54-2.95-1.04-4.31-.62-1.66-1.93-2.61-3.78-2.62-1.85,0-3.14.95-3.8,2.6-1.15,2.85-1.15,5.77,0,8.63.66,1.65,1.95,2.61,3.79,2.61,1.85,0,3.16-.95,3.78-2.61.51-1.36.7-2.83,1.04-4.31Z"/>
+  <path class="cls-1" d="M261.02,463.78c-.46,1.75-.69,3.56-1.4,5.15-1.16,2.6-3.35,3.78-6.25,3.68-2.72-.09-4.65-1.39-5.72-3.79-1.48-3.33-1.5-6.78-.04-10.12,1.11-2.54,3.11-3.87,5.97-3.89,2.91-.03,5.02,1.25,6.12,3.87.66,1.57.87,3.32,1.32,5.1ZM258.47,463.73c-.31-1.42-.48-2.84-.94-4.16-.61-1.73-1.91-2.77-3.83-2.77-1.92,0-3.21,1.01-3.87,2.73-1.07,2.76-1.06,5.58-.02,8.34.65,1.72,1.93,2.76,3.85,2.77,1.92.01,3.24-1.01,3.86-2.74.47-1.32.64-2.74.96-4.17Z"/>
+  <path class="cls-1" d="M25.88,455.18h2.25c.05.59.1,1.15.17,1.89.5-.36.95-.65,1.37-.99,1.41-1.14,3.02-1.45,4.77-1.23,1.92.24,3.28,1.48,3.72,3.38.13.56.22,1.15.23,1.72.02,3.86.01,7.72,0,11.58,0,.2-.05.4-.08.67h-2.42c0-.5,0-1,0-1.51,0-3.54.02-7.09,0-10.63-.02-2.85-1.77-4.05-4.4-2.91-1.18.51-2.21,1.37-3.27,2.05v12.98h-2.32v-17.01Z"/>
+  <path class="cls-1" d="M232.66,459.2v12.98h-2.32v-16.95h2.25c.05.56.11,1.14.19,1.88.57-.43,1.02-.77,1.47-1.12,1.42-1.12,3.07-1.37,4.8-1.12,1.85.27,3.14,1.51,3.57,3.35.07.31.18.62.18.93.01,4.32,0,8.65,0,13.05h-2.38c-.02-.43-.07-.89-.07-1.34,0-3.6.01-7.19,0-10.79-.02-2.85-1.76-4.05-4.4-2.92-1.18.51-2.22,1.37-3.28,2.04Z"/>
+  <path class="cls-1" d="M103.69,459.16c-.51-.47-.95-.92-1.44-1.31-1.28-1.03-2.73-1.33-4.32-.88-1.01.29-1.61.95-1.75,2.02-.15,1.09.49,1.72,1.35,2.09,1.16.5,2.39.83,3.56,1.3,1.02.41,2.11.76,3,1.38,2.95,2.05,2.68,6.22-.44,8.03-2.92,1.7-8.53.8-10.43-2.26.09-.12.16-.28.28-.37.46-.36.93-.69,1.72-1.29.29.43.51.94.88,1.28,1.56,1.42,3.4,1.85,5.44,1.28,1.16-.33,1.96-1.28,2.05-2.35.1-1.16-.47-1.95-1.48-2.37-1.16-.49-2.37-.87-3.56-1.3-.65-.23-1.31-.4-1.94-.68-2.24-1-3.11-2.39-2.94-4.55.18-2.16,1.43-3.67,3.73-4.15,3.06-.64,5.74.08,7.97,2.64-.58.53-1.11,1.01-1.68,1.52Z"/>
+  <path class="cls-1" d="M196.75,448.57v2.07h-7.1v21.55h-2.62v-21.42h-7.16v-2.2h16.88Z"/>
+  <path class="cls-1" d="M57.99,468.63c1.37-4.44,2.74-8.87,4.14-13.39h2.5c-.85,2.85-1.69,5.65-2.53,8.46-.85,2.82-1.7,5.64-2.56,8.52h-3.32c-1.72-5.56-3.45-11.19-5.24-16.96h2.51c1.37,4.4,2.76,8.89,4.15,13.38.11,0,.23,0,.34,0Z"/>
+  <path class="cls-1" d="M326.18,467.49c.63.3,1.2.56,1.76.82-1.15,2.85-3.15,4.2-6.03,4.31-3.16.12-5.46-1.13-6.67-4.05-1.34-3.21-1.31-6.49-.01-9.71,1.67-4.14,5.97-4.79,9.11-3.5,1.59.65,2.35,1.62,3.31,3.95-.36.16-.71.34-1.08.48-.33.13-.68.23-1.06.35-.26-.48-.46-.91-.7-1.31-1.6-2.67-5.04-2.78-6.81-.22-1.59,2.29-1.6,7.84-.03,10.18,1.55,2.31,4.97,2.55,6.87.48.46-.5.83-1.09,1.34-1.78Z"/>
+  <path class="cls-1" d="M223.97,467.48c.65.32,1.2.59,1.75.86-1.47,3.26-3.46,4.42-7.2,4.26-2.66-.11-4.83-1.82-5.78-4.66-.97-2.9-.99-5.84.08-8.7,1.62-4.32,5.41-5.12,8.9-4.07,1.97.6,3,2.19,3.75,4.19-.72.26-1.39.5-2.15.77-.23-.41-.45-.82-.68-1.22-1.65-2.83-5.41-3-6.94-.13-1.72,3.21-1.7,6.66.02,9.87,1.34,2.51,4.99,2.7,6.92.56.45-.5.82-1.08,1.33-1.75Z"/>
+  <path class="cls-1" d="M403.07,382.43h8.74c-2.75,2.75-5.63,5.63-8.83,8.83h-5.55c1.93-3.02,3.77-5.91,5.63-8.83Z"/>
+  <path class="cls-1" d="M265.33,448.53h2.34v23.71h-2.34v-23.71Z"/>
+  <path class="cls-1" d="M86.05,472.25h-2.39v-17h2.35v2.56c1.5-1.81,3.08-3.21,5.64-2.94v2.09c-3.69.89-5.6,3.34-5.6,7.14,0,2.68,0,5.36,0,8.16Z"/>
+  <path class="cls-1" d="M447.55,454.85v2.19c-2.83.09-4.25,1.96-5.16,4.35-.27.72-.43,1.52-.44,2.29-.05,2.79-.02,5.59-.02,8.5h-2.4v-16.94h2.41v2.6c1.43-1.86,3.03-3.16,5.61-2.99Z"/>
+  <path class="cls-1" d="M476.34,455.21h2.36v3.03c1.53-2.18,3.07-3.66,5.65-3.35v2.05c-3.77,1-5.59,3.37-5.59,7.29,0,2.63,0,5.26,0,7.97h-2.42v-16.99Z"/>
+  <path class="cls-1" d="M229.47,326.98v-6.93h7.26v6.93h-7.26Z"/>
+  <path class="cls-1" d="M170.12,320.08v6.91h-7.33v-6.91h7.33Z"/>
+  <path class="cls-1" d="M44.69,455.19h2.33v17.04h-2.33v-17.04Z"/>
+  <path class="cls-1" d="M110.43,455.19h2.28v17.02h-2.28v-17.02Z"/>
+  <path class="cls-1" d="M307.56,455.19h2.33v17.04h-2.33v-17.04Z"/>
+  <path class="cls-1" d="M470.49,472.22h-2.33v-17.02h2.33v17.02Z"/>
+  <path class="cls-1" d="M280.07,448.54h3.73c-1.51,1.66-2.87,3.16-4.2,4.64h-2.39c1.01-1.64,1.94-3.15,2.86-4.64Z"/>
+  <path class="cls-1" d="M46.99,451.27h-2.32v-3.06h2.32v3.06Z"/>
+  <path class="cls-1" d="M307.52,451.2v-2.94h2.36v2.94h-2.36Z"/>
+  <path class="cls-1" d="M470.52,448.24v3.05h-2.33v-3.05h2.33Z"/>
+  <path class="cls-1" d="M110.38,448.22h2.32v3.03h-2.32v-3.03Z"/>
+  <path class="cls-1" d="M348.65,209.19c0,11.73-9.4,21.07-21.19,21.07-11.7,0-21.15-9.47-21.13-21.18.01-11.84,9.48-21.21,21.48-21.14,12.1.06,21.15,10.28,20.84,21.25Z"/>
+  <path class="cls-1" d="M150.96,209.08c.17-12.67,10.48-21.36,21.67-21.19,11.42.18,20.75,9.68,20.73,21.45-.02,11.62-9.54,20.94-21.39,20.92-11.55-.02-21.02-9.57-21.01-21.18Z"/>
+</svg></div>
+      <span class="mark">Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</span>
+      <p class="eyebrow">Electrotecnia · Fuentes de alimentación de CC</p>
+      <h1>La tensión continua no <em>invierte</em> su polaridad</h1>
+      <p class="lead">Un laboratorio virtual para estudiantes de ingeniería eléctrica: observa formas de onda en un osciloscopio, calcula el rizado de una fuente rectificada y practica la medición con un multímetro digital o analógico, incluidos los errores que dañan instrumentos.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#osciloscopio">Abrir el osciloscopio</a>
+        <a class="btn" href="#multimetro">Medir con el multímetro</a>
+      </div>
+    </div>
+    <figure class="hero-figure" style="margin:0">
+      <svg id="heroSvg" viewBox="0 0 520 300" role="img" aria-label="Comparación de tres formas de onda: continua ideal, alterna senoidal y continua con rizado"></svg>
+      <figcaption class="legend">
+        <span><i style="background:var(--trace)"></i>CC ideal</span>
+        <span><i style="background:#59C3C3"></i>CA senoidal</span>
+        <span><i style="background:#FF8A5B"></i>CC con rizado</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="block" id="conceptos">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Módulo 1</p>
+      <h2>Conceptos clave</h2>
+      <p>Definiciones de trabajo, con su fuente académica o técnica. Las afirmaciones que no pudieron verificarse se marcan como valores ilustrativos en las referencias.</p>
+    </div>
+    <div class="cards">
+      <article class="card">
+        <div class="sym">V · voltio</div>
+        <h3>Tensión eléctrica</h3>
+        <p>Diferencia de potencial entre dos puntos. Un voltio es la diferencia de potencial que entrega un julio de energía por cada culombio de carga que pasa entre esos puntos; también, la que hace que un amperio disipe un vatio.</p>
+        <div class="formula">1 V = 1 J/C = 1 W/A</div>
+        <p class="src">Fuente: definición del SI recogida del Folleto del BIPM (vía referencias secundarias).</p>
+      </article>
+      <article class="card">
+        <div class="sym">⎓ · CC / DC</div>
+        <h3>Tensión continua</h3>
+        <p>Tensión cuya polaridad se mantiene: un terminal siempre es positivo respecto al otro y la corriente circula en un solo sentido. El caso ideal también mantiene su valor constante en el tiempo.</p>
+        <p class="src">Fuente: <a href="#ref-kuphaldt">Kuphaldt, LibreTexts</a>; <a href="#ref-unlp">UNLP</a>.</p>
+      </article>
+      <article class="card">
+        <div class="sym">∿ · CA / AC</div>
+        <h3>Tensión alterna</h3>
+        <p>Su polaridad se invierte de forma cíclica. Se describe por su frecuencia (Hz), su valor pico o pico a pico y, sobre todo, su valor eficaz (RMS). Su valor medio en un ciclo completo es cero.</p>
+        <div class="formula">V<sub>p</sub> = √2 · V<sub>RMS</sub> (senoidal)</div>
+        <p class="src">Fuente: <a href="#ref-unlp">UNLP</a>; <a href="#ref-andalucia">Junta de Andalucía</a>.</p>
+      </article>
+      <article class="card">
+        <div class="sym">V<sub>r</sub> · rizado</div>
+        <h3>Rizado (ripple)</h3>
+        <p>Variación periódica residual de una tensión continua obtenida a partir de una fuente alterna. Una continua real puede verse como una componente constante más una pequeña alterna superpuesta. Se reduce con filtros y se elimina con un regulador.</p>
+        <p class="src">Fuente: <a href="#ref-epfl">EPFL Graph Search</a>; <a href="#ref-mustaqbal">Al-Mustaqbal Univ.</a></p>
+      </article>
+      <article class="card">
+        <div class="sym">r · factor de rizado</div>
+        <h3>Calidad del filtrado</h3>
+        <p>Relación entre la tensión de rizado y el valor medio de continua a la salida del filtro. Cuanto menor sea, mejor es el filtro. Un rectificador de onda completa produce un rizado de frecuencia doble y por eso es más fácil de filtrar.</p>
+        <div class="formula">r = V<sub>r</sub> / V<sub>DC</sub> &nbsp;·&nbsp; V<sub>r(pp)</sub> ≈ V<sub>p</sub> / (f<sub>r</sub>·R·C)</div>
+        <p class="src">Fuente: <a href="#ref-mustaqbal">Al-Mustaqbal Univ.</a>; aproximación de primer orden habitual en textos de electrónica (Floyd).</p>
+      </article>
+      <article class="card">
+        <div class="sym">DMM · V⎓</div>
+        <h3>Qué lee el multímetro</h3>
+        <p>En modo V⎓ el instrumento muestra la componente continua (valor medio). En modo V~ un multímetro de verdadero valor eficaz muestra la componente alterna. Por eso una red de CA medida en V⎓ marca casi 0 V.</p>
+        <p class="src">Fuente: <a href="#ref-fluke-medir">Fluke, guía de medición de tensión CC</a>.</p>
+      </article>
+    </div>
+
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Característica</th><th>Tensión continua (CC)</th><th>Tensión alterna (CA)</th></tr></thead>
+        <tbody>
+          <tr><td>Polaridad</td><td>Fija</td><td>Se invierte cíclicamente</td></tr>
+          <tr><td>Valor en el tiempo</td><td>Constante (ideal); rizado pequeño en fuentes reales</td><td>Varía continuamente, normalmente en forma senoidal</td></tr>
+          <tr><td>Frecuencia</td><td>0 Hz</td><td>50 o 60 Hz en redes eléctricas</td></tr>
+          <tr><td>Magnitud característica</td><td>Valor medio</td><td>Valor eficaz (RMS), pico o pico a pico</td></tr>
+          <tr><td>Almacenamiento</td><td>En baterías</td><td>No se almacena directamente</td></tr>
+          <tr><td>Conexión</td><td>La polaridad importa</td><td>En cargas resistivas no importa</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="osciloscopio">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Módulo 2</p>
+      <h2>Osciloscopio: forma de onda y rizado</h2>
+      <p>Elige una fuente, ajusta sus parámetros y usa los controles del instrumento. Con el acople en CA el osciloscopio elimina la componente continua y deja ver solo el rizado.</p>
+    </div>
+    <div class="lab">
+      <div class="scope">
+        <div class="scope-top">
+          <div class="scope-name">Osciloscopio <small>CH1 · 1 MΩ</small></div>
+          <button class="btn" id="autoset" type="button">Autoajuste</button>
+        </div>
+        <div class="screen"><canvas id="scope" width="800" height="640" aria-label="Pantalla del osciloscopio"></canvas></div>
+        <div class="front">
+          <div class="ctl">
+            <span class="lbl">Voltios / div</span>
+            <div class="stepper"><button type="button" id="vdDown" aria-label="Reducir voltios por división">−</button><output id="vdOut" class="tab">1 V</output><button type="button" id="vdUp" aria-label="Aumentar voltios por división">+</button></div>
+          </div>
+          <div class="ctl">
+            <span class="lbl">Tiempo / div</span>
+            <div class="stepper"><button type="button" id="tdDown" aria-label="Reducir tiempo por división">−</button><output id="tdOut" class="tab">5 ms</output><button type="button" id="tdUp" aria-label="Aumentar tiempo por división">+</button></div>
+          </div>
+          <div class="ctl">
+            <span class="lbl">Acople</span>
+            <div class="seg" id="coupling">
+              <button type="button" data-c="DC" aria-pressed="true">DC</button>
+              <button type="button" data-c="AC" aria-pressed="false">AC</button>
+              <button type="button" data-c="GND" aria-pressed="false">GND</button>
+            </div>
+          </div>
+          <div class="ctl">
+            <label for="pos">Posición vertical</label>
+            <input type="range" id="pos" min="-4" max="4" step="0.1" value="-2">
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="panel">
+          <h3>Fuente bajo prueba</h3>
+          <div class="chips" id="srcChips">
+            <button class="chip" type="button" data-s="bat">Batería</button>
+            <button class="chip" type="button" data-s="ca">Red CA</button>
+            <button class="chip" type="button" data-s="hw">Media onda</button>
+            <button class="chip" type="button" data-s="fw">Onda completa</button>
+            <button class="chip" type="button" data-s="smps">Fuente conmutada</button>
+            <button class="chip" type="button" data-s="pv">Panel solar</button>
+          </div>
+          <div class="param" data-for="bat"><div class="row"><label for="pVbat">Tensión de la batería</label><b id="oVbat"></b></div><input type="range" id="pVbat" min="1.2" max="24" step="0.1" value="12.6"></div>
+          <div class="param" data-for="ca hw fw"><div class="row"><label for="pVrms">Tensión eficaz (secundario)</label><b id="oVrms"></b></div><input type="range" id="pVrms" min="3" max="24" step="0.5" value="12"></div>
+          <label class="switch" data-for="hw fw"><input type="checkbox" id="pFilt" checked> Condensador de filtro</label>
+          <div class="param" data-for="hw fw" data-need="filt"><div class="row"><label for="pCap">Capacidad C</label><b id="oCap"></b></div><input type="range" id="pCap" min="0" max="8" step="1" value="6"></div>
+          <div class="param" data-for="hw fw"><div class="row"><label for="pRl">Resistencia de carga R</label><b id="oRl"></b></div><input type="range" id="pRl" min="0" max="6" step="1" value="3"></div>
+          <label class="switch" data-for="hw fw"><input type="checkbox" id="pReg"> Regulador lineal de 5 V</label>
+          <div class="param" data-for="pv"><div class="row"><label for="pCells">Celdas en serie</label><b id="oCells"></b></div><input type="range" id="pCells" min="1" max="72" step="1" value="36"></div>
+          <div class="param" data-for="pv"><div class="row"><label for="pIrr">Irradiancia</label><b id="oIrr"></b></div><input type="range" id="pIrr" min="100" max="1000" step="50" value="1000"></div>
+        </div>
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3>Mediciones</h3><span id="polPill" class="pill ok">Polaridad constante</span></div>
+          <div class="meas" id="meas"></div>
+          <p class="note small" id="scopeHint"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="multimetro">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Módulo 3</p>
+      <h2>Multímetro: medición en modo V⎓</h2>
+      <p>Gira el selector, elige el borne de la punta roja y conecta las puntas a los terminales de la fuente. Sigue la guía de la derecha y completa los retos. El simulador reproduce lo que ocurre con errores reales, como medir tensión con la punta en el borne de corriente.</p>
+    </div>
+    <div class="mm-lab">
+      <div class="meter" id="meter">
+        <div class="meter-head">
+          <span>DMM 6000 cuentas</span>
+          <div class="typeseg" role="group" aria-label="Tipo de instrumento">
+            <button type="button" data-t="digital" aria-pressed="true">DIGITAL</button>
+            <button type="button" data-t="analog" aria-pressed="false">ANALÓGICO</button>
+          </div>
+        </div>
+        <div class="lcd" id="lcd">
+          <div class="ann" id="ann"><span data-a="AUTO">AUTO</span><span data-a="HOLD">HOLD</span><span data-a="MAX">MAX</span><span data-a="MIN">MIN</span><span data-a="REL">Δ REL</span><span data-a="DC">DC</span><span data-a="AC">AC</span></div>
+          <div class="digits"><span class="ghost" aria-hidden="true">8.8.8.8</span><span class="val" id="dval"></span><span class="unit" id="dunit"></span></div>
+        </div>
+        <div class="analog" id="analog" hidden><svg id="gauge" viewBox="0 0 300 160" role="img" aria-label="Escala del multímetro analógico"></svg></div>
+        <div class="mbtns">
+          <button type="button" id="bHold" aria-pressed="false">HOLD</button>
+          <button type="button" id="bMinMax" aria-pressed="false">MIN MAX</button>
+          <button type="button" id="bRange">RANGE</button>
+          <button type="button" id="bRel" aria-pressed="false">REL Δ</button>
+        </div>
+        <div class="dial" id="dial"><div class="knob" id="knob"></div></div>
+        <div class="jacks" id="jacks">
+          <button class="jack" type="button" data-j="10A"><span class="hole"><span class="plug"></span></span>10 A</button>
+          <button class="jack" type="button" data-j="mA"><span class="hole"><span class="plug"></span></span>mA µA</button>
+          <button class="jack black-in" type="button" data-j="COM" disabled><span class="hole"><span class="plug"></span></span>COM</button>
+          <button class="jack" type="button" data-j="VΩ"><span class="hole"><span class="plug"></span></span>V Ω</button>
+        </div>
+        <p class="jack-note">Toca un borne para mover la punta roja. La negra queda en COM.</p>
+        <button class="btn" type="button" id="fuseBtn" hidden style="justify-self:center">Reemplazar fusible</button>
+      </div>
+
+      <div class="bench">
+        <div class="panel">
+          <h3>Dispositivo bajo prueba</h3>
+          <div class="chips" id="devChips">
+            <button class="chip" type="button" data-d="pila">Pila AA</button>
+            <button class="chip" type="button" data-d="bat12">Batería 12 V</button>
+            <button class="chip" type="button" data-d="panel">Panel solar</button>
+            <button class="chip" type="button" data-d="smps">Fuente conmutada</button>
+            <button class="chip" type="button" data-d="lineal">Fuente lineal</button>
+            <button class="chip" type="button" data-d="toma">Tomacorriente CA</button>
+          </div>
+          <div class="param" data-dev="pila bat12"><div class="row"><label for="dCharge">Estado de carga</label><b id="oCharge"></b></div><input type="range" id="dCharge" min="0" max="100" step="5" value="90"></div>
+          <div class="param" data-dev="panel"><div class="row"><label for="dCells">Celdas en serie</label><b id="oDCells"></b></div><input type="range" id="dCells" min="1" max="72" step="1" value="36"></div>
+          <div class="param" data-dev="panel"><div class="row"><label for="dIrr">Irradiancia</label><b id="oDIrr"></b></div><input type="range" id="dIrr" min="100" max="1000" step="50" value="1000"></div>
+          <div class="devsvg" id="devsvg"></div>
+          <div class="probebar">
+            <span class="small muted">Sujetar punta:</span>
+            <button class="probe r" type="button" data-p="red" aria-pressed="true"><i></i>Roja</button>
+            <button class="probe b" type="button" data-p="black" aria-pressed="false"><i></i>Negra</button>
+            <button class="btn" type="button" id="freeProbes">Soltar puntas</button>
+          </div>
+          <p class="status" id="probeStatus"></p>
+        </div>
+        <p class="note" id="mmNote"></p>
+      </div>
+
+      <div class="mm-guide side">
+        <div class="panel">
+          <h3>Procedimiento</h3>
+          <ol class="steps" id="steps"></ol>
+          <p class="src">Secuencia basada en la guía de Fluke para multímetros digitales.</p>
+        </div>
+        <div class="panel">
+          <h3>Retos <span class="mono small muted" id="chalCount"></span></h3>
+          <ol class="steps" id="chal"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="evaluacion">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Módulo 4</p>
+      <h2>Autoevaluación</h2>
+      <p>Siete preguntas para comprobar lo aprendido. La retroalimentación aparece al elegir una respuesta.</p>
+    </div>
+    <div class="score"><span>Puntaje</span><b id="score" class="tab">0 / 7</b><button class="btn" type="button" id="resetQuiz">Reiniciar</button></div>
+    <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<section class="block" id="referencias">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Fuentes</p>
+      <h2>Referencias consultadas</h2>
+      <p>Portales universitarios, recursos educativos abiertos y documentación de fabricantes de instrumentos.</p>
+    </div>
+    <ol class="refs">
+      <li id="ref-kuphaldt"><a href="https://espanol.libretexts.org/Bookshelves/Vocacional/Tecnologia_Electronica/Libro%3A_Circuitos_electricos_II_-_Corriente_alterna_(Kuphaldt)/01%3A_Teor%C3%ADa_b%C3%A1sica_de_AC/1.01%3A_%C2%BFQu%C3%A9_es_la_corriente_alterna_(CA)%3F" target="_blank" rel="noopener">Kuphaldt, T. ¿Qué es la corriente alterna (CA)? Circuitos eléctricos II</a> <span>— LibreTexts Español (libro de texto abierto).</span></li>
+      <li id="ref-unlp"><a href="https://yold.unlp.edu.ar/frontend/media/33/33733/60cfb5a5b69660615b9f72a11e87e717.pdf" target="_blank" rel="noopener">Tensión continua y alterna. Corriente continua y alterna</a> <span>— Universidad Nacional de La Plata, material docente.</span></li>
+      <li id="ref-andalucia"><a href="https://edea.juntadeandalucia.es/bancorecursos/file/f237c2ae-0b2c-4bfe-a1ef-18b21f0f669c/1/es-an_2016061512_9132449.zip/parametrosAC.pdf" target="_blank" rel="noopener">Parámetros de la corriente alterna</a> <span>— Junta de Andalucía, banco de recursos educativos. Advertencia: afirma que la CA mantiene una diferencia de potencial constante, lo cual es inexacto; su valor instantáneo varía.</span></li>
+      <li id="ref-mustaqbal"><a href="https://uomus.edu.iq/img/lectures21/MUCLecture_2022_122413316.pdf" target="_blank" rel="noopener">DC Power Supplies (lecture)</a> <span>— Al-Mustaqbal University. Fuente de alimentación, filtro capacitivo, tensión y factor de rizado.</span></li>
+      <li id="ref-epfl"><a href="https://graphsearch.epfl.ch/en/concept/3984833" target="_blank" rel="noopener">Ripple (electrical)</a> <span>— EPFL Graph Search, École Polytechnique Fédérale de Lausanne.</span></li>
+      <li id="ref-smps"><a href="https://learnabout-electronics.org/PSU/psu30.php" target="_blank" rel="noopener">Switched Mode Power Supplies, módulo 3.0</a> <span>— Learnabout Electronics (recurso educativo).</span></li>
+      <li id="ref-pv"><a href="https://eng.libretexts.org/Bookshelves/Environmental_Engineering_(Sustainability_and_Conservation)/Energy_Alternatives/07%3A_Direct_Solar_Power/7.04%3A_Photovoltaic_Conversion_of_Solar_Power/7.4.05%3A_PV_Cells" target="_blank" rel="noopener">PV Cells</a> <span>— LibreTexts Engineering. Celda de silicio ≈ 0,6 V en circuito abierto; 36 celdas en serie ≈ 21,5 V.</span></li>
+      <li id="ref-ucf"><a href="https://energyresearch.ucf.edu/?p=2780" target="_blank" rel="noopener">How Solar Electricity Works</a> <span>— Florida Solar Energy Center, University of Central Florida.</span></li>
+      <li id="ref-fluke-medir"><a href="https://www.fluke.com/en/learn/blog/digital-multimeters/how-to-measure-dc-voltage-with-a-digital-multimeter" target="_blank" rel="noopener">How to Measure DC Voltage with a Digital Multimeter</a> <span>— Fluke Corporation, documentación del fabricante.</span></li>
+      <li id="ref-fluke-dc"><a href="https://www.fluke.com/en/learn/blog/electrical/what-is-dc-voltage" target="_blank" rel="noopener">What is DC Voltage?</a> <span>— Fluke Corporation.</span></li>
+      <li id="ref-iberdrola"><a href="https://www.iberdrola.com/about-us/networks/difference-alternating-current-direct-current" target="_blank" rel="noopener">Diferencia entre corriente alterna y continua</a> <span>— Iberdrola (divulgación técnica de una empresa eléctrica).</span></li>
+    </ol>
+    <div class="note warn" style="margin-top:22px">
+      <b>Valores ilustrativos del simulador.</b> No provienen de las fuentes anteriores y se usan solo para que el modelo funcione: tensiones de pila y batería según el estado de carga, rizado de la fuente conmutada (60 mV pico a pico a 100 kHz), caída mínima del regulador de 5 V (≈ 2 V, típica de un 7805), variación logarítmica de la tensión del panel con la irradiancia, red residencial de 120 V y 60 Hz, y diodos con caída de 0,7 V. Los diodos y el condensador se modelan como ideales, salvo esa caída. Para un informe formal, contrasta con un texto de referencia (Boylestad, Floyd) y con las hojas de datos de los componentes.
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</div></footer>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fx=(n,d)=>n.toFixed(d).replace('.',',');
+function fmtV(v){const a=Math.abs(v); if(a<1e-4) return '0 V'; if(a<1) return fx(v*1000,a<0.1?1:0)+' mV'; return fx(v,a<10?3:2)+' V';}
+function fmtT(t){if(t<1e-3) return fx(t*1e6,0)+' µs'; return fx(t*1e3,t<1e-2?1:0)+' ms';}
+function fmtF(f){if(!f) return '—'; return f>=1000? fx(f/1000,0)+' kHz' : fx(f,0)+' Hz';}
+
+/* ---------- Signal models ---------- */
+const CAPS=[10,22,47,100,220,470,1000,2200,4700], RLS=[10,22,47,100,220,470,1000];
+function pvV(cells,G){return Math.max(0,cells*(0.6+0.0257*Math.log(Math.max(G,10)/1000)));}
+function rectSignal(p){
+  const full=p.full, Vp=p.vrms*Math.SQRT2, drop=full?1.4:0.7, w=2*Math.PI*60, T=1/60, N=2400, dt=T/N;
+  const raw=t=>{const s=Math.sin(w*t); return Math.max((full?Math.abs(s):s)*Vp-drop,0);};
+  const tab=new Float64Array(N);
+  if(p.filt){
+    const k=Math.exp(-dt/(p.rl*p.cap*1e-6)); let v=0;
+    for(let c=0;c<15;c++) for(let i=0;i<N;i++){v*=k; const r=raw(i*dt); if(r>v) v=r; if(c===14) tab[i]=v;}
+  } else for(let i=0;i<N;i++) tab[i]=raw(i*dt);
+  if(p.reg) for(let i=0;i<N;i++) tab[i]=tab[i]>=7?5:Math.max(tab[i]-2,0);
+  return {T,freq:full?120:60,f:t=>{const x=((t%T)+T)%T; return tab[Math.floor(x/dt)%N];},Vp,drop};
+}
+function makeSignal(kind,p){
+  switch(kind){
+    case 'dc': return {T:1/60,freq:null,f:()=>p.v};
+    case 'ac': {const Vp=p.vrms*Math.SQRT2,w=2*Math.PI*60; return {T:1/60,freq:60,f:t=>Vp*Math.sin(w*t)};}
+    case 'rect': return rectSignal(p);
+    case 'smps': {const T=1e-5; return {T,freq:1e5,f:t=>{const x=(((t%T)+T)%T)/T; const tri=x<0.5?4*x-1:3-4*x; return 12+0.03*tri;}};}
+  }
+}
+function stats(sig){
+  const N=3000; let s=0,mn=Infinity,mx=-Infinity; const vals=new Float64Array(N);
+  for(let i=0;i<N;i++){const v=sig.f(i/N*sig.T); vals[i]=v; s+=v; if(v<mn)mn=v; if(v>mx)mx=v;}
+  const avg=s/N; let q=0; for(let i=0;i<N;i++){const d=vals[i]-avg; q+=d*d;}
+  return {avg,ac:Math.sqrt(q/N),min:mn,max:mx,pp:mx-mn};
+}
+
+/* ---------- Hero figure ---------- */
+(function hero(){
+  const svg=$('#heroSvg'), W=520,H=300, y0=H/2+40, sc=10;
+  let g='';
+  for(let x=0;x<=W;x+=52) g+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="var(--scope-grid)" stroke-width="1"/>`;
+  for(let y=y0%30;y<=H;y+=30) g+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="var(--scope-grid)" stroke-width="1"/>`;
+  g+=`<line x1="0" y1="${y0}" x2="${W}" y2="${y0}" stroke="var(--scope-axis)" stroke-width="2"/>`;
+  g+=`<text x="8" y="${y0-6}" fill="var(--inst-muted)" font-family="IBM Plex Mono, monospace" font-size="12">0 V</text>`;
+  const path=fn=>{let d='';for(let x=0;x<=W;x+=2){const y=y0-fn(x)*sc; d+=(x?'L':'M')+x+' '+y.toFixed(1);}return d;};
+  const ripple=x=>{const T=130,ph=((x%T)+T)%T/T; return ph<0.18? 9.2+ph/0.18*0.8 : 10-((ph-0.18)/0.82)*1.6;};
+  g+=`<path d="${path(()=>11)}" fill="none" stroke="var(--trace)" stroke-width="3"/>`;
+  g+=`<path d="${path(x=>9*Math.sin(x/260*2*Math.PI))}" fill="none" stroke="#59C3C3" stroke-width="2.5"/>`;
+  g+=`<path d="${path(ripple)}" fill="none" stroke="#FF8A5B" stroke-width="2.5"/>`;
+  svg.innerHTML=g;
+})();
+
+/* ---------- Oscilloscope ---------- */
+const VDIV=[0.005,0.01,0.02,0.05,0.1,0.2,0.5,1,2,5,10,20,50];
+const TDIV=[2e-6,5e-6,1e-5,2e-5,5e-5,1e-4,2e-4,5e-4,1e-3,2e-3,5e-3,1e-2];
+const S={src:'fw',vd:9,td:10,coupling:'DC',pos:-2,
+  p:{vbat:12.6,vrms:12,filt:true,cap:6,rl:3,reg:false,cells:36,irr:1000}};
+let sig=null, st=null;
+function scopeSignal(){
+  const p=S.p;
+  switch(S.src){
+    case 'bat': return makeSignal('dc',{v:p.vbat});
+    case 'ca': return makeSignal('ac',{vrms:p.vrms});
+    case 'hw': case 'fw': return makeSignal('rect',{full:S.src==='fw',vrms:p.vrms,filt:p.filt,cap:CAPS[p.cap],rl:RLS[p.rl],reg:p.reg});
+    case 'smps': return makeSignal('smps');
+    case 'pv': return makeSignal('dc',{v:pvV(p.cells,p.irr)});
+  }
+}
+function fmtVdiv(v){return v<1? fx(v*1000,0)+' mV' : fx(v,0)+' V';}
+const cv=$('#scope'), ctx=cv.getContext('2d');
+function sizeCanvas(){
+  const r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1, w=Math.max(280,r.width);
+  cv.width=Math.round(w*dpr); cv.height=Math.round(w*0.8*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); drawScope();
+}
+function drawScope(){
+  if(!sig) return;
+  const dpr=window.devicePixelRatio||1, W=cv.width/dpr, H=cv.height/dpr, dx=W/10, dy=H/8;
+  ctx.fillStyle=css('--scope-bg'); ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=css('--scope-grid'); ctx.lineWidth=1;
+  for(let i=1;i<10;i++){ctx.beginPath();ctx.moveTo(i*dx+.5,0);ctx.lineTo(i*dx+.5,H);ctx.stroke();}
+  for(let j=1;j<8;j++){ctx.beginPath();ctx.moveTo(0,j*dy+.5);ctx.lineTo(W,j*dy+.5);ctx.stroke();}
+  ctx.strokeStyle=css('--scope-axis');
+  for(let i=0;i<50;i++){const x=i*dx/5; ctx.beginPath();ctx.moveTo(x,H/2-3);ctx.lineTo(x,H/2+3);ctx.stroke();}
+  for(let j=0;j<40;j++){const y=j*dy/5; ctx.beginPath();ctx.moveTo(W/2-3,y);ctx.lineTo(W/2+3,y);ctx.stroke();}
+  const vd=VDIV[S.vd], td=TDIV[S.td], y0=H/2-S.pos*dy, span=10*td, cols=Math.ceil(W), sub=10;
+  const tr=css('--trace');
+  // ground marker
+  ctx.fillStyle=tr; ctx.beginPath(); ctx.moveTo(0,y0-6); ctx.lineTo(9,y0); ctx.lineTo(0,y0+6); ctx.fill();
+  ctx.font='600 12px "IBM Plex Mono", monospace'; ctx.fillText('1',2,y0-9);
+  const disp=v=> S.coupling==='GND'?0 : S.coupling==='AC'? v-st.avg : v;
+  ctx.strokeStyle=tr; ctx.lineWidth=2; ctx.shadowColor=tr; ctx.shadowBlur=6; ctx.beginPath();
+  for(let c=0;c<=cols;c++){
+    let mn=Infinity,mx=-Infinity;
+    for(let k=0;k<sub;k++){const t=(c+k/sub)/W*span; const v=disp(sig.f(t)); if(v<mn)mn=v; if(v>mx)mx=v;}
+    const ya=y0-mn/vd*dy, yb=y0-mx/vd*dy;
+    if(c===0) ctx.moveTo(c,ya); else ctx.lineTo(c,ya);
+    if(Math.abs(ya-yb)>0.5) ctx.lineTo(c,yb);
+  }
+  ctx.stroke(); ctx.shadowBlur=0;
+  ctx.fillStyle=tr; ctx.font='600 13px "IBM Plex Mono", monospace';
+  ctx.fillText(`CH1  ${fmtVdiv(vd)}/div  ${S.coupling}`,10,20);
+  const tt=`${fmtT(td)}/div`; ctx.fillText(tt,W-ctx.measureText(tt).width-10,H-10);
+}
+function updateScope(){
+  sig=scopeSignal(); st=stats(sig);
+  $('#vdOut').textContent=fmtVdiv(VDIV[S.vd]); $('#tdOut').textContent=fmtT(TDIV[S.td]);
+  const p=S.p;
+  $('#oVbat').textContent=fx(p.vbat,1)+' V'; $('#oVrms').textContent=fx(p.vrms,1)+' V';
+  $('#oCap').textContent=CAPS[p.cap]+' µF'; $('#oRl').textContent=RLS[p.rl]+' Ω';
+  $('#oCells').textContent=p.cells; $('#oIrr').textContent=p.irr+' W/m²';
+  $$('#osciloscopio [data-for]').forEach(el=>{const ok=el.dataset.for.split(' ').includes(S.src); el.hidden=!ok || (el.dataset.need==='filt'&&!p.filt);});
+  $$('#srcChips .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===S.src));
+  // measurements
+  const isRect=S.src==='hw'||S.src==='fw';
+  const rows=[['Valor medio (V⎓)',fmtV(st.avg)],['Rizado eficaz (V~)',fmtV(st.ac)],['Pico a pico',fmtV(st.pp)],['Mín · Máx',fmtV(st.min)+' · '+fmtV(st.max)],
+    ['Frecuencia',fmtF(sig.freq)],['Factor de rizado r',Math.abs(st.avg)>0.05? fx(st.ac/Math.abs(st.avg)*100,2)+' %':'—']];
+  if(isRect && p.filt && !p.reg){
+    const fr=S.src==='fw'?120:60, th=(sig.Vp-sig.drop)/(fr*RLS[p.rl]*CAPS[p.cap]*1e-6);
+    rows.push(['Vr(pp) simulado',fmtV(st.pp)],['Vr(pp) ≈ Vp/(f·R·C)',fmtV(th)+(th>0.5*(sig.Vp-sig.drop)?' (fuera de validez)':'')]);
+  }
+  $('#meas').innerHTML=rows.map(r=>`<div class="m"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+  const pill=$('#polPill');
+  if(st.min>=-1e-9){pill.className='pill ok';pill.textContent= st.pp<1e-6?'CC pura · polaridad constante':'CC · polaridad constante';}
+  else if(st.max<=1e-9){pill.className='pill ok';pill.textContent='CC negativa · polaridad constante';}
+  else {pill.className='pill bad';pill.textContent='CA · la polaridad se invierte';}
+  let h='';
+  switch(S.src){
+    case 'bat': h='Línea horizontal: polaridad y valor constantes. El rizado es nulo y un multímetro en V~ marcaría 0 V.'; break;
+    case 'ca': h='La tensión cruza el cero dos veces por ciclo: la polaridad se invierte. Su valor medio es 0 V, por eso un multímetro en V⎓ marca casi 0 V, mientras que en V~ marca el valor eficaz.'; break;
+    case 'hw': case 'fw':
+      if(p.reg) h='El regulador entrega 5 V constantes mientras su entrada no baje de unos 7 V. Si reduces C o R hasta que el valle caiga por debajo, el rizado reaparece en la salida (caída de regulación).';
+      else if(!p.filt) h='Continua pulsante: nunca cambia de signo, así que es CC, pero no es constante. Activa el condensador de filtro para suavizarla.'+(S.src==='hw'?' Compara con onda completa: el rizado tiene la mitad de frecuencia.':'');
+      else h='El condensador se carga en cada pico y se descarga a través de la carga. Aumenta C o R para reducir el rizado. Cambia el acople a AC y baja los voltios por división para ampliarlo.';
+      break;
+    case 'smps': h='Rizado pequeño y de alta frecuencia (100 kHz, valor ilustrativo). Con acople DC parece una línea plana: prueba acople AC, 10 mV/div y 5 µs/div.'; break;
+    case 'pv': h='Tensión continua sin rizado. Su valor depende sobre todo del número de celdas en serie y muy poco de la irradiancia.'; break;
+  }
+  $('#scopeHint').textContent=h;
+  $$('#coupling button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===S.coupling));
+  drawScope();
+}
+function autoset(){
+  sig=scopeSignal(); st=stats(sig); S.coupling='DC';
+  const peak=Math.max(Math.abs(st.max),Math.abs(st.min),0.01);
+  const twoSided=st.min<-1e-9;
+  S.pos= twoSided?0:-3;
+  const avail= twoSided?3.6:6.6;
+  S.vd=VDIV.findIndex(v=>peak/v<=avail); if(S.vd<0) S.vd=VDIV.length-1;
+  if(sig.freq){const want=3/sig.freq/10; S.td=TDIV.findIndex(t=>t>=want); if(S.td<0)S.td=TDIV.length-1;} else S.td=10;
+  $('#pos').value=S.pos; updateScope();
+}
+$('#srcChips').addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return; S.src=b.dataset.s; autoset();});
+$('#vdUp').onclick=()=>{S.vd=Math.min(VDIV.length-1,S.vd+1);updateScope();};
+$('#vdDown').onclick=()=>{S.vd=Math.max(0,S.vd-1);updateScope();};
+$('#tdUp').onclick=()=>{S.td=Math.min(TDIV.length-1,S.td+1);updateScope();};
+$('#tdDown').onclick=()=>{S.td=Math.max(0,S.td-1);updateScope();};
+$('#coupling').addEventListener('click',e=>{const b=e.target.closest('button'); if(!b) return; S.coupling=b.dataset.c; if(S.coupling!=='DC'){S.pos=0;$('#pos').value=0;} updateScope();});
+$('#pos').oninput=e=>{S.pos=+e.target.value; drawScope();};
+$('#autoset').onclick=autoset;
+[['pVbat','vbat',parseFloat],['pVrms','vrms',parseFloat],['pCap','cap',parseInt],['pRl','rl',parseInt],['pCells','cells',parseInt],['pIrr','irr',parseInt]].forEach(([id,k,fn])=>{
+  $('#'+id).addEventListener('input',e=>{S.p[k]=fn(e.target.value); updateScope();});
+});
+$('#pFilt').onchange=e=>{S.p.filt=e.target.checked; autoset();};
+$('#pReg').onchange=e=>{S.p.reg=e.target.checked; autoset();};
+window.addEventListener('resize',sizeCanvas);
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{drawScope();drawGauge();});}catch(e){}
+new MutationObserver(()=>{drawScope();drawGauge();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- Multimeter ---------- */
+const DEV={
+  pila:{name:'Pila alcalina AA',plus:'+',minus:'−',kind:'dc'},
+  bat12:{name:'Batería de plomo-ácido 12 V',plus:'+',minus:'−',kind:'dc'},
+  panel:{name:'Panel solar fotovoltaico',plus:'+',minus:'−',kind:'dc'},
+  smps:{name:'Fuente conmutada 12 V',plus:'+12 V',minus:'GND',kind:'dc'},
+  lineal:{name:'Fuente lineal sin regular (puente + 1000 µF, carga 100 Ω)',plus:'+',minus:'−',kind:'dc'},
+  toma:{name:'Tomacorriente 120 V CA, 60 Hz',plus:'L',minus:'N',kind:'ac'}
+};
+const M={type:'digital',dial:'OFF',jack:'VΩ',red:null,black:null,holding:'red',range:'AUTO',arange:2,hold:false,holdVal:null,
+  mm:0,mn:null,mx:null,rel:false,ref:0,fuse:true,dev:'bat12',charge:90,cells:36,irr:1000,last:null};
+const CH={c1:false,c2:false,c3:false,c4:false,c5:false};
+let dstat=null;
+function devSignal(){
+  switch(M.dev){
+    case 'pila': return makeSignal('dc',{v:1.2+0.4*M.charge/100});
+    case 'bat12': return makeSignal('dc',{v:11.8+0.9*M.charge/100});
+    case 'panel': return makeSignal('dc',{v:pvV(M.cells,M.irr)});
+    case 'smps': return makeSignal('smps');
+    case 'lineal': return makeSignal('rect',{full:true,vrms:12,filt:true,cap:1000,rl:100,reg:false});
+    case 'toma': return makeSignal('ac',{vrms:120});
+  }
+}
+function updateDevice(){
+  dstat=stats(devSignal());
+  $('#oCharge').textContent=M.charge+' %'; $('#oDCells').textContent=M.cells; $('#oDIrr').textContent=M.irr+' W/m²';
+  $$('[data-dev]').forEach(el=>el.hidden=!el.dataset.dev.split(' ').includes(M.dev));
+  $$('#devChips .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.d===M.dev));
+  drawDevice(); meterTick(true);
+}
+function symbol(dev){
+  const ink='var(--ink)';
+  switch(dev){
+    case 'pila': return `<line x1="110" y1="50" x2="110" y2="82" stroke="${ink}" stroke-width="2.5"/><line x1="80" y1="82" x2="140" y2="82" stroke="${ink}" stroke-width="3.5"/><line x1="95" y1="98" x2="125" y2="98" stroke="${ink}" stroke-width="6"/><line x1="110" y1="98" x2="110" y2="130" stroke="${ink}" stroke-width="2.5"/><text x="150" y="86" font-size="13" fill="var(--muted)" font-family="IBM Plex Mono, monospace">1 celda</text>`;
+    case 'bat12': {let s=`<line x1="110" y1="50" x2="110" y2="62" stroke="${ink}" stroke-width="2.5"/>`; for(let i=0;i<3;i++){const y=62+i*24; s+=`<line x1="82" y1="${y}" x2="138" y2="${y}" stroke="${ink}" stroke-width="3.5"/><line x1="96" y1="${y+10}" x2="124" y2="${y+10}" stroke="${ink}" stroke-width="6"/>`; if(i<2) s+=`<line x1="110" y1="${y+10}" x2="110" y2="${y+24}" stroke="${ink}" stroke-width="2.5"/>`;} return s+`<line x1="110" y1="120" x2="110" y2="130" stroke="${ink}" stroke-width="2.5"/><text x="148" y="94" font-size="13" fill="var(--muted)" font-family="IBM Plex Mono, monospace">6 celdas</text>`;}
+    case 'panel': {let s=`<rect x="62" y="58" width="96" height="64" rx="3" fill="var(--surface)" stroke="${ink}" stroke-width="2.5"/>`; for(let i=1;i<6;i++) s+=`<line x1="${62+i*16}" y1="58" x2="${62+i*16}" y2="122" stroke="var(--muted)" stroke-width="1"/>`; for(let j=1;j<4;j++) s+=`<line x1="62" y1="${58+j*16}" x2="158" y2="${58+j*16}" stroke="var(--muted)" stroke-width="1"/>`; return s+`<line x1="110" y1="50" x2="110" y2="58" stroke="${ink}" stroke-width="2.5"/><line x1="110" y1="122" x2="110" y2="130" stroke="${ink}" stroke-width="2.5"/><text x="62" y="146" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${M.cells} celdas</text>`;}
+    case 'toma': return `<circle cx="110" cy="90" r="30" fill="var(--surface)" stroke="${ink}" stroke-width="2.5"/><path d="M90 90 C 97 70, 103 70, 110 90 S 123 110, 130 90" fill="none" stroke="${ink}" stroke-width="2.5"/><line x1="110" y1="50" x2="110" y2="60" stroke="${ink}" stroke-width="2.5"/><line x1="110" y1="120" x2="110" y2="130" stroke="${ink}" stroke-width="2.5"/><text x="60" y="160" font-size="12" fill="var(--bad)" font-family="IBM Plex Mono, monospace">Peligro: tensión de red</text>`;
+    default: {const lab=dev==='smps'?'SMPS':'Rect.+C'; const sub=dev==='smps'?'CA → CC 12 V':'CA → CC'; return `<rect x="58" y="60" width="104" height="60" rx="6" fill="var(--surface)" stroke="${ink}" stroke-width="2.5"/><text x="110" y="88" text-anchor="middle" font-size="15" font-weight="700" fill="${ink}" font-family="Archivo, sans-serif">${lab}</text><text x="110" y="106" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${sub}</text><line x1="110" y1="50" x2="110" y2="60" stroke="${ink}" stroke-width="2.5"/><line x1="110" y1="120" x2="110" y2="130" stroke="${ink}" stroke-width="2.5"/>`;}
+  }
+}
+function drawDevice(){
+  const d=DEV[M.dev], ink='var(--ink)';
+  const term=(id,y,label)=>{
+    const r=M.red===id, b=M.black===id;
+    let rings='';
+    if(r) rings+=`<circle cx="270" cy="${y}" r="19" fill="none" stroke="var(--red)" stroke-width="5"/>`;
+    if(b) rings+=`<circle cx="270" cy="${y}" r="${r?25:19}" fill="none" stroke="var(--black)" stroke-width="5"/>`;
+    const tag=[r?'roja':'',b?'negra':''].filter(Boolean).join(' + ');
+    return `<g class="term" tabindex="0" role="button" data-t="${id}" aria-label="Terminal ${label}${tag?', punta '+tag:''}">${rings}<circle class="post" cx="270" cy="${y}" r="13"/><text x="270" y="${y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="${ink}" font-family="IBM Plex Mono, monospace">${id==='+'?(d.plus.length>2?'+':d.plus):(d.minus.length>2?'⏚':d.minus)}</text><text x="296" y="${y+5}" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${label}</text></g>`;
+  };
+  $('#devsvg').innerHTML=`<svg viewBox="0 0 360 180" role="group" aria-label="${d.name}">
+    <line x1="110" y1="50" x2="257" y2="50" stroke="${ink}" stroke-width="2.5"/>
+    <line x1="110" y1="130" x2="257" y2="130" stroke="${ink}" stroke-width="2.5"/>
+    ${symbol(M.dev)}
+    <text x="12" y="22" font-size="13" font-weight="600" fill="${ink}" font-family="Public Sans, sans-serif">${d.name}</text>
+    ${term('+',50,d.plus)}${term('-',130,d.minus)}
+  </svg>`;
+  const nm=t=>t==null?'al aire':(t==='+'?d.plus:d.minus);
+  $('#probeStatus').textContent=`Roja → ${nm(M.red)}  ·  Negra → ${nm(M.black)}`;
+}
+$('#devsvg').addEventListener('click',e=>{const g=e.target.closest('.term'); if(g) attach(g.dataset.t);});
+$('#devsvg').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('.term'); if(g){e.preventDefault(); attach(g.dataset.t);}}});
+function attach(t){
+  const k=M.holding; M[k]= M[k]===t? null : t;
+  // after placing, switch to the other probe if it is free
+  if(M[k]===t){const other=k==='red'?'black':'red'; if(M[other]==null) setHolding(other);}
+  drawDevice(); meterTick(true);
+  const f=document.querySelector(`.term[data-t="${t}"]`); if(f) f.focus();
+}
+function setHolding(k){M.holding=k; $$('.probe').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===k));}
+$$('.probe').forEach(b=>b.onclick=()=>setHolding(b.dataset.p));
+$('#freeProbes').onclick=()=>{M.red=null;M.black=null;setHolding('red');drawDevice();meterTick(true);};
+$('#devChips').addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return; M.dev=b.dataset.d; resetFuncs(); updateDevice();});
+$('#dCharge').oninput=e=>{M.charge=+e.target.value; updateDevice();};
+$('#dCells').oninput=e=>{M.cells=+e.target.value; updateDevice();};
+$('#dIrr').oninput=e=>{M.irr=+e.target.value; updateDevice();};
+
+/* dial */
+const DIAL=[{k:'OFF',a:-135,l:'OFF'},{k:'V~',a:-81,l:'V~'},{k:'V⎓',a:-27,l:'V⎓'},{k:'mV⎓',a:27,l:'mV⎓'},{k:'Ω',a:81,l:'Ω'},{k:'A⎓',a:135,l:'A⎓'}];
+(function buildDial(){
+  const dial=$('#dial');
+  DIAL.forEach(d=>{const r=96, rad=d.a*Math.PI/180; const b=document.createElement('button'); b.type='button'; b.className='dpos'; b.dataset.k=d.k;
+    b.style.left=`calc(50% + ${(r*Math.sin(rad)).toFixed(1)}px)`; b.style.top=`calc(50% - ${(r*Math.cos(rad)).toFixed(1)}px)`;
+    b.innerHTML=d.l; b.setAttribute('aria-label','Selector en '+(d.k==='OFF'?'apagado':d.k)); b.onclick=()=>{setDial(d.k);}; dial.appendChild(b);});
+  dial.addEventListener('keydown',e=>{const i=DIAL.findIndex(d=>d.k===M.dial); if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();setDial(DIAL[Math.min(DIAL.length-1,i+1)].k);} if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();setDial(DIAL[Math.max(0,i-1)].k);}});
+})();
+function setDial(k){M.dial=k; resetFuncs(); renderMeterChrome(); meterTick(true); const b=document.querySelector(`.dpos[data-k="${k}"]`); if(b) b.focus();}
+function resetFuncs(){M.hold=false;M.holdVal=null;M.mm=0;M.mn=null;M.mx=null;M.rel=false;M.ref=0;M.range='AUTO';}
+function renderMeterChrome(){
+  const d=DIAL.find(x=>x.k===M.dial); $('#knob').style.transform=`rotate(${d.a}deg)`;
+  $$('.dpos').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===M.dial));
+  $$('.jack').forEach(j=>{if(j.dataset.j!=='COM') j.classList.toggle('red-in',j.dataset.j===M.jack); j.setAttribute('aria-label','Borne '+j.dataset.j+(j.dataset.j===M.jack?', punta roja conectada':j.dataset.j==='COM'?', punta negra conectada':''));});
+  $$('.typeseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===M.type));
+  const an=M.type==='analog'; $('#lcd').hidden=an; $('#analog').hidden=!an;
+  ['#bHold','#bMinMax','#bRel'].forEach(s=>$(s).disabled=an);
+  $('#bHold').setAttribute('aria-pressed',M.hold); $('#bMinMax').setAttribute('aria-pressed',M.mm>0); $('#bRel').setAttribute('aria-pressed',M.rel);
+  $('#bMinMax').textContent=M.mm===1?'MAX':M.mm===2?'MIN':'MIN MAX';
+  $('#fuseBtn').hidden=M.fuse;
+}
+$('#jacks').addEventListener('click',e=>{const j=e.target.closest('.jack'); if(!j||j.dataset.j==='COM') return; M.jack=j.dataset.j; renderMeterChrome(); meterTick(true);});
+$$('.typeseg button').forEach(b=>b.onclick=()=>{M.type=b.dataset.t; resetFuncs(); renderMeterChrome(); meterTick(true);});
+$('#fuseBtn').onclick=()=>{M.fuse=true; renderMeterChrome(); meterTick(true);};
+
+/* evaluation */
+const DR=[6,60,600,1000], DD=[3,2,1,0], AFS=[2.5,10,50,250,1000];
+function evaluate(){
+  const r={off:false,text:'',unit:'',ann:{},note:'',level:'info',value:null,kind:null};
+  if(M.dial==='OFF'){r.off=true; r.note='El multímetro está apagado. Gira el selector a V⎓ para medir tensión continua.'; return r;}
+  const conn=M.red&&M.black&&M.red!==M.black, same=M.red&&M.red===M.black;
+  const sign=conn?(M.red==='+'?1:-1):0;
+  const vdc=conn?sign*dstat.avg:0, vac=conn?dstat.ac:0;
+  const energized=conn&&(Math.abs(dstat.avg)>0.05||dstat.ac>0.05);
+  const curJack=M.jack!=='VΩ';
+  const isV=['V⎓','mV⎓','V~'].includes(M.dial);
+  if(curJack && !M.fuse){r.text='FUSE'; r.level='bad'; r.note='El fusible del circuito de corriente está fundido. Pulsa "Reemplazar fusible" y mueve la punta roja al borne V Ω.'; return r;}
+  if(isV && curJack){
+    if(energized){M.fuse=false; CH.c5=true; r.text='FUSE'; r.level='bad'; r.note='Cortocircuito. Con la punta roja en un borne de corriente, el multímetro tiene una resistencia casi nula: al tocar la fuente circula una corriente muy alta y se funde el fusible. Para medir tensión la punta roja va en V Ω.'; renderMeterChrome(); return r;}
+    r.text='LEAd'; r.level='warn'; r.note='La punta roja está en un borne de corriente. Para medir tensión, muévela al borne V Ω antes de tocar el circuito.'; return r;
+  }
+  if(M.dial==='Ω'){
+    r.unit='Ω';
+    if(curJack){r.text='LEAd'; r.level='warn'; r.note='Para medir resistencia la punta roja va en V Ω.'; return r;}
+    if(energized){r.text='OL'; r.level='bad'; r.note='Nunca midas resistencia en un circuito energizado: el óhmetro inyecta su propia corriente y la tensión externa falsea la lectura o daña el instrumento.'; return r;}
+    if(same){r.text='0.0'; r.note='Ambas puntas en el mismo punto: resistencia prácticamente nula.'; return r;}
+    r.text='OL'; r.note='Circuito abierto: resistencia infinita.'; return r;
+  }
+  if(M.dial==='A⎓'){
+    r.unit='A';
+    if(!curJack){r.text='LEAd'; r.level='warn'; r.note='Para medir corriente la punta roja va en A o mA, y el multímetro se conecta en serie con la carga, nunca directamente sobre la fuente.'; return r;}
+    if(energized){M.fuse=false; CH.c5=true; r.text='FUSE'; r.level='bad'; r.note='Conectaste el amperímetro en paralelo con la fuente: es un cortocircuito y el fusible se funde. El amperímetro se intercala en serie, abriendo el circuito.'; renderMeterChrome(); return r;}
+    r.text='0.000'; r.note='Sin corriente: el amperímetro debe quedar en serie con una carga.'; return r;
+  }
+  // voltage modes, correct jack
+  r.kind=M.dial; r.value= M.dial==='V~'? vac : vdc;
+  if(!conn){r.note= same? 'Ambas puntas tocan el mismo terminal: la diferencia de potencial es 0 V.' : 'Conecta las dos puntas a terminales distintos. Con una punta al aire no hay medición.';}
+  else if(M.dial==='V⎓'){
+    if(DEV[M.dev].kind==='ac'){r.level='warn'; r.note='En V⎓ lees el valor medio de la senoidal, que es casi 0 V. La tensión de red se mide en V~. Usa siempre un instrumento con la categoría de medición (CAT) adecuada para la red.'; CH.c3=true;}
+    else if(vdc<0){r.level='warn'; r.note='Lectura negativa: las puntas están invertidas (roja en el terminal negativo). El digital lo indica con el signo; el valor absoluto es correcto.'; CH.c2=true;}
+    else {r.level='ok'; r.note= M.dev==='lineal'?'Lees el valor medio. Esta fuente tiene rizado: cámbiate a V~ para medir su componente alterna.':'Lectura correcta: valor medio entre la punta roja (+) y la negra (−).';
+      if(M.dev==='bat12'&&M.red==='+') CH.c1=true;}
+  }
+  else if(M.dial==='V~'){
+    if(M.dev==='lineal'){r.level='ok'; r.note='Esto es el rizado eficaz de la fuente: la componente alterna superpuesta a la continua.'; CH.c4=true;}
+    else if(M.dev==='toma'){r.level='ok'; r.note='Valor eficaz de la tensión de red.';}
+    else r.note='Una fuente de CC bien filtrada casi no tiene componente alterna.';
+  }
+  else r.note= Math.abs(vdc)>0.6?'Fuera de rango para milivoltios: vuelve a V⎓.':'Lectura en milivoltios.';
+  return r;
+}
+function digitalFormat(v,kind){
+  if(kind==='mV⎓'){const x=v*1000; if(Math.abs(x)>=600) return {t:'OL',u:'mV'}; return {t:(x<0?'-':'')+Math.abs(x).toFixed(1),u:'mV'};}
+  let ri;
+  if(M.range==='AUTO'){ri=DR.findIndex(R=>Math.abs(v)<R); if(ri<0) return {t:'OL',u:'V'};}
+  else {ri=M.range; if(Math.abs(v)>=DR[ri]) return {t:'OL',u:'V'};}
+  return {t:(v<0?'-':'')+Math.abs(v).toFixed(DD[ri]),u:'V'};
+}
+function noiseFor(v,kind){
+  if(kind==='mV⎓') return (Math.random()-0.5)*0.0002;
+  const ri= M.range==='AUTO'? Math.max(0,DR.findIndex(R=>Math.abs(v)<R)) : M.range;
+  return (Math.random()-0.5)*2*Math.pow(10,-DD[ri]);
+}
+function meterTick(force){
+  const r=evaluate();
+  const note=$('#mmNote'); note.textContent=r.note; note.className='note'+(r.level==='info'?'':' '+r.level);
+  renderSteps(); renderChallenges();
+  if(M.type==='analog'){M.last=r; drawGauge(); return;}
+  const ann={AUTO:false,HOLD:M.hold,MAX:M.mm===1,MIN:M.mm===2,REL:M.rel,DC:false,AC:false};
+  let text='',unit='';
+  if(r.off){$('#dval').textContent='';$('#dunit').textContent='';setAnn({});$('#lcd').querySelector('.ghost').style.visibility='hidden';return;}
+  $('#lcd').querySelector('.ghost').style.visibility='visible';
+  if(r.value==null){text=r.text; unit=r.unit;}
+  else{
+    ann.DC=r.kind!=='V~'; ann.AC=r.kind==='V~'; ann.AUTO=M.range==='AUTO'&&r.kind!=='mV⎓';
+    let v=r.value; if(Math.abs(v)>1e-6||(M.red&&M.black)) v+=noiseFor(v,r.kind); else v=0;
+    if(r.kind==='V~') v=Math.abs(v);
+    if(M.rel) v-=M.ref;
+    if(M.mm>0){M.mn=M.mn==null?v:Math.min(M.mn,v); M.mx=M.mx==null?v:Math.max(M.mx,v);}
+    let shown= M.mm===1?M.mx : M.mm===2?M.mn : v;
+    if(M.hold){ if(M.holdVal==null) M.holdVal=shown; shown=M.holdVal; }
+    M.current=v;
+    const f=digitalFormat(shown,r.kind); text=f.t; unit=f.u;
+  }
+  $('#dval').textContent=text; $('#dunit').textContent=unit; setAnn(ann);
+}
+function setAnn(a){$$('#ann span').forEach(s=>s.classList.toggle('on',!!a[s.dataset.a]));}
+function drawGauge(){
+  const svg=$('#gauge'); if(!svg||M.type!=='analog') return;
+  const r=M.last||evaluate();
+  const fs= r.kind==='mV⎓'?0.25:AFS[M.arange];
+  const unit= r.kind==='mV⎓'?'V (0–250 mV)':'V';
+  const cx=150, cy=150, R=118, a0=-50, a1=50;
+  const ang=frac=>a0+(a1-a0)*frac;
+  const pt=(a,rr)=>[cx+rr*Math.sin(a*Math.PI/180), cy-rr*Math.cos(a*Math.PI/180)];
+  let s=`<path d="M${pt(a0,R).join(' ')} A ${R} ${R} 0 0 1 ${pt(a1,R).join(' ')}" fill="none" stroke="#2a2a2a" stroke-width="2"/>`;
+  for(let i=0;i<=50;i++){const a=ang(i/50), major=i%10===0, mid=i%5===0, [x1,y1]=pt(a,R), [x2,y2]=pt(a,R-(major?14:mid?9:5)); s+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#2a2a2a" stroke-width="${major?2:1}"/>`;
+    if(major){const [tx,ty]=pt(a,R-26); const val=fs*i/50; s+=`<text x="${tx.toFixed(1)}" y="${(ty+4).toFixed(1)}" text-anchor="middle" font-size="11" fill="#2a2a2a" font-family="IBM Plex Mono, monospace">${+val.toFixed(fs<1?2:fs<10?1:0)}</text>`;}}
+  let frac=0, warn='';
+  const active=!r.off && r.value!=null && M.red && M.black && M.red!==M.black;
+  if(active){frac=Math.abs(r.value)<1e-9?0:r.value/fs; if(frac<0){warn='La aguja golpea el tope izquierdo';frac=-0.06;} else if(frac>1){warn='Fuera de escala: sube el rango';frac=1.06;}}
+  if(r.value!=null && M.dial!=='V~' && frac<0) {}
+  const [nx,ny]=pt(ang(Math.max(-0.06,Math.min(1.06,frac))),R-6);
+  s+=`<text x="150" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="#2a2a2a" font-family="Archivo, sans-serif">${r.off?'APAGADO':(r.kind?(r.kind==='V~'?'V~ ':'V⎓ ')+'· escala '+(r.kind==='mV⎓'?'250 mV':AFS[M.arange]+' V'):(r.text||''))}</text>`;
+  s+=`<text x="150" y="88" text-anchor="middle" font-size="10" fill="#555" font-family="IBM Plex Mono, monospace">${unit}</text>`;
+  s+=`<line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#C0262D" stroke-width="2.5" style="transition:all .35s ease"/><circle cx="${cx}" cy="${cy}" r="7" fill="#2a2a2a"/>`;
+  if(warn) s+=`<text x="150" y="112" text-anchor="middle" font-size="12" font-weight="700" fill="#C0262D" font-family="Public Sans, sans-serif">${warn}</text>`;
+  svg.innerHTML=s;
+  if(active && r.value<0 && r.kind!=='V~'){const n=$('#mmNote'); n.className='note bad'; n.textContent='Con un instrumento analógico, la punta roja siempre va al positivo y la negra al negativo. Invertidas, la aguja se desvía contra el tope y el instrumento puede dañarse.';}
+  else if(active && frac>1){const n=$('#mmNote'); n.className='note warn'; n.textContent='La tensión supera el fondo de escala. Pulsa RANGE para elegir una escala mayor. En un analógico conviene empezar siempre por la escala más alta.';}
+}
+$('#bHold').onclick=()=>{M.hold=!M.hold; M.holdVal=null; renderMeterChrome(); meterTick(true);};
+$('#bMinMax').onclick=()=>{M.mm=(M.mm+1)%3; if(M.mm===1){M.mn=null;M.mx=null;} renderMeterChrome(); meterTick(true);};
+$('#bRel').onclick=()=>{M.rel=!M.rel; M.ref=M.rel?(M.current||0):0; renderMeterChrome(); meterTick(true);};
+$('#bRange').onclick=()=>{
+  if(M.type==='analog'){M.arange=(M.arange+1)%AFS.length;}
+  else {M.range= M.range==='AUTO'?0 : (M.range>=DR.length-1?'AUTO':M.range+1);}
+  meterTick(true);
+};
+function renderSteps(){
+  const steps=[
+    ['Gira el selector a V⎓',M.dial==='V⎓'||M.dial==='mV⎓'],
+    ['La punta negra va en el borne COM',true],
+    ['La punta roja va en el borne V Ω',M.jack==='VΩ'],
+    ['Conecta la negra al terminal negativo (masa)',M.black==='-'],
+    ['Conecta la roja al terminal positivo',M.red==='+'],
+    ['Lee el valor: unidad, signo y rango',M.dial==='V⎓'&&M.jack==='VΩ'&&M.black==='-'&&M.red==='+'],
+    ['Al terminar, retira primero la roja y luego la negra',false]
+  ];
+  $('#steps').innerHTML=steps.map(s=>`<li class="${s[1]?'done':''}"><span class="ck">✓</span><span>${s[0]}</span></li>`).join('');
+}
+function renderChallenges(){
+  const list=[['c1','Mide la batería de 12 V con la polaridad correcta'],['c2','Obtén una lectura negativa en una fuente de CC y explica por qué'],['c3','Mide el tomacorriente en V⎓ y observa por qué marca casi 0 V'],['c4','Mide el rizado de la fuente lineal en modo V~'],['c5','Descubre qué pasa si mides tensión con la punta roja en un borne de corriente']];
+  $('#chal').innerHTML=list.map(([k,t])=>`<li class="${CH[k]?'done':''}"><span class="ck">✓</span><span>${t}</span></li>`).join('');
+  $('#chalCount').textContent=Object.values(CH).filter(Boolean).length+' / 5';
+}
+setInterval(()=>{ if(M.type==='digital') meterTick(false); },500);
+
+/* ---------- Quiz ---------- */
+const Q=[
+  {q:'¿Qué rasgo define a una tensión continua?',o:['Su valor es exactamente constante en el tiempo','Su polaridad no se invierte','Su frecuencia es de 60 Hz','No transporta energía'],a:1,e:'Lo que la define es la polaridad fija. Una tensión rectificada y filtrada fluctúa (rizado) y sigue siendo continua porque no cambia de signo.'},
+  {q:'Mides un tomacorriente de 120 V CA con el multímetro en V⎓. ¿Qué lees?',o:['120 V','170 V, el valor pico','Casi 0 V','−120 V'],a:2,e:'En V⎓ el multímetro muestra el valor medio, y el valor medio de una senoidal en un ciclo completo es cero.'},
+  {q:'En una fuente con filtro capacitivo duplicas C sin cambiar la carga. El rizado pico a pico…',o:['Se duplica','Se reduce aproximadamente a la mitad','No cambia','Se vuelve alterna'],a:1,e:'Según la aproximación Vr(pp) ≈ Vp/(f·R·C), el rizado es inversamente proporcional a C. Compruébalo en el osciloscopio.'},
+  {q:'La pantalla del multímetro digital muestra −12.48 V sobre una batería. ¿Qué ocurre?',o:['La batería está dañada','Las puntas están invertidas','El multímetro está en V~','El fusible está fundido'],a:1,e:'Los multímetros digitales detectan la polaridad: con la roja en el negativo muestran el signo menos. En un analógico esto podría dañar el instrumento.'},
+  {q:'¿Por qué es más fácil filtrar un rectificador de onda completa que uno de media onda?',o:['Porque entrega más tensión pico','Porque la frecuencia del rizado es el doble','Porque no usa diodos','Porque no tiene rizado'],a:1,e:'Con el mismo filtro, el condensador se descarga durante la mitad de tiempo entre picos, así que el rizado es menor.'},
+  {q:'Pones la punta roja en el borne A y el selector en V⎓, y tocas los bornes de una batería. ¿Qué pasa?',o:['Lees la tensión normalmente','Lees la corriente de la batería','Provocas un cortocircuito por el circuito de corriente','El multímetro se apaga solo'],a:2,e:'El borne de corriente tiene una resistencia casi nula. Conectado sobre una fuente, deja pasar una corriente muy alta y funde el fusible.'},
+  {q:'Un panel con 36 celdas de silicio en serie, sin carga y con buen sol, entrega aproximadamente…',o:['0,6 V','12 V exactos','Unos 21 V','120 V'],a:2,e:'Cada celda aporta del orden de 0,6 V en circuito abierto; en serie las tensiones se suman: 36 × 0,6 ≈ 21,5 V.'}
+];
+const answers=new Array(Q.length).fill(null);
+function renderQuiz(){
+  $('#quiz').innerHTML=Q.map((x,i)=>`<fieldset class="q" style="margin:0"><legend class="qn">PREGUNTA ${i+1}</legend><h3>${x.q}</h3>${x.o.map((o,j)=>{
+    const ans=answers[i]; let cls=''; if(ans!=null){ if(j===x.a) cls='right'; else if(j===ans) cls='wrong'; }
+    return `<label class="opt ${cls}"><input type="radio" name="q${i}" id="q${i}o${j}" value="${j}" ${ans===j?'checked':''}> <span>${o}</span></label>`;}).join('')}
+    ${answers[i]!=null?`<p class="fb note ${answers[i]===x.a?'ok':'bad'}">${answers[i]===x.a?'Correcto. ':'No es correcto. '}${x.e}</p>`:''}</fieldset>`).join('');
+  $('#score').textContent=answers.filter((a,i)=>a===Q[i].a).length+' / '+Q.length;
+}
+$('#quiz').addEventListener('change',e=>{const m=e.target.name.match(/^q(\d+)$/); if(!m) return; const i=+m[1]; if(answers[i]!=null) return; answers[i]=+e.target.value; renderQuiz();});
+$('#resetQuiz').onclick=()=>{answers.fill(null); renderQuiz();};
+
+/* ---------- init ---------- */
+renderQuiz();
+autoset(); sizeCanvas();
+renderMeterChrome(); updateDevice();
+})();
+</script>
+
+</html>
