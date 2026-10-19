@@ -1,4 +1,4 @@
-# Laboratorio de Patología Clínica (versión provisional para pruebas)
+# Laboratorio de Patología Médica (versión provisional para pruebas)
 
 Laboratorio virtual de la Biblioteca e Información Científica (BIC) de la
 Universidad Tecnológica de Pereira, en el marco de la estrategia de
