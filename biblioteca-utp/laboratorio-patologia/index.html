@@ -359,6 +359,45 @@ footer{text-align:center}
 @media (max-width:640px){.tu-roles{grid-template-columns:minmax(0,1fr)}}
 .tu-avatar #organChips,.tu-avatar #organCaption{display:none}
 
+/* ===== Recorrido guiado «¿Cómo se juega?» ===== */
+.bt-help{position:fixed;left:16px;bottom:16px;z-index:880;box-shadow:0 8px 22px rgba(0,16,40,.28);display:inline-flex;align-items:center;gap:6px;border:1.5px solid #F2A900;background:#FFF6DC;color:#00204A;border-radius:999px;padding:7px 14px 7px 7px;font-weight:700;font-size:.88rem;cursor:pointer;white-space:nowrap}
+.bt-help:hover{background:#F2A900}
+.bt-help i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#00204A;color:#F2A900;font-style:normal;font-weight:800;font-size:.8rem}
+.bt-root{position:fixed;inset:0;z-index:1000}
+.bt-shield{position:absolute;inset:0;background:transparent}
+.bt-spot{position:fixed;border-radius:14px;border:3px solid #F2A900;box-shadow:0 0 0 9999px rgba(0,16,40,.68),0 0 24px rgba(242,169,0,.55);pointer-events:none;transition:left .3s ease,top .3s ease,width .3s ease,height .3s ease,opacity .2s}
+.bt-spot.off{opacity:0;box-shadow:0 0 0 9999px rgba(0,16,40,.68)}
+.bt-pop{position:fixed;width:min(380px,calc(100vw - 24px));background:#fff;color:#0E1B33;border-radius:16px;border-top:5px solid #F2A900;box-shadow:0 18px 50px rgba(0,16,40,.45);padding:14px 16px 12px;font-family:"Public Sans",system-ui,sans-serif;font-size:.95rem;line-height:1.5;transition:left .3s ease,top .3s ease}
+.bt-pop .bt-hd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.bt-pop .bt-owl{flex:none;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#00204A,#003DA5);display:grid;place-items:center;padding:6px}
+.bt-pop .bt-owl svg{width:100%;height:auto;display:block}
+.bt-pop h3{font-family:"Archivo",Arial,sans-serif;font-size:1.08rem;font-weight:800;margin:0;color:#00204A;line-height:1.2}
+.bt-pop .bt-n{display:block;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#7A5500}
+.bt-pop p{margin:0 0 4px}
+.bt-pop .bt-tip{display:block;margin-top:6px;background:#EEF3FB;border-radius:8px;padding:6px 9px;font-size:.84rem;color:#00204A}
+.bt-pop .bt-ft{display:flex;align-items:center;gap:8px;margin-top:10px}
+.bt-dots{display:flex;gap:4px;margin-right:auto}
+.bt-dots span{width:7px;height:7px;border-radius:50%;background:#CCD5E6}
+.bt-dots span.on{background:#F2A900;width:18px;border-radius:4px}
+.bt-pop button{font:inherit;border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:700;font-size:.86rem}
+.bt-prev{background:#fff;border:1px solid #CCD5E6;color:#0E1B33}
+.bt-prev:disabled{opacity:.4;cursor:default}
+.bt-next{background:#003DA5;border:1px solid #003DA5;color:#fff}
+.bt-next.go{background:#F2A900;border-color:#F2A900;color:#00204A}
+.bt-x{position:absolute;top:8px;right:10px;border:0;background:transparent;color:#51607A;font-size:1.3rem;line-height:1;padding:2px 6px!important}
+.bt-pop :focus-visible{outline:3px solid #F2A900;outline-offset:2px}
+.bt-invite{position:fixed;right:16px;bottom:16px;z-index:900;width:min(340px,calc(100vw - 32px));background:#00204A;color:#fff;border-radius:16px;border:2px solid #F2A900;box-shadow:0 14px 40px rgba(0,16,40,.4);padding:14px 16px;display:grid;gap:8px;font-family:"Public Sans",system-ui,sans-serif;animation:btIn .4s ease}
+.bt-invite b{font-family:"Archivo",Arial,sans-serif;font-size:1.05rem;color:#F2A900}
+.bt-invite p{margin:0;font-size:.9rem;color:#DCE5F5;line-height:1.45}
+.bt-invite .row{display:flex;gap:8px}
+.bt-invite button{font:inherit;font-weight:700;font-size:.86rem;border-radius:8px;padding:6px 12px;cursor:pointer}
+.bt-invite .y{background:#F2A900;color:#00204A;border:0}
+.bt-invite .n{background:transparent;color:#DCE5F5;border:1px solid rgba(255,255,255,.4)}
+@keyframes btIn{from{transform:translateY(20px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.bt-spot,.bt-pop{transition:none}.bt-invite{animation:none}}
+body.bt-on .bt-help{visibility:hidden}
+@media (max-width:640px){.bt-help{padding:7px}.bt-help span{display:none}}
+@media print{.bt-help,.bt-invite{display:none!important}}
 </style>
 
 <header class="top">
@@ -2426,6 +2465,81 @@ $('#tuDebRows').addEventListener('click',e=>{const b=e.target.closest('[data-see
   const stg=Math.max(p.maxStage,tuStage(p));setTimeout(()=>{V3.state={organ:p.c.organs[0],lesion:p.c.lesion,sev:p.c.lesion?Math.max(1,Math.min(3,stg))/3:0,rev:1};v3Apply();$('#organCaption').textContent=`${orgName(p.c.organs[0])} del paciente de la cama ${p.bed} en el estadio máximo que alcanzó (${['leve','moderado','grave','crítico'][Math.min(3,stg)]}). Representación didáctica.`;},300);
   document.getElementById('modelo').scrollIntoView({behavior:reduce?'auto':'smooth'});});
 requestAnimationFrame(tuLoop);
+
+/* ================= Recorrido guiado (motor común de la colección BIC) ================= */
+const BicTour=(function(){
+  let S=null;
+  const RM=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const owlSvg=()=>{const o=document.querySelector('.owl svg');if(!o)return '';const c=o.cloneNode(true);c.setAttribute('viewBox','20 0 460 285');c.removeAttribute('role');c.setAttribute('aria-hidden','true');c.removeAttribute('aria-label');return c.outerHTML;};
+  const vis=el=>{if(!el)return false;const r=el.getBoundingClientRect();return r.width>0&&r.height>0;};
+  function target(st){let el=null;try{el=typeof st.el==='function'?st.el():st.el?document.querySelector(st.el):null;}catch(e){el=null;}return vis(el)?el:null;}
+  function open(cfg){close(false);const root=document.createElement('div');root.className='bt-root';
+    root.innerHTML=`<div class="bt-shield"></div><div class="bt-spot off"></div><div class="bt-pop" role="dialog" aria-modal="true" aria-labelledby="btT" aria-describedby="btB"><button class="bt-x" type="button" aria-label="Cerrar el recorrido">×</button><div class="bt-hd"><div class="bt-owl">${owlSvg()}</div><div><span class="bt-n" id="btN"></span><h3 id="btT"></h3></div></div><div id="btB"></div><div class="bt-ft"><div class="bt-dots" aria-hidden="true"></div><button class="bt-prev" type="button">Atrás</button><button class="bt-next" type="button">Siguiente</button></div></div>`;
+    document.body.appendChild(root);document.body.classList.add('bt-on');
+    S={cfg,i:0,root,spot:root.querySelector('.bt-spot'),pop:root.querySelector('.bt-pop'),el:null,back:document.activeElement,raf:null};
+    root.querySelector('.bt-x').onclick=()=>close(false);
+    root.querySelector('.bt-prev').onclick=()=>go(S.i-1);
+    root.querySelector('.bt-next').onclick=()=>{if(S.i>=S.cfg.steps.length-1)close(true);else go(S.i+1);};
+    root.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close(false);}else if(e.key==='ArrowRight'){e.preventDefault();root.querySelector('.bt-next').click();}else if(e.key==='ArrowLeft'&&S.i>0){e.preventDefault();go(S.i-1);}
+      else if(e.key==='Tab'){const f=[...S.pop.querySelectorAll('button:not([disabled])')];const a=f.indexOf(document.activeElement);if(e.shiftKey&&a<=0){e.preventDefault();f[f.length-1].focus();}else if(!e.shiftKey&&a===f.length-1){e.preventDefault();f[0].focus();}}});
+    window.addEventListener('resize',onMove);window.addEventListener('scroll',onMove,true);
+    go(0);}
+  function onMove(){if(!S)return;cancelAnimationFrame(S.raf);S.raf=requestAnimationFrame(place);}
+  function go(i){if(!S)return;const st=S.cfg.steps[i];if(!st)return;S.i=i;
+    try{if(st.before)st.before();}catch(e){}
+    const n=S.cfg.steps.length;S.root.querySelector('#btN').textContent=`Paso ${i+1} de ${n}`;
+    S.root.querySelector('#btT').textContent=st.title;
+    S.root.querySelector('#btB').innerHTML=st.html;
+    S.root.querySelector('.bt-dots').innerHTML=S.cfg.steps.map((_,k)=>`<span class="${k===i?'on':''}"></span>`).join('');
+    S.root.querySelector('.bt-prev').disabled=i===0;
+    const nx=S.root.querySelector('.bt-next');nx.textContent=i===n-1?(S.cfg.doneLabel||'¡A jugar!'):'Siguiente';nx.classList.toggle('go',i===n-1);
+    setTimeout(()=>{if(!S)return;S.el=target(st);
+      if(S.el){const r=S.el.getBoundingClientRect();const fits=r.top>=70&&r.bottom<=window.innerHeight-20;if(!fits){const tall=r.height>window.innerHeight*0.55;const y=tall?r.top+window.scrollY-96:r.top+window.scrollY-(window.innerHeight-r.height)/2;window.scrollTo({top:Math.max(0,y),behavior:RM?'auto':'smooth'});}}
+      place();setTimeout(place,RM?0:420);nx.focus({preventScroll:true});},st.wait||60);}
+  function place(){if(!S)return;const pop=S.pop,spot=S.spot,vw=window.innerWidth,vh=window.innerHeight,m=12;
+    const pw=pop.offsetWidth,ph=pop.offsetHeight;
+    if(!S.el||!vis(S.el)){spot.classList.add('off');spot.style.cssText=`left:${vw/2}px;top:${vh/2}px;width:0;height:0`;pop.style.left=Math.max(m,(vw-pw)/2)+'px';pop.style.top=Math.max(m,(vh-ph)/2)+'px';return;}
+    spot.classList.remove('off');const r=S.el.getBoundingClientRect(),pad=8;
+    const L=Math.max(4,r.left-pad),T=Math.max(4,r.top-pad),W=Math.min(vw-8,r.right+pad)-L,H=Math.min(vh-8,r.bottom+pad)-T;
+    spot.style.left=L+'px';spot.style.top=T+'px';spot.style.width=Math.max(0,W)+'px';spot.style.height=Math.max(0,H)+'px';
+    let top,left=Math.min(vw-pw-m,Math.max(m,r.left+r.width/2-pw/2));
+    if(T+H+ph+m*2<=vh)top=T+H+m;else if(T-ph-m>=m)top=T-ph-m;
+    else{top=vh-ph-m;if(r.right+pw+m*2<=vw)left=r.right+m;else if(r.left-pw-m>=m)left=r.left-pw-m;}
+    pop.style.left=left+'px';pop.style.top=Math.max(m,top)+'px';}
+  function close(done){if(!S)return;const s=S;S=null;window.removeEventListener('resize',onMove);window.removeEventListener('scroll',onMove,true);s.root.remove();document.body.classList.remove('bt-on');
+    try{localStorage.setItem(s.cfg.key,'1');}catch(e){}
+    try{if(done&&s.cfg.onDone)s.cfg.onDone();if(s.cfg.onClose)s.cfg.onClose(done);}catch(e){}
+    if(s.back&&s.back.focus)try{s.back.focus({preventScroll:true});}catch(e){}}
+  function invite(cfg){let seen=null;try{seen=localStorage.getItem(cfg.key);}catch(e){}if(seen)return;
+    setTimeout(()=>{if(S||document.querySelector('.bt-invite'))return;const d=document.createElement('div');d.className='bt-invite';d.setAttribute('role','dialog');d.setAttribute('aria-label','Invitación al recorrido guiado');
+      d.innerHTML=`<b>${cfg.inviteTitle||'¿Primera vez aquí?'}</b><p>${cfg.inviteText||'Te muestro cómo se juega en un minuto.'}</p><div class="row"><button class="y" type="button">Muéstrame</button><button class="n" type="button">Ahora no</button></div>`;
+      document.body.appendChild(d);d.querySelector('.y').onclick=()=>{d.remove();open(cfg);};d.querySelector('.n').onclick=()=>{d.remove();try{localStorage.setItem(cfg.key,'1');}catch(e){}};},cfg.inviteDelay||1800);}
+  return {open,close,invite,get active(){return !!S;}};
+})();
+
+/* ---------- Recorrido guiado del Turno de urgencias ---------- */
+{const mob=()=>window.innerWidth<=860;
+const practice=()=>{const m=document.getElementById('tuMain');const started=m&&m.hidden;if(started)document.getElementById('tuStart').click();
+  setTimeout(()=>{const pb=document.getElementById('tuPause');if(pb&&!pb.disabled&&pb.textContent.trim()==='Pausa')pb.click();},started?350:0);};
+const TOUR_PAT={key:KEY+'-tour',inviteTitle:'¿Primer turno?',inviteText:'Te acompaño en un turno de práctica y te muestro cada botón en un minuto.',
+ steps:[
+  {title:'¡Bienvenido al servicio de urgencias!',html:'<p>Soy el búho de la BIC. Aquí atiendes pacientes que llegan estables y <b>empeoran con las horas</b> si nadie reconoce lo que tienen. Tu misión: que ninguno muera.</p><span class="bt-tip">Avanza con las flechas del teclado y sal con Esc.</span>'},
+  {el:()=>mob()?document.getElementById('xpchip'):document.querySelector('.top nav'),title:'El mapa del hospital',html:'<p>Arriba están los pisos del laboratorio: el turno, el modelo 3D, la consulta, la sala de lectura y la autoevaluación. A la derecha, tu nivel y tus <b>VX</b>.</p>'},
+  {el:'#tuLevel',title:'Elige el nivel',html:'<p><b>Pregrado</b>: dos pacientes, dos camas de UCI y pistas en pantalla. <b>Posgrado</b>: cuatro pacientes, una cama de UCI y sin pistas.</p>'},
+  {el:()=>document.getElementById('tuAuto').closest('label'),title:'¿Juegas solo?',html:'<p>Deja esta casilla marcada: enfermería administra tus órdenes y el laboratorio entrega los resultados por ti. En equipo, desmárcala y repártanse los roles.</p>'},
+  {el:'.tu-status',title:'Tu tablero de control',html:'<p>El <b>reloj del turno</b> corre rápido: una hora clínica dura un minuto. Los <b>puntos de vida</b> suben con cada acierto y bajan con cada error.</p>'},
+  {before:practice,wait:800,el:'#tuBoard',title:'Llegó tu primer paciente',html:'<p>Abrí un <b>turno de práctica</b> y lo dejé en pausa. Cada tarjeta es una cama: la barra de color muestra qué tan grave está. Toca una cama para atenderla.</p>'},
+  {el:'#tuTriageBox',title:'Paso 1: el triage',html:'<p>Antes de todo, clasifica al paciente de <b>I</b> (inmediato) a <b>V</b> (no urgente), según la Resolución 5596 de 2015. Solo tienes un intento.</p>'},
+  {el:()=>document.querySelector('#tuMain .monitor'),title:'Paso 2: el monitor',html:'<p>Signos vitales en vivo. Debajo, junto al nombre del paciente, verás el <b>NEWS2</b>: si llega a 5 o más, el paciente necesita respuesta urgente.</p>'},
+  {el:'#tuTests',title:'Paso 3: pide pruebas',html:'<p>Pide solo las que el cuadro justifica: cada una tarda y una prueba innecesaria resta puntos. Los resultados llegan a «Laboratorio e imágenes».</p>'},
+  {el:'#tuAvatarBtn',title:'Paso 4: señala el órgano',html:'<p>Abre el cuerpo 3D del paciente y toca el órgano que crees afectado. Acertar suma 50 puntos. Si pides radiografía, también podrás leer una placa real.</p>'},
+  {el:()=>document.getElementById('tuDx').closest('label'),title:'Paso 5: diagnostica',html:'<p>Elige el diagnóstico y confírmalo. Con el diagnóstico correcto, ordena las <b>intervenciones</b> y el paciente empezará a mejorar.</p>'},
+  {el:'#tuConsult',title:'Paso 6: llama al especialista',html:'<p>Algunos tratamientos necesitan una interconsulta: hemodinamia, neurología, ginecología o UCI. El mensaje <b>SBAR</b> ya viene preparado.</p>'},
+  {el:'#tuCoach',title:'La guía te habla',html:'<p>Lee esta franja: te dice qué está pasando y qué conviene hacer. Cuando el paciente esté estable, define su <b>destino</b>: alta, hospitalización, UCI o cirugía.</p>'},
+  {el:'#tuPause',title:'¡Tu turno empieza ahora!',html:'<p>El turno de práctica está en pausa. Pulsa <b>Continuar</b> cuando estés listo. Si ningún paciente muere, ganas la insignia <b>Turno sin muertes</b>.</p><span class="bt-tip">El botón «¿Cómo se juega?» de la esquina inferior izquierda repite este recorrido. Completarlo te da 5 VX.</span>'}],
+ onDone:()=>{if(!P.tour){P.tour=1;save();addXP(5,'recorrido guiado completado');}}};
+const hb=document.createElement('button');hb.type='button';hb.className='bt-help';hb.setAttribute('aria-label','¿Cómo se juega? Abre el recorrido guiado');hb.innerHTML='<i aria-hidden="true">?</i><span>¿Cómo se juega?</span>';hb.onclick=()=>BicTour.open(TOUR_PAT);document.body.appendChild(hb);
+BicTour.invite(TOUR_PAT);}
 
 /* ================= Quiz ================= */
 const QZ=[
