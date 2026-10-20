@@ -11,8 +11,12 @@
     - al terminar, envía el resultado y además muestra un código de resultado
       con su QR, que el docente puede escanear si no hubo red.
 
-  Sin servidor configurado o sin conexión, el juego funciona igual y el
-  resultado se entrega solo con el código y el QR.
+  Sin servidor configurado hay dos casos:
+    - Modo de prueba: si la sesión fue creada en el Panel docente de ESTE
+      navegador, el juego y el panel se comunican por localStorage (mismo
+      sitio, mismo navegador): seguimiento en vivo, órdenes y reporte, sin
+      servidor. Sirve para probar antes de que el CRIE aloje el servicio.
+    - Si no, el resultado se entrega con el código y el QR al final.
 
   No usa estilos ni manejadores en línea (compatible con la CSP del CRIE).
   Necesita qrcode-generator (Kazuhiko Arase, licencia MIT) para dibujar el QR.
@@ -25,6 +29,12 @@
   var INTERVALO = 3000;
   var PATRON_CODIGO = /^BIC-[A-Z0-9]{3}$/;
   var PATRON_ESTUDIANTE = /^[A-Za-z0-9.\-]{3,20}$/;
+  var CLAVE_PANEL_LOCAL = "bic-panel-local-v1";      // base del Panel docente sin servidor
+  var PREF_EQUIPO = "bic-panel-equipo:";               // + código + ":" + id  (lo escribe cada juego)
+  var PREF_CMD = "bic-panel-cmd:";                     // + código              (lo escribe el panel)
+  function lsLeer(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+  function lsGuardar(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  function sesionDePrueba(codigo) { var db = lsLeer(CLAVE_PANEL_LOCAL); return db && db.sesiones && db.sesiones[codigo] || null; }
 
   function apiBase() {
     var base = String(CONF.api || "").replace(/\/+$/, "");
@@ -81,7 +91,7 @@
 
   var S = {
     opciones: null, datos: null, cola: [], timer: null, enLinea: false, cerrada: false,
-    chip: null, dialogo: null, banner: null, errores: []
+    chip: null, dialogo: null, banner: null, errores: [], registro: [], nEv: 0
   };
 
   /* ------------------------------------------------------------ interfaz */
@@ -106,11 +116,12 @@
       b.setAttribute("aria-label", "Unirse a la sesión del docente");
       return;
     }
-    var estado = S.datos.local ? "bs-local" : (S.enLinea ? "bs-ok" : "bs-sin-red");
+    var estado = S.datos.prueba ? "bs-ok" : S.datos.local ? "bs-local" : (S.enLinea ? "bs-ok" : "bs-sin-red");
     b.classList.remove("bs-ok", "bs-sin-red", "bs-local");
     b.classList.add(estado);
     var txt = S.datos.codigo + " · " + S.datos.nombre;
     if (S.cerrada) txt += " · sesión cerrada";
+    else if (S.datos.prueba) txt += " · modo de prueba";
     else if (S.datos.local) txt += " · sin servidor";
     else if (!S.enLinea) txt += " · reconectando…";
     b.appendChild(el("span", null, txt));
@@ -200,7 +211,9 @@
     var d = S.datos;
     var caja = crearDialogo("Sesión " + d.codigo);
     caja.appendChild(el("p", "bs-texto", "Equipo: " + d.nombre + " · Integrantes: " + d.integrantes.join(", ")));
-    caja.appendChild(el("p", "bs-texto", d.local
+    caja.appendChild(el("p", "bs-texto", d.prueba
+      ? "Modo de prueba: el Panel docente abierto en este mismo navegador ve su avance en vivo."
+      : d.local
       ? "No hay servidor del panel disponible: al terminar la partida verán un código de resultado y un QR para entregar al docente."
       : (S.enLinea ? "Conectados: el docente ve su avance en vivo." : "Sin conexión por ahora. El juego sigue y los datos se envían cuando vuelva la red.")));
     var fila = el("div", "bs-botones");
@@ -259,6 +272,16 @@
     var o = S.opciones;
     var local = { codigo: codigo, nombre: nombre, integrantes: integrantes, autorizado: true, local: true, lab: o.lab };
     if (!apiBase() || !window.fetch) {
+      var sp = sesionDePrueba(codigo);
+      if (sp) {
+        if (sp.laboratorio !== o.lab) return Promise.reject(new Error("Ese código es de otro laboratorio."));
+        if (sp.estado !== "abierta") return Promise.reject(new Error("La sesión ya fue cerrada por el docente."));
+        var cmds = lsLeer(PREF_CMD + codigo) || [];
+        local.prueba = true; local.id = "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        local.desde = cmds.length ? cmds[cmds.length - 1].id : 0;
+        fijar(local, sp);
+        return Promise.resolve("¡Listo! Modo de prueba: el panel de este navegador ya ve al equipo " + nombre + ".");
+      }
       fijar(local, null);
       return Promise.resolve("Listo. No hay servidor del panel configurado: al terminar verán un código de resultado para entregar al docente.");
     }
@@ -295,7 +318,9 @@
 
   function arrancar() {
     clearInterval(S.timer);
-    if (!S.datos || S.datos.local) return;
+    if (!S.datos) return;
+    if (S.datos.prueba) { S.timer = setInterval(latidoPrueba, 2000); latidoPrueba(); return; }
+    if (S.datos.local) return;
     S.timer = setInterval(latido, INTERVALO);
     latido();
   }
@@ -332,6 +357,33 @@
     });
   }
 
+  /* modo de prueba: el estado se escribe en localStorage y el panel lo lee */
+  function latidoPrueba(final) {
+    var d = S.datos;
+    if (!d || !d.prueba) return false;
+    if (final) S.finalPrueba = final;
+    var est = {};
+    try { est = S.opciones.estado ? S.opciones.estado() : {}; } catch (e) { est = {}; }
+    var sp = sesionDePrueba(d.codigo);
+    var ok = lsGuardar(PREF_EQUIPO + d.codigo + ":" + d.id, {
+      id: d.id, codigo: d.codigo, lab: d.lab, nombre: d.nombre, integrantes: d.integrantes, autorizado: true,
+      estado: est, eventos: S.registro.slice(-400), final: S.finalPrueba || null, latido: Date.now()
+    });
+    var hubo = false;
+    (lsLeer(PREF_CMD + d.codigo) || []).forEach(function (c) {
+      if (c.id <= (d.desde || 0)) return;
+      d.desde = c.id;
+      if (c.equipo != null && c.equipo !== d.id) return;
+      hubo = true;
+      if (c.cmd === "mensaje") aviso(c.arg, true);
+      if (S.opciones.comando) try { S.opciones.comando(c.cmd, c.arg); } catch (e) { /* no aplica */ }
+    });
+    guardar(d);
+    if (hubo) setTimeout(function () { latidoPrueba(); }, 400);  // el panel ve enseguida el efecto de la orden
+    if ((!sp || sp.estado !== "abierta") && !S.cerrada) { S.cerrada = true; clearInterval(S.timer); aviso(sp ? "El docente cerró la sesión. ¡Gracias por jugar!" : "La sesión ya no existe en el panel de este navegador."); pintarChip(); }
+    return ok;
+  }
+
   /* ------------------------------------------------------------ resultado */
   function codigoResultado(final) {
     var d = S.datos;
@@ -346,7 +398,9 @@
 
   function mostrarResultado(r, soloVer) {
     var caja = crearDialogo(r.enviado ? "Resultado enviado al docente" : "Código de resultado");
-    caja.appendChild(el("p", "bs-texto", r.enviado
+    caja.appendChild(el("p", "bs-texto", r.enviado && r.prueba
+      ? "Modo de prueba: el resultado ya está en el Panel docente de este navegador. El QR sirve como respaldo."
+      : r.enviado
       ? "El docente ya tiene el resultado de su equipo en el Panel docente. Si lo pide, muéstrenle también este QR."
       : "No fue posible enviar el resultado por la red. Muestren este QR al docente o copien el código: él lo registra en el Panel docente."));
     var resumen = el("p", "bs-resumen", r.resumen);
@@ -395,15 +449,17 @@
         S.errores.unshift([ev.detalle.slice(0, 80), ev.puntos]);
         S.errores = S.errores.slice(0, 6);
       }
-      if (!S.datos.local) S.cola.push(ev);
+      if (S.datos.prueba) { ev.id = ++S.nEv; S.registro.push(ev); if (S.registro.length > 600) S.registro.shift(); }
+      else if (!S.datos.local) S.cola.push(ev);
       if (S.cola.length > 300) S.cola.shift();
     },
-    reiniciar: function () { S.errores = []; },
+    reiniciar: function () { S.errores = []; S.finalPrueba = null; },
     final: function (final) {
       if (!S.datos) return;
       var codigo = codigoResultado(final);
       var r = { codigo: codigo, resumen: final.resumen || "", enviado: false };
       S.ultimoResultado = r;
+      if (S.datos.prueba) { r.enviado = latidoPrueba(final); r.prueba = true; mostrarResultado(r); return; }
       if (S.datos.local) { mostrarResultado(r); return; }
       latido(final).then(function (ok) { r.enviado = !!ok; mostrarResultado(r); });
     },

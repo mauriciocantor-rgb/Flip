@@ -6,9 +6,13 @@
   llegan sin red (código BICR1 o QR).
 
   Dos formas de trabajo:
-    - Con servidor (backend-panel/, alojado por el CRIE): todo en vivo.
-    - Sin servidor: las sesiones y los resultados importados se guardan solo
-      en este navegador (localStorage).
+    - Con servidor (backend-panel/, alojado por el CRIE): todo en vivo, con
+      equipos en cualquier computador o celular.
+    - Sin servidor (modo de prueba): las sesiones se guardan en este navegador.
+      Los laboratorios abiertos en ESTE mismo navegador se comunican con el
+      panel por localStorage: seguimiento en vivo, alertas, órdenes y reporte.
+      Los equipos de otros dispositivos entregan su resultado con el código o
+      el QR (Registrar sin red).
 
   Sin estilos ni manejadores en línea: compatible con la CSP del CRIE.
   Los anchos y colores dinámicos se fijan con CSSOM (element.style), que la
@@ -23,6 +27,8 @@
   var CLAVE_ACCESO = "bic-panel-acceso";
   var CLAVE_LOCAL = "bic-panel-local-v1";
   var CLAVE_ACTUAL = "bic-panel-sesion";
+  var PREF_EQUIPO = "bic-panel-equipo:";   // + código + ":" + id, lo escribe cada laboratorio
+  var PREF_CMD = "bic-panel-cmd:";         // + código, órdenes del docente
 
   var EVENTOS = {
     "grid-masters": [["ramp", "Rampa de demanda +6 %"], ["L3", "Rayo: disparo de L3 (−420 MW)"], ["L1", "Rayo: disparo de L1"], ["link", "Pérdida del telecontrol"], ["linkok", "Restablecer telecontrol"], ["osc", "Oscilación del gobernador U2"], ["unit", "Disparo de una unidad"]],
@@ -110,36 +116,74 @@
     return Promise.resolve(db.sesiones[c]);
   };
   Local.prototype.listar = function () {
-    var db = this.db();
+    var db = this.db(), self = this;
     return Promise.resolve(Object.keys(db.sesiones).map(function (k) {
-      var s = db.sesiones[k], p = s.equipos.map(function (e) { return e.final.puntaje; }).filter(function (x) { return typeof x === "number"; });
-      return Object.assign({}, s, { equipos: s.equipos.length, estudiantes: s.equipos.reduce(function (a, e) { return a + e.integrantes.length; }, 0),
+      var s = db.sesiones[k], eqs = self.equiposComoServidor(s);
+      var p = eqs.map(function (e) { var f = e.final || {}; return f.puntaje != null ? f.puntaje : (e.estado || {}).puntaje; }).filter(function (x) { return typeof x === "number"; });
+      return Object.assign({}, s, { equipos: eqs.length, estudiantes: eqs.reduce(function (a, e) { return a + (e.integrantes || []).length; }, 0),
         promedio: p.length ? Math.round(p.reduce(function (a, b) { return a + b; }, 0) / p.length) : null, maximo: p.length ? Math.max.apply(null, p) : null,
-        insignias: s.equipos.filter(function (e) { return e.final.insignia; }).length });
+        insignias: eqs.filter(function (e) { return e.final && e.final.insignia; }).length });
     }).sort(function (a, b) { return a.creada < b.creada ? 1 : -1; }));
   };
   Local.prototype.sesion = function (c) { var s = this.db().sesiones[c]; if (!s) { var e = new Error("La sesión no existe en este navegador"); e.status = 404; throw e; } return s; };
-  Local.prototype.equiposComoServidor = function (s) {
-    return s.equipos.map(function (e, i) {
-      return { id: i + 1, nombre: e.nombre, integrantes: e.integrantes, segundos_sin_senal: null, estado: {}, final: e.final, origen: "codigo-resultado",
-        eventos: [], total_eventos: e.errores.length, errores: e.errores.length, acciones: (e.final.metricas && e.final.metricas.acciones) || 0,
-        linea_de_tiempo: e.errores.map(function (x) { return { t: 0, tipo: "error", detalle: x[0], puntos: x[1] }; }) };
-    });
+  Local.prototype.vivos = function (c) {  // equipos de prueba que escriben los laboratorios de este navegador
+    var out = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(PREF_EQUIPO + c + ":") === 0) { var r = leerJSON(k, null); if (r) out.push(r); }
+      }
+    } catch (e) { /* almacenamiento bloqueado */ }
+    return out.sort(function (a, b) { return a.id < b.id ? -1 : 1; });
   };
-  Local.prototype.tablero = function (c) { var s = this.sesion(c); return Promise.resolve({ sesion: s, equipos: this.equiposComoServidor(s), comandos: [] }); };
-  Local.prototype.comando = function () { return Promise.reject(new Error("Sin servidor no es posible enviar órdenes a los equipos.")); };
+  Local.prototype.equiposComoServidor = function (s, todos) {
+    var ahora = Date.now(), lista = [];
+    this.vivos(s.codigo).forEach(function (r, i) {
+      var evs = r.eventos || [];
+      lista.push({ id: r.id, nombre: r.nombre, integrantes: r.integrantes || [], segundos_sin_senal: Math.round((ahora - r.latido) / 1000),
+        estado: r.estado || {}, final: r.final, origen: "prueba",
+        eventos: evs.slice(-12).reverse(), total_eventos: evs.length,
+        errores: evs.filter(function (x) { return x.puntos < 0; }).length, acciones: evs.filter(function (x) { return x.tipo === "accion"; }).length,
+        linea_de_tiempo: todos ? evs : undefined });
+    });
+    s.equipos.forEach(function (e, i) {
+      lista.push({ id: "c" + i, nombre: e.nombre, integrantes: e.integrantes, segundos_sin_senal: null, estado: {}, final: e.final, origen: "codigo-resultado",
+        eventos: [], total_eventos: e.errores.length, errores: e.errores.length, acciones: (e.final.metricas && e.final.metricas.acciones) || 0,
+        linea_de_tiempo: e.errores.map(function (x) { return { t: 0, tipo: "error", detalle: x[0], puntos: x[1] }; }) });
+    });
+    return lista;
+  };
+  Local.prototype.tablero = function (c) { var s = this.sesion(c); return Promise.resolve({ sesion: s, equipos: this.equiposComoServidor(s), comandos: leerJSON(PREF_CMD + c, []).slice(-20).reverse() }); };
+  Local.prototype.comando = function (c, cmd, arg, equipo) {
+    var s = this.sesion(c);
+    if (s.estado !== "abierta") return Promise.reject(new Error("La sesión está cerrada"));
+    var l = leerJSON(PREF_CMD + c, []);
+    var id = l.length ? l[l.length - 1].id + 1 : 1;
+    l.push({ id: id, equipo: equipo == null ? null : equipo, cmd: cmd, arg: arg || "", creado: new Date().toISOString() });
+    guardarJSON(PREF_CMD + c, l.slice(-200));
+    return Promise.resolve({ id: id });
+  };
   Local.prototype.cerrar = function (c) { var db = this.db(); db.sesiones[c].estado = "cerrada"; db.sesiones[c].cerrada = new Date().toISOString().slice(0, 19) + "Z"; this.guardar(db); return Promise.resolve(db.sesiones[c]); };
+  function agrupar(lista, signo) {
+    var m = {};
+    lista.forEach(function (x) {
+      if (signo < 0 ? !(x.puntos < 0) : !(x.puntos > 0)) return;
+      var k = String(x.detalle).replace(/\b([Cc]ama) \d+\b/g, "$1 N").replace(/\b\d+(?:[.,]\d+)? ?(s|min|%)(?=\W|$)/g, "N $1").slice(0, 120);
+      m[k] = (m[k] || 0) + 1;
+    });
+    return Object.keys(m).map(function (k) { return { detalle: k, veces: m[k] }; }).sort(function (a, b) { return b.veces - a.veces; }).slice(0, 10);
+  }
   Local.prototype.reporte = function (c) {
-    var s = this.sesion(c), equipos = this.equiposComoServidor(s), err = {};
-    equipos.forEach(function (e) { e.linea_de_tiempo.forEach(function (x) { err[x.detalle] = (err[x.detalle] || 0) + 1; }); });
-    var errores = Object.keys(err).map(function (k) { return { detalle: k, veces: err[k] }; }).sort(function (a, b) { return b.veces - a.veces; }).slice(0, 10);
-    return Promise.resolve({ sesion: s, equipos: equipos, errores_frecuentes: errores, aciertos_frecuentes: [], generado: new Date().toISOString() });
+    var s = this.sesion(c), equipos = this.equiposComoServidor(s, true), todos = [];
+    equipos.forEach(function (e) { todos = todos.concat(e.linea_de_tiempo || []); });
+    return Promise.resolve({ sesion: s, equipos: equipos, errores_frecuentes: agrupar(todos, -1), aciertos_frecuentes: agrupar(todos, 1), generado: new Date().toISOString() });
   };
   Local.prototype.csv = function (c) {
     var s = this.sesion(c), filas = [["sesion", "laboratorio", "modo", "nivel", "grupo", "fecha", "equipo", "codigo_estudiante", "puntaje_final", "insignia", "resultado", "acciones", "errores", "origen"]];
-    s.equipos.forEach(function (e) {
+    this.equiposComoServidor(s).forEach(function (e) {
+      var f = e.final || {}, p = f.puntaje != null ? f.puntaje : (e.estado || {}).puntaje;
       (e.integrantes.length ? e.integrantes : [""]).forEach(function (cod) {
-        filas.push([s.codigo, s.laboratorio, s.modo, s.nivel, s.grupo, s.creada, e.nombre, cod, e.final.puntaje, e.final.insignia ? "sí" : "no", e.final.resultado || "", (e.final.metricas && e.final.metricas.acciones) || "", e.errores.length, "codigo-resultado"]);
+        filas.push([s.codigo, s.laboratorio, s.modo, s.nivel, s.grupo, s.creada, e.nombre, cod, p == null ? "" : p, f.insignia ? "sí" : "no", f.resultado || "en curso", e.acciones, e.errores, e.origen]);
       });
     });
     var txt = "﻿" + filas.map(function (f) { return f.map(function (x) { x = String(x == null ? "" : x); return /[;"\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(";"); }).join("\r\n");
@@ -153,7 +197,13 @@
     this.guardar(db);
     return Promise.resolve({ equipo: s.equipos.length });
   };
-  Local.prototype.borrar = function (c) { var db = this.db(); delete db.sesiones[c]; this.guardar(db); return Promise.resolve({ borrada: c }); };
+  Local.prototype.borrar = function (c) {
+    var db = this.db(); delete db.sesiones[c]; this.guardar(db);
+    var self = this;
+    this.vivos(c).forEach(function (r) { try { localStorage.removeItem(PREF_EQUIPO + c + ":" + r.id); } catch (e) { /* nada */ } });
+    try { localStorage.removeItem(PREF_CMD + c); } catch (e) { /* nada */ }
+    return Promise.resolve({ borrada: c });
+  };
 
   /* ================================================================ estado */
   var D = null;               // fuente de datos (Remoto o Local)
@@ -192,7 +242,7 @@
     return datos.probar().then(function () {
       D = datos;
       $("#pestanas").hidden = false;
-      if (D.local) conexion("local", "Sin servidor · datos en este navegador");
+      if (D.local) conexion("local", "Modo de prueba · sin servidor");
       else conexion("ok", "Conectado al servidor del panel");
       actual = sessionStorage.getItem(CLAVE_ACTUAL) || null;
       mostrar(actual ? "vivo" : "nueva");
@@ -321,7 +371,7 @@
       programar();
     });
   }
-  function programar() { detener(); if (D && !D.local && !$("#vVivo").hidden) timer = setTimeout(actualizar, POLL_MS); }
+  function programar() { detener(); if (D && !$("#vVivo").hidden) timer = setTimeout(actualizar, D.local ? 1500 : POLL_MS); }
 
   function pintarCabecera(s) {
     $("#sCodigo").textContent = s.codigo;
@@ -331,9 +381,9 @@
     var sel = vaciar($("#selEvento"));
     (EVENTOS[s.laboratorio] || []).forEach(function (x) { var o = el("option", null, x[1]); o.value = x[0]; sel.appendChild(o); });
     var cerrada = s.estado !== "abierta";
-    $$("#controlGeneral button, #controlGeneral select, #controlGeneral input").forEach(function (b) { b.disabled = cerrada || D.local; });
+    $$("#controlGeneral button, #controlGeneral select, #controlGeneral input").forEach(function (b) { b.disabled = cerrada; });
     $("#btnCerrar").disabled = cerrada;
-    $("#ctlNota").textContent = D.local ? "Sin servidor no hay control remoto: usa el «Panel del docente» dentro de cada laboratorio y registra los resultados en «Registrar sin red»."
+    $("#ctlNota").textContent = D.local && !cerrada ? "Modo de prueba: las órdenes llegan en 2 segundos a los laboratorios abiertos en este mismo navegador. Los equipos de otros dispositivos entregan su resultado con el QR (Registrar sin red)."
       : cerrada ? "La sesión está cerrada: los equipos ya no reciben órdenes." : "Las órdenes llegan a los equipos en unos 3 segundos.";
   }
 
@@ -371,7 +421,7 @@
       });
     }
     (e.eventos || []).forEach(function (ev) {
-      if (ev.puntos <= -80) A.push({ k: e.id + ":ev:" + ev.id, c: "malo", t: n + ": " + ev.detalle, d: ev.puntos + " puntos" });
+      if (ev.puntos <= -80 && !/fuera de la banda/.test(ev.detalle)) A.push({ k: e.id + ":ev:" + ev.id, c: "malo", t: n + ": " + ev.detalle, d: ev.puntos + " puntos" });
       if (ev.tipo === "guia") A.push({ k: e.id + ":guia:" + ev.id, c: "info", t: n + " necesitó un recordatorio", d: ev.detalle.replace(/^Recordatorio · /, "") });
     });
     if (e.final && e.final.insignia) A.push({ k: e.id + ":insignia", c: "bueno", t: n + " ganó la insignia", d: e.final.resultado || "" });
@@ -477,7 +527,7 @@
     });
     if ((e.eventos || []).length) card.appendChild(evs);
 
-    if (!D.local && s.estado === "abierta" && e.origen !== "codigo-resultado") {
+    if (s.estado === "abierta" && e.origen !== "codigo-resultado") {
       var acc = el("div", "eq-acciones");
       var bP = el("button", "btn mini", st.jugando ? "⏸ Pausar" : "⏵ Reanudar"); bP.type = "button";
       bP.addEventListener("click", function () { enviar(st.jugando ? "pausar" : (st.iniciado || st.t ? "reanudar" : "iniciar"), "", e); });
@@ -519,8 +569,8 @@
     var todas = []; eqs.forEach(function (e) { todas = todas.concat(alertasDe(s, e)); });
     var activas = todas.filter(function (a) { return !descartadas[a.k]; });
     kpi(k, "Equipos", String(eqs.length));
-    if (!D.local) kpi(k, "Conectados ahora", conectados + " de " + eqs.length);
-    if (!D.local) kpi(k, "Jugando", String(jugando));
+    kpi(k, "Conectados ahora", conectados + " de " + eqs.length);
+    kpi(k, "Jugando", String(jugando));
     kpi(k, "Terminaron", String(terminados));
     kpi(k, s.laboratorio === "grid-masters" && s.modo !== "juego" ? "Promedio de maniobras" : "Puntaje promedio",
       s.laboratorio === "grid-masters" && s.modo !== "juego" ? (eqs.length ? String(Math.round(eqs.reduce(function (a, e) { return a + ((e.estado || {}).acciones || 0); }, 0) / eqs.length)) : "—") : (pts.length ? String(Math.round(pts.reduce(function (a, b) { return a + b; }, 0) / pts.length)) : "—"));
@@ -531,7 +581,7 @@
     if (!eqs.length) {
       var v = el("div", "tarjeta vacio");
       v.appendChild(el("h3", null, "Aún no hay equipos"));
-      v.appendChild(el("p", null, D.local ? "Sin servidor, los equipos aparecen aquí cuando registras su código de resultado en «Registrar sin red»." : "Proyecta el código o comparte el enlace: cada equipo abre el laboratorio, pulsa «Unirse a la sesión del docente» y escribe " + s.codigo + "."));
+      v.appendChild(el("p", null, D.local ? "Modo de prueba: abre el laboratorio en otra pestaña de este navegador con «Copiar enlace» (o el QR) y únete con " + s.codigo + ". Los equipos de otros dispositivos aparecen cuando registras su código de resultado." : "Proyecta el código o comparte el enlace: cada equipo abre el laboratorio, pulsa «Unirse a la sesión del docente» y escribe " + s.codigo + "."));
       cont.appendChild(v);
     }
     eqs.forEach(function (e) { cont.appendChild(tarjetaEquipo(s, e)); });
@@ -561,7 +611,7 @@
     if (!orden.length) ol.appendChild(el("li", "nota", "Sin puntajes todavía."));
     orden.forEach(function (x) { var li = el("li", null, x.n + (x.ins ? " ★" : "")); li.appendChild(el("span", null, String(x.p))); ol.appendChild(li); });
 
-    $("#actualizado").textContent = D.local ? "Sin servidor" : "Actualizado " + new Date().toLocaleTimeString("es-CO");
+    $("#actualizado").textContent = (D.local ? "Modo de prueba · actualizado " : "Actualizado ") + new Date().toLocaleTimeString("es-CO");
     if (!$("#proyector").hidden) $("#pEquipos").textContent = eqs.length + " equipo(s) unidos";
   }
 
@@ -656,7 +706,7 @@
       });
     }
     barras($("#rErrores"), r.errores_frecuentes || [], "Sin errores registrados.");
-    barras($("#rAciertos"), r.aciertos_frecuentes || [], D.local ? "Sin servidor solo se registran los errores principales." : "Sin aciertos registrados.");
+    barras($("#rAciertos"), r.aciertos_frecuentes || [], "Sin aciertos registrados.");
 
     var lin = vaciar($("#rLineas"));
     eqs.forEach(function (e) {

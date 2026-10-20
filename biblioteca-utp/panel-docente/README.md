@@ -29,6 +29,17 @@ Universidad Tecnológica de Pereira para que el docente siga a los equipos de
 3. El laboratorio envía su estado y sus eventos; el panel los muestra y devuelve las órdenes del docente.
 4. Al terminar, el laboratorio envía el resultado y muestra además un **código de resultado con QR**.
 
+### Modo de prueba (sin servidor)
+
+Sirve para probar todo antes de que el CRIE aloje el servicio, y para talleres en un solo computador.
+En el acceso, «Modo de prueba (sin servidor)» no pide clave. Las sesiones quedan en el navegador del
+docente, y los laboratorios abiertos **en ese mismo navegador** (otra ventana o pestaña, desde «Copiar
+enlace» o el QR) se comunican con el panel mediante `localStorage` (mismo sitio, mismo navegador). Así
+funcionan el tablero en vivo, las alertas, las órdenes (iniciar, pausar, eventos, mensajes), el reporte,
+el CSV y el histórico. Conviene poner el panel y el juego en dos ventanas lado a lado, porque el
+navegador frena las pestañas ocultas. Los equipos de otros dispositivos no pueden llegar al panel sin
+servidor: entregan su resultado con el QR.
+
 ### Respaldo sin red
 
 Si el servicio no está configurado o el aula pierde la red, el juego sigue normal. Al final, el
