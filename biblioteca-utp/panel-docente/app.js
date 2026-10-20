@@ -111,7 +111,7 @@
   Local.prototype.crear = function (d) {
     var db = this.db(), A = "ACDEFGHJKMNPQRTUVWXY34679", c;
     do { c = "BIC-"; for (var i = 0; i < 3; i++) c += A[Math.floor(Math.random() * A.length)]; } while (db.sesiones[c]);
-    db.sesiones[c] = { codigo: c, laboratorio: d.laboratorio, modo: d.modo, nivel: d.nivel, titulo: d.titulo || "", grupo: d.grupo || "", estado: "abierta", creada: new Date().toISOString().slice(0, 19) + "Z", cerrada: null, equipos: [] };
+    db.sesiones[c] = { codigo: c, laboratorio: d.laboratorio, modo: d.modo, nivel: d.nivel, titulo: d.titulo || "", grupo: d.grupo || "", estado: "abierta", pide_codigos: !!d.pide_codigos, creada: new Date().toISOString().slice(0, 19) + "Z", cerrada: null, equipos: [] };
     this.guardar(db);
     return Promise.resolve(db.sesiones[c]);
   };
@@ -193,7 +193,7 @@
     var db = this.db(), s = db.sesiones[c];
     if (r.lab !== s.laboratorio) return Promise.reject(new Error("El resultado no corresponde al laboratorio de la sesión"));
     s.equipos = s.equipos.filter(function (e) { return e.nombre !== r.equipo; });
-    s.equipos.push({ nombre: r.equipo, integrantes: r.integrantes || [], final: { puntaje: r.puntaje, insignia: !!r.insignia, resultado: r.resultado, metricas: r.metricas || {} }, errores: r.errores || [] });
+    s.equipos.push({ nombre: r.equipo, integrantes: s.pide_codigos ? (r.integrantes || []) : [], final: { puntaje: r.puntaje, insignia: !!r.insignia, resultado: r.resultado, metricas: r.metricas || {} }, errores: r.errores || [] });
     this.guardar(db);
     return Promise.resolve({ equipo: s.equipos.length });
   };
@@ -288,7 +288,8 @@
     pintarOpcionesNueva();
     $("#btnCrear").addEventListener("click", function () {
       var lab = labElegido();
-      var datos = { laboratorio: lab, modo: lab === "grid-masters" ? $("#fModo").value : "turno", nivel: $("#fNivel").value, titulo: $("#fTitulo").value.trim(), grupo: $("#fGrupo").value.trim() };
+      var datos = { laboratorio: lab, modo: lab === "grid-masters" ? $("#fModo").value : "turno", nivel: $("#fNivel").value, titulo: $("#fTitulo").value.trim(), grupo: $("#fGrupo").value.trim(),
+        pide_codigos: ($("input[name=ident]:checked") || {}).value === "codigos" };
       $("#nuevaMsg").textContent = "Creando…";
       D.crear(datos).then(function (s) {
         $("#nuevaMsg").textContent = "";
@@ -376,7 +377,7 @@
   function pintarCabecera(s) {
     $("#sCodigo").textContent = s.codigo;
     $("#sMeta").textContent = nombreLab(s.laboratorio) + " · " + (MODOS[s.modo] || s.modo) + " · " + (NOMBRE_NIVEL[s.nivel] || s.nivel) +
-      (s.titulo ? " · " + s.titulo : "") + (s.grupo ? " · " + s.grupo : "") + " · " + (s.estado === "abierta" ? "abierta" : "cerrada " + fechaCorta(s.cerrada));
+      (s.titulo ? " · " + s.titulo : "") + (s.grupo ? " · " + s.grupo : "") + " · " + (s.pide_codigos ? "con códigos de estudiante" : "sin datos personales") + " · " + (s.estado === "abierta" ? "abierta" : "cerrada " + fechaCorta(s.cerrada));
     var q = vaciar($("#sQr")); q.appendChild(qrSvg(enlaceJuego(s)));
     var sel = vaciar($("#selEvento"));
     (EVENTOS[s.laboratorio] || []).forEach(function (x) { var o = el("option", null, x[1]); o.value = x[0]; sel.appendChild(o); });
@@ -468,7 +469,7 @@
 
     var cab = el("div", "eq-cab"), izq = el("div");
     izq.appendChild(el("h3", null, e.nombre));
-    izq.appendChild(el("div", "eq-int", (e.integrantes || []).length + " integrante(s): " + (e.integrantes || []).join(", ")));
+    if ((e.integrantes || []).length) izq.appendChild(el("div", "eq-int", e.integrantes.length + " integrante(s): " + e.integrantes.join(", ")));
     cab.appendChild(izq);
     cab.appendChild(el("span", "estado " + est[0], est[1]));
     card.appendChild(cab);
@@ -665,12 +666,15 @@
   function pintarReporte(r) {
     var s = r.sesion, eqs = r.equipos || [], gm = s.laboratorio === "grid-masters";
     $("#tReporte").textContent = nombreLab(s.laboratorio) + " · " + s.codigo;
+    $("#rDatos").textContent = s.pide_codigos
+      ? "Datos tratados conforme a la Ley 1581 de 2012: nombre del equipo, códigos de estudiante autorizados al unirse y acciones del juego."
+      : "Sesión sin datos personales: solo el nombre del equipo y las acciones del juego.";
     $("#rMeta").textContent = (MODOS[s.modo] || s.modo) + " · " + (NOMBRE_NIVEL[s.nivel] || s.nivel) + (s.titulo ? " · " + s.titulo : "") + (s.grupo ? " · " + s.grupo : "") +
       " · creada " + fechaCorta(s.creada) + (s.cerrada ? " · cerrada " + fechaCorta(s.cerrada) : " · abierta");
     var pts = eqs.map(puntajeDe).filter(function (x) { return typeof x === "number"; });
     var k = vaciar($("#rKpis"));
     kpi(k, "Equipos", String(eqs.length));
-    kpi(k, "Estudiantes", String(eqs.reduce(function (a, e) { return a + (e.integrantes || []).length; }, 0)));
+    if (s.pide_codigos) kpi(k, "Estudiantes", String(eqs.reduce(function (a, e) { return a + (e.integrantes || []).length; }, 0)));
     kpi(k, gm && s.modo !== "juego" ? "Maniobras promedio" : "Puntaje promedio", pts.length ? String(Math.round(pts.reduce(function (a, b) { return a + b; }, 0) / pts.length)) : "—");
     kpi(k, "Mejor puntaje", pts.length ? String(Math.max.apply(null, pts)) : "—");
     kpi(k, "Insignias", String(eqs.filter(function (e) { return e.final && e.final.insignia; }).length));

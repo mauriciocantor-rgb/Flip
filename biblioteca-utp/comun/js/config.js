@@ -15,9 +15,14 @@
   .utp.edu.co, hay que agregar ese origen a la directiva connect-src de la
   etiqueta <meta http-equiv="Content-Security-Policy"> del panel y de los
   laboratorios.
+
+  pedirCodigos: si el laboratorio no logra consultar la sesión (sin red), si
+  debe pedir códigos de estudiante. Por defecto false: solo nombre del equipo.
+  Cada sesión define esto en el Panel docente («Identificación de los equipos»).
 */
 window.BIC_PANEL_CONFIG = Object.freeze({
   api: "",
+  pedirCodigos: false,
   laboratorios: Object.freeze({
     "grid-masters": { nombre: "Grid Masters", area: "Ingeniería eléctrica", ruta: "../grid-masters/" },
     "turno-urgencias": { nombre: "Turno de urgencias", area: "Patología Médica", ruta: "../laboratorio-patologia/" }

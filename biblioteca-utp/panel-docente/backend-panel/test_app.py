@@ -17,8 +17,8 @@ def cargar(tmp_path, token="clave-de-prueba"):
     return modulo.app.test_client()
 
 
-def crear(c, lab="grid-masters", modo="juego"):
-    r = c.post("/api/sesiones", json={"laboratorio": lab, "modo": modo, "nivel": "pre", "titulo": "Taller", "grupo": "IE-01"}, headers=DOC)
+def crear(c, lab="grid-masters", modo="juego", codigos=True):
+    r = c.post("/api/sesiones", json={"laboratorio": lab, "modo": modo, "nivel": "pre", "titulo": "Taller", "grupo": "IE-01", "pide_codigos": codigos}, headers=DOC)
     assert r.status_code == 201, r.get_json()
     return r.get_json()["codigo"]
 
@@ -129,3 +129,32 @@ def test_cors(tmp_path):
     assert "X-Token-Docente" in r.headers["Access-Control-Allow-Headers"]
     r = c.options("/api/sesiones", headers={"Origin": "https://otro.sitio"})
     assert "Access-Control-Allow-Origin" not in r.headers
+
+
+def test_sesion_sin_codigos_no_guarda_datos_personales(tmp_path):
+    c = cargar(tmp_path)
+    codigo = crear(c, codigos=False)
+    assert c.get(f"/api/sesiones/{codigo}/publica").get_json()["pide_codigos"] is False
+    # sin códigos ni autorización: se une igual, y si los manda no se guardan
+    r = c.post(f"/api/sesiones/{codigo}/equipos", json={"nombre": "Solo nombre"})
+    assert r.status_code == 201
+    r = c.post(f"/api/sesiones/{codigo}/equipos", json={"nombre": "Con codigos", "integrantes": ["1088123456"], "consentimiento": True})
+    assert r.status_code == 201
+    import sqlite3
+    conn = sqlite3.connect(tmp_path / "panel.db")
+    assert conn.execute("SELECT COUNT(*) FROM integrantes").fetchone()[0] == 0
+    res = {"lab": "grid-masters", "equipo": "Sin red", "integrantes": ["1088000111"], "autorizado": True, "puntaje": 900}
+    assert c.post(f"/api/sesiones/{codigo}/importar", headers=DOC, json={"resultado": res}).status_code == 201
+    assert conn.execute("SELECT COUNT(*) FROM integrantes").fetchone()[0] == 0
+
+
+def test_migracion_de_base_v1(tmp_path):
+    import sqlite3
+    db = tmp_path / "panel.db"
+    conn = sqlite3.connect(db)
+    conn.execute("CREATE TABLE sesiones (codigo TEXT PRIMARY KEY, laboratorio TEXT NOT NULL, modo TEXT NOT NULL, nivel TEXT NOT NULL,"
+                 " titulo TEXT NOT NULL DEFAULT '', grupo TEXT NOT NULL DEFAULT '', estado TEXT NOT NULL DEFAULT 'abierta', creada TEXT NOT NULL, cerrada TEXT)")
+    conn.execute("INSERT INTO sesiones (codigo, laboratorio, modo, nivel, creada) VALUES ('BIC-AAA','grid-masters','juego','pre','2099-01-01T00:00:00Z')")
+    conn.commit(); conn.close()
+    c = cargar(tmp_path)
+    assert c.get("/api/sesiones/BIC-AAA/publica").get_json()["pide_codigos"] is False

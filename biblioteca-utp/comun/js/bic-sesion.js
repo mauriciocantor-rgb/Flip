@@ -165,14 +165,33 @@
     var fNombre = el("input", "bs-input"); fNombre.maxLength = 24; fNombre.placeholder = "Los Voltios";
     if (o.nombreEquipo) fNombre.value = o.nombreEquipo() || "";
     campo(caja, "Nombre del equipo", fNombre);
+    // códigos de estudiante y autorización: solo si la sesión los pide (por defecto, no)
+    var bloque = el("div", "bs-bloque"); bloque.hidden = true;
     var fCod = el("textarea", "bs-input bs-area"); fCod.rows = 3; fCod.placeholder = "Un código por línea (máximo 6)";
-    campo(caja, "Códigos de estudiante de los integrantes", fCod, "El código o documento con el que la UTP identifica a cada integrante.");
+    campo(bloque, "Códigos de estudiante de los integrantes", fCod, "El docente pidió identificar a cada integrante con su código de la UTP.");
     var aut = el("label", "bs-autoriza");
     var chk = el("input"); chk.type = "checkbox";
     aut.appendChild(chk);
     aut.appendChild(el("span", null,
       "Todos los integrantes autorizamos a la Universidad Tecnológica de Pereira (Biblioteca e Información Científica, BIC) a tratar nuestro código de estudiante y los resultados de esta actividad con fines académicos de seguimiento del taller, conforme a la Ley 1581 de 2012 y la política de tratamiento de datos de la UTP. Podemos consultar, corregir o pedir la supresión de estos datos al docente o a la BIC."));
-    caja.appendChild(aut);
+    bloque.appendChild(aut);
+    caja.appendChild(bloque);
+    var nota = el("p", "bs-ayuda", "Esta sesión no pide datos personales: basta con el nombre del equipo.");
+    caja.appendChild(nota);
+    var pide = !!CONF.pedirCodigos, consultado = "";
+    var aplicar = function (v) { pide = !!v; bloque.hidden = !pide; nota.hidden = pide; };
+    aplicar(pide);
+    var revisar = function () {
+      var c = fCodigo.value.trim().toUpperCase().replace(/\s+/g, "");
+      if (/^[A-Z0-9]{3}$/.test(c)) c = "BIC-" + c;
+      if (!PATRON_CODIGO.test(c) || c === consultado) return;
+      consultado = c;
+      var sp = sesionDePrueba(c);
+      if (sp) return aplicar(sp.pide_codigos);
+      if (apiBase() && window.fetch) pedir("/api/sesiones/" + c + "/publica").then(function (j) { if (consultado === c) aplicar(j.pide_codigos); }, function () { /* sin red: se decide al unirse */ });
+    };
+    fCodigo.addEventListener("input", revisar);
+    revisar();
     var msg = el("p", "bs-msg"); msg.setAttribute("role", "alert");
     caja.appendChild(msg);
     var fila = el("div", "bs-botones");
@@ -189,16 +208,19 @@
       ints = ints.filter(function (x, i) { return ints.indexOf(x) === i; });
       if (!PATRON_CODIGO.test(codigo)) return mostrar(msg, "Escribe el código tal como lo da el docente, por ejemplo BIC-4K7.");
       if (nombre.length < 2) return mostrar(msg, "Escribe el nombre del equipo.");
-      if (!ints.length) return mostrar(msg, "Escribe al menos un código de estudiante.");
-      if (ints.length > 6) return mostrar(msg, "Máximo 6 integrantes por equipo.");
-      for (var i = 0; i < ints.length; i++) if (!PATRON_ESTUDIANTE.test(ints[i])) return mostrar(msg, "Revisa el código «" + ints[i] + "»: solo letras, números, punto o guion (3 a 20 caracteres).");
-      if (!chk.checked) return mostrar(msg, "Para unirse, marquen la autorización de tratamiento de datos.");
+      if (pide) {
+        if (!ints.length) return mostrar(msg, "Escribe al menos un código de estudiante.");
+        if (ints.length > 6) return mostrar(msg, "Máximo 6 integrantes por equipo.");
+        for (var i = 0; i < ints.length; i++) if (!PATRON_ESTUDIANTE.test(ints[i])) return mostrar(msg, "Revisa el código «" + ints[i] + "»: solo letras, números, punto o guion (3 a 20 caracteres).");
+        if (!chk.checked) return mostrar(msg, "Para unirse, marquen la autorización de tratamiento de datos.");
+      } else ints = [];
       bOk.disabled = true; mostrar(msg, "Conectando…");
       unirse(codigo, nombre, ints).then(function (texto) {
         cerrarDialogo();
         aviso(texto);
       }, function (err) {
         bOk.disabled = false;
+        if (/código de estudiante|autorización/i.test(err.message || "")) aplicar(true);  // la sesión sí pide códigos
         mostrar(msg, err.message || "No fue posible unirse.");
       });
     });
@@ -210,7 +232,7 @@
   function menuSesion() {
     var d = S.datos;
     var caja = crearDialogo("Sesión " + d.codigo);
-    caja.appendChild(el("p", "bs-texto", "Equipo: " + d.nombre + " · Integrantes: " + d.integrantes.join(", ")));
+    caja.appendChild(el("p", "bs-texto", "Equipo: " + d.nombre + (d.integrantes.length ? " · Integrantes: " + d.integrantes.join(", ") : "")));
     caja.appendChild(el("p", "bs-texto", d.prueba
       ? "Modo de prueba: el Panel docente abierto en este mismo navegador ve su avance en vivo."
       : d.local
@@ -270,12 +292,13 @@
 
   function unirse(codigo, nombre, integrantes) {
     var o = S.opciones;
-    var local = { codigo: codigo, nombre: nombre, integrantes: integrantes, autorizado: true, local: true, lab: o.lab };
+    var local = { codigo: codigo, nombre: nombre, integrantes: integrantes, autorizado: integrantes.length > 0, local: true, lab: o.lab };
     if (!apiBase() || !window.fetch) {
       var sp = sesionDePrueba(codigo);
       if (sp) {
         if (sp.laboratorio !== o.lab) return Promise.reject(new Error("Ese código es de otro laboratorio."));
         if (sp.estado !== "abierta") return Promise.reject(new Error("La sesión ya fue cerrada por el docente."));
+        if (!sp.pide_codigos) { local.integrantes = []; local.autorizado = false; }
         var cmds = lsLeer(PREF_CMD + codigo) || [];
         local.prueba = true; local.id = "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
         local.desde = cmds.length ? cmds[cmds.length - 1].id : 0;
@@ -287,9 +310,9 @@
     }
     return pedir("/api/sesiones/" + codigo + "/equipos", {
       method: "POST",
-      body: JSON.stringify({ nombre: nombre, integrantes: integrantes, consentimiento: true, laboratorio: o.lab })
+      body: JSON.stringify({ nombre: nombre, integrantes: integrantes, consentimiento: integrantes.length > 0, laboratorio: o.lab })
     }).then(function (j) {
-      fijar({ codigo: codigo, nombre: nombre, integrantes: integrantes, autorizado: true, lab: o.lab, token: j.token, equipo: j.equipo, desde: j.desde || 0 }, j.sesion);
+      fijar({ codigo: codigo, nombre: nombre, integrantes: integrantes, autorizado: integrantes.length > 0, lab: o.lab, token: j.token, equipo: j.equipo, desde: j.desde || 0 }, j.sesion);
       return "¡Listo! El equipo " + nombre + " quedó unido a la sesión " + codigo + ".";
     }, function (e) {
       if (e.red) {
@@ -366,7 +389,7 @@
     try { est = S.opciones.estado ? S.opciones.estado() : {}; } catch (e) { est = {}; }
     var sp = sesionDePrueba(d.codigo);
     var ok = lsGuardar(PREF_EQUIPO + d.codigo + ":" + d.id, {
-      id: d.id, codigo: d.codigo, lab: d.lab, nombre: d.nombre, integrantes: d.integrantes, autorizado: true,
+      id: d.id, codigo: d.codigo, lab: d.lab, nombre: d.nombre, integrantes: d.integrantes, autorizado: !!d.autorizado,
       estado: est, eventos: S.registro.slice(-400), final: S.finalPrueba || null, latido: Date.now()
     });
     var hubo = false;
@@ -388,7 +411,7 @@
   function codigoResultado(final) {
     var d = S.datos;
     var datos = {
-      v: 1, lab: S.opciones.lab, sesion: d.codigo, equipo: d.nombre, integrantes: d.integrantes, autorizado: true,
+      v: 1, lab: S.opciones.lab, sesion: d.codigo, equipo: d.nombre, integrantes: d.integrantes, autorizado: !!d.autorizado,
       puntaje: final.puntaje, insignia: !!final.insignia, resultado: final.resultado, metricas: final.metricas || {},
       errores: S.errores.slice(0, 6), t: new Date().toISOString().slice(0, 16)
     };

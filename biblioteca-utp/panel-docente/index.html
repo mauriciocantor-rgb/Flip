@@ -91,6 +91,13 @@
         <label class="campo">Nivel
           <select id="fNivel"></select>
         </label>
+        <fieldset class="campo">
+          <legend>Identificación de los equipos</legend>
+          <div class="opciones">
+            <label class="opcion"><input type="radio" name="ident" value="nombre" checked><span><b>Solo el nombre del equipo</b><small>Sin datos personales. Recomendado para pruebas y para alojar el servidor fuera de la UTP.</small></span></label>
+            <label class="opcion"><input type="radio" name="ident" value="codigos"><span><b>Nombre y códigos de estudiante</b><small>Permite el seguimiento individual. Los equipos deben autorizar el tratamiento de datos (Ley 1581 de 2012).</small></span></label>
+          </div>
+        </fieldset>
         <label class="campo">Título de la sesión <span class="opc">opcional</span>
           <input type="text" id="fTitulo" maxlength="80" placeholder="Taller de estabilidad de frecuencia">
         </label>
@@ -191,7 +198,7 @@
       </div>
       <h3>Línea de tiempo de cada equipo</h3>
       <div id="rLineas"></div>
-      <p class="nota">Datos tratados conforme a la Ley 1581 de 2012: solo nombre del equipo, códigos de estudiante autorizados al unirse y acciones del juego.</p>
+      <p class="nota" id="rDatos"></p>
       <div class="botones no-imprimir"><button type="button" class="btn peligro" id="btnBorrar">Borrar esta sesión y todos sus datos</button></div>
     </div>
   </section>
@@ -273,7 +280,7 @@
 
 <footer class="pie caja">
   <p>Panel docente BIC v1.0 · Biblioteca Jorge Roa Martínez · Universidad Tecnológica de Pereira · Herramienta interna.</p>
-  <p>Tratamiento de datos: Ley 1581 de 2012. Los códigos de estudiante solo se registran con la autorización que los equipos marcan al unirse; las sesiones se borran solas después del plazo de conservación del servidor o cuando el docente las borra.</p>
+  <p>Tratamiento de datos (Ley 1581 de 2012): por defecto las sesiones solo registran el nombre del equipo y las acciones del juego. Los códigos de estudiante se piden únicamente si el docente lo elige, y solo con la autorización que los equipos marcan al unirse. Las sesiones se borran solas después del plazo de conservación del servidor o cuando el docente las borra.</p>
 </footer>
 </body>
 </html>

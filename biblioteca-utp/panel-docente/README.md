@@ -24,8 +24,9 @@ Universidad Tecnológica de Pereira para que el docente siga a los equipos de
 ```
 
 1. El docente entra con la **clave de docente** (variable `TOKEN_DOCENTE` del servicio) y crea la sesión.
-2. Cada equipo abre el laboratorio desde el QR (el enlace ya trae `?sesion=BIC-XXX`), escribe el nombre del
-   equipo y los **códigos de estudiante**, y marca la **autorización de tratamiento de datos**.
+2. Cada equipo abre el laboratorio desde el QR (el enlace ya trae `?sesion=BIC-XXX`) y escribe el nombre del
+   equipo. Solo si el docente eligió **«Nombre y códigos de estudiante»** al crear la sesión, el juego pide
+   también los códigos y la **autorización de tratamiento de datos**.
 3. El laboratorio envía su estado y sus eventos; el panel los muestra y devuelve las órdenes del docente.
 4. Al terminar, el laboratorio envía el resultado y muestra además un **código de resultado con QR**.
 
@@ -65,10 +66,13 @@ presentación de una lista cerrada.
 
 ## Tratamiento de datos (Ley 1581 de 2012)
 
-- **Qué se guarda:** código de la sesión, nombre del equipo, códigos de estudiante de los integrantes
-  (con la fecha de la autorización), estado del juego, acciones, puntos y resultado.
+- **Por defecto, sin datos personales:** la sesión guarda el código de la sesión, el nombre del equipo,
+  el estado del juego, las acciones, los puntos y el resultado. Así el servicio puede alojarse incluso
+  fuera de la UTP para pilotos.
+- **Solo si el docente lo elige** («Nombre y códigos de estudiante»): también los códigos de estudiante
+  de los integrantes, con la fecha de la autorización. En ese caso conviene que el servicio esté en la UTP.
 - **Qué no se guarda:** nombres de personas, correos, direcciones IP ni cookies.
-- **Autorización:** el equipo no puede unirse sin marcarla. El texto menciona la finalidad académica,
+- **Autorización:** en las sesiones con códigos, el equipo no puede unirse sin marcarla. El texto menciona la finalidad académica,
   la Ley 1581 y la política de tratamiento de datos de la UTP.
 - **Supresión:** «Borrar esta sesión y todos sus datos» elimina equipos, códigos y eventos.
 - **Conservación:** el servicio borra solo las sesiones con más de `RETENCION_DIAS` días (365 por defecto).

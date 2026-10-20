@@ -11,9 +11,10 @@ contador de la colección APA.
 Qué guarda
 ----------
 - Sesiones: código, laboratorio, modo, nivel, título y grupo.
-- Equipos: nombre, códigos de estudiante de sus integrantes (con la
-  autorización de tratamiento de datos que marcan al unirse) y el último
-  estado del juego.
+- Equipos: nombre y último estado del juego. Solo si el docente lo pide al
+  crear la sesión (pide_codigos), también los códigos de estudiante de los
+  integrantes, con la autorización de tratamiento de datos que marcan al
+  unirse. Por defecto la sesión NO recoge datos personales.
 - Eventos del juego: acciones, puntos ganados o perdidos y resultado final.
 No guarda direcciones IP, nombres de personas, correos ni cookies.
 Las sesiones más antiguas que RETENCION_DIAS se borran solas.
@@ -119,6 +120,7 @@ CREATE TABLE IF NOT EXISTS sesiones (
   titulo TEXT NOT NULL DEFAULT '',
   grupo TEXT NOT NULL DEFAULT '',
   estado TEXT NOT NULL DEFAULT 'abierta',
+  pide_codigos INTEGER NOT NULL DEFAULT 0,
   creada TEXT NOT NULL,
   cerrada TEXT
 );
@@ -179,6 +181,9 @@ def inicializar() -> None:
             conn.execute("PRAGMA busy_timeout=5000")
             conn.execute("PRAGMA journal_mode=WAL")
             conn.executescript(ESQUEMA)
+            columnas = {r[1] for r in conn.execute("PRAGMA table_info(sesiones)")}
+            if "pide_codigos" not in columnas:  # bases creadas con la versión 1.0
+                conn.execute("ALTER TABLE sesiones ADD COLUMN pide_codigos INTEGER NOT NULL DEFAULT 0")
             return
         except sqlite3.OperationalError as error:
             if "locked" not in str(error).lower() or intento == 39:
@@ -299,7 +304,7 @@ def sesion_publica(s) -> dict:
     return {
         "codigo": s["codigo"], "laboratorio": s["laboratorio"], "modo": s["modo"], "nivel": s["nivel"],
         "titulo": s["titulo"], "grupo": s["grupo"], "estado": s["estado"], "creada": s["creada"],
-        "cerrada": s["cerrada"],
+        "cerrada": s["cerrada"], "pide_codigos": bool(s["pide_codigos"]),
     }
 
 
@@ -328,8 +333,8 @@ def crear_sesion():
         purgar(conn)
         codigo = nuevo_codigo(conn)
         conn.execute(
-            "INSERT INTO sesiones (codigo, laboratorio, modo, nivel, titulo, grupo, creada) VALUES (?,?,?,?,?,?,?)",
-            (codigo, lab, modo, nivel, texto(d.get("titulo"), 80), texto(d.get("grupo"), 60), ahora()),
+            "INSERT INTO sesiones (codigo, laboratorio, modo, nivel, titulo, grupo, pide_codigos, creada) VALUES (?,?,?,?,?,?,?,?)",
+            (codigo, lab, modo, nivel, texto(d.get("titulo"), 80), texto(d.get("grupo"), 60), 1 if d.get("pide_codigos") is True else 0, ahora()),
         )
         s = conn.execute("SELECT * FROM sesiones WHERE codigo = ?", (codigo,)).fetchone()
     return jsonify(sesion_publica(s)), 201
@@ -388,23 +393,24 @@ def unirse(codigo: str):
     nombre = texto(d.get("nombre"), 24)
     if len(nombre) < 2:
         return error("escribe el nombre del equipo", 400)
-    integrantes = []
-    for c in d.get("integrantes") or []:
-        c = texto(c, 20).upper()
-        if c and c not in integrantes:
-            if not PATRON_ESTUDIANTE.match(c):
-                return error(f"código de estudiante no válido: {c}", 400)
-            integrantes.append(c)
-    if not integrantes:
-        return error("escribe al menos un código de estudiante", 400)
-    if len(integrantes) > MAX_INTEGRANTES:
-        return error(f"máximo {MAX_INTEGRANTES} integrantes por equipo", 400)
-    if d.get("consentimiento") is not True:
-        return error("falta la autorización de tratamiento de datos", 400)
     with conectar() as conn:
         s = sesion_o_404(conn, codigo)
         if not s:
             return error("no existe una sesión con ese código", 404)
+        integrantes = []
+        if s["pide_codigos"]:  # solo si el docente pidió códigos de estudiante
+            for c in d.get("integrantes") or []:
+                c = texto(c, 20).upper()
+                if c and c not in integrantes:
+                    if not PATRON_ESTUDIANTE.match(c):
+                        return error(f"código de estudiante no válido: {c}", 400)
+                    integrantes.append(c)
+            if not integrantes:
+                return error("escribe al menos un código de estudiante", 400)
+            if len(integrantes) > MAX_INTEGRANTES:
+                return error(f"máximo {MAX_INTEGRANTES} integrantes por equipo", 400)
+            if d.get("consentimiento") is not True:
+                return error("falta la autorización de tratamiento de datos", 400)
         if s["estado"] != "abierta":
             return error("la sesión ya fue cerrada por el docente", 410)
         if d.get("laboratorio") and d.get("laboratorio") != s["laboratorio"]:
@@ -645,6 +651,8 @@ def importar(codigo: str):
             return error("el resultado no corresponde al laboratorio de la sesión", 400)
         nombre = texto(res.get("equipo"), 24)
         integrantes = [texto(c, 20).upper() for c in res.get("integrantes") or [] if PATRON_ESTUDIANTE.match(texto(c, 20))][:MAX_INTEGRANTES]
+        if not s["pide_codigos"]:
+            integrantes = []  # la sesión no recoge datos personales
         if len(nombre) < 2:
             return error("el resultado no trae nombre de equipo", 400)
         if not res.get("autorizado") and integrantes:
