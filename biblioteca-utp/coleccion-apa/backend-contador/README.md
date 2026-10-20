@@ -71,7 +71,8 @@ en la directiva `connect-src` de la política de seguridad (CSP) de cada
 | POST | `/api/contadores/<herramienta>` | suma una visita y devuelve el total |
 
 Herramientas registradas: `constructor-citas`, `preguntas-frecuentes`,
-`verificador-citas`, `infografia-formato`. Cualquier otro identificador
+`verificador-citas`, `infografia-formato`, `infografia-citas`,
+`infografia-formato-general`. Cualquier otro identificador
 responde 404. Para sumar una herramienta nueva sin tocar el código, use la
 variable `HERRAMIENTAS_EXTRA`.
 

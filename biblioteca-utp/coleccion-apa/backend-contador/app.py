@@ -46,6 +46,8 @@ HERRAMIENTAS = {
     "preguntas-frecuentes",
     "verificador-citas",
     "infografia-formato",
+    "infografia-citas",
+    "infografia-formato-general",
 }
 HERRAMIENTAS |= {
     h.strip() for h in os.environ.get("HERRAMIENTAS_EXTRA", "").split(",") if h.strip()

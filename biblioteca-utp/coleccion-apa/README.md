@@ -43,6 +43,8 @@ Fuentes:
 | Verificador de citas y referencias (v1.0) | [`verificador-citas/`](verificador-citas) | `verificador-citas` |
 | Preguntas frecuentes APA 7 | [`preguntas-frecuentes/`](preguntas-frecuentes) | `preguntas-frecuentes` |
 | Infografía · Configura tu formato | [`infografia-formato/`](infografia-formato) | `infografia-formato` |
+| Infografía · Formato general | [`infografia-formato-general/`](infografia-formato-general) | `infografia-formato-general` |
+| Infografía · Anatomía de las citas | [`infografia-citas/`](infografia-citas) | `infografia-citas` |
 
 ## Estructura
 
