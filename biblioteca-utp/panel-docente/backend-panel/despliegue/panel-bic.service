@@ -1,0 +1,23 @@
+# Unidad systemd de ejemplo · /etc/systemd/system/panel-bic.service
+# sudo systemctl daemon-reload && sudo systemctl enable --now panel-bic
+[Unit]
+Description=Panel docente BIC - laboratorios gamificados - Biblioteca Jorge Roa Martinez (UTP)
+After=network.target
+
+[Service]
+User=panel-bic
+Group=panel-bic
+WorkingDirectory=/opt/panel-bic
+EnvironmentFile=/etc/panel-bic/panel.env
+# Un solo proceso con varios hilos: el límite de solicitudes se calcula en memoria
+# y SQLite trabaja mejor con un único escritor. Suficiente para varias aulas a la vez.
+ExecStart=/opt/panel-bic/.venv/bin/gunicorn --workers 1 --threads 8 --bind 127.0.0.1:8020 --access-logfile - app:app
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/panel-bic
+
+[Install]
+WantedBy=multi-user.target

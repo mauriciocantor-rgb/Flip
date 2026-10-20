@@ -1,0 +1,17 @@
+/*
+  Base compartida de los laboratorios gamificados y el Panel docente BIC (UTP)
+  Lineamiento tipográfico del CRIE:
+    - Texto (cuerpo, formularios, tablas): Noto Sans
+    - Títulos y encabezados: Atkinson Hyperlegible
+    - Cifras de instrumentos y consolas: Noto Sans Mono (familia Noto)
+*/
+:root{
+  --fuente-texto:"Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --fuente-titulos:"Atkinson Hyperlegible","Noto Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --fuente-mono:"Noto Sans Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--fuente-texto)}
+h1,h2,h3,h4,h5,h6,summary,.titulo{font-family:var(--fuente-titulos)}
+input,select,textarea,button{font-family:inherit}
+[hidden]{display:none!important}

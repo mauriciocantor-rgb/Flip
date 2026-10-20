@@ -10,8 +10,10 @@ como Claude Artifacts:
 | Colección APA 7 (constructor, verificador, FAQ, infografía) | [`coleccion-apa/`](coleccion-apa) | Línea de herramientas APA con los lineamientos del CRIE (Noto Sans, Atkinson Hyperlegible, HTML/CSS/JS separados, GitHub Pages) y un único servicio de contador para el servidor de la UTP. |
 | Ruta Mendeley UTP | [`ruta-mendeley/`](ruta-mendeley) | Ruta de aprendizaje autónomo de Mendeley: diagnóstico, simulador, retos, evaluación y constancia de práctica. |
 | Vigilancia Tecnológica BIC | [`vigilancia-tecnologica/`](vigilancia-tecnologica) | Ficha de validación de productos de vigilancia tecnológica (modelo de medición de Minciencias). |
-| Laboratorio de Patología Médica (provisional) | [`laboratorio-patologia/`](laboratorio-patologia) | Turno de urgencias gamificado, modelo anatómico 3D masculino y femenino y lectura de radiografías. Alojamiento provisional para pruebas con un médico general. |
-| Grid Masters (provisional) | [`grid-masters/`](grid-masters) | Laboratorio de eléctrica: estabilidad de frecuencia de la red, sala de control con cuatro roles y banco de siete instrumentos de medición. Alojamiento provisional para pruebas. |
+| Laboratorio de Patología Médica | [`laboratorio-patologia/`](laboratorio-patologia) | Turno de urgencias gamificado, modelo anatómico 3D masculino y femenino y lectura de radiografías. Versión con los lineamientos del CRIE y conexión al Panel docente. |
+| Grid Masters | [`grid-masters/`](grid-masters) | Laboratorio de eléctrica: estabilidad de frecuencia de la red, sala de control con cuatro roles y banco de siete instrumentos de medición. Versión con los lineamientos del CRIE y conexión al Panel docente. |
+| Panel docente BIC | [`panel-docente/`](panel-docente) | Seguimiento en vivo de los equipos de Grid Masters y Turno de urgencias, control de la partida, reporte de sesión (CSV y PDF), histórico y registro de resultados sin red. Servicio Python para el CRIE en `backend-panel/`. |
+| Recursos comunes de los laboratorios | [`comun/`](comun) | Fuentes del CRIE (Noto Sans, Atkinson Hyperlegible, Noto Sans Mono), conector de sesión, configuración del servicio del panel y librerías alojadas en el repositorio (three.js, qrcode-generator, jsQR). |
 | Laboratorio de Tensión Continua (provisional) | [`tension-continua/`](tension-continua) | Osciloscopio y multímetro para fuentes de corriente continua. Reservado para el proyecto de CC. Alojamiento provisional para pruebas. |
 
 > **Actualización (15 de octubre de 2026):** el Constructor de citas y el FAQ

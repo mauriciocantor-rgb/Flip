@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://*.utp.edu.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<title>Panel docente · Laboratorios gamificados BIC</title>
+<meta name="description" content="Seguimiento en vivo de los equipos, control de la partida, reporte de sesión e histórico de los laboratorios gamificados de la BIC.">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<meta name="generator" content="Panel docente BIC · v1.0 · octubre de 2026">
+<link rel="icon" href="../comun/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="preload" href="../comun/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../comun/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../comun/css/fuentes.css">
+<link rel="stylesheet" href="../comun/css/base.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="../comun/js/config.js" defer></script>
+<script src="../comun/vendor/qrcode-generator.js" defer></script>
+<script src="../comun/vendor/jsQR.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<a class="saltar" href="#principal">Saltar al contenido</a>
+<header class="banda">
+  <div class="caja cabecera">
+    <img class="buho" src="../comun/img/logo-bic-utp.svg" alt="Biblioteca Jorge Roa Martínez, UTP" width="58" height="56">
+    <div class="marca">
+      <p class="sello">Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</p>
+      <h1>Panel docente</h1>
+      <p class="sub">Laboratorios gamificados: Grid Masters y Turno de urgencias</p>
+    </div>
+    <div class="conexion" id="conexion" role="status" aria-live="polite"><i class="punto"></i><span id="conexionTxt">Sin conectar</span></div>
+  </div>
+  <nav class="caja pestanas" id="pestanas" aria-label="Secciones del panel" hidden>
+    <button type="button" data-vista="vivo" aria-current="page">Sesión en vivo</button>
+    <button type="button" data-vista="nueva">Nueva sesión</button>
+    <button type="button" data-vista="historico">Histórico</button>
+    <button type="button" data-vista="importar">Registrar sin red</button>
+    <button type="button" class="salir" id="btnSalir">Salir</button>
+  </nav>
+</header>
+
+<main id="principal" class="caja">
+
+  <!-- ===================== Acceso ===================== -->
+  <section class="vista" id="vAcceso" aria-labelledby="tAcceso">
+    <div class="tarjeta acceso">
+      <h2 id="tAcceso">Acceso para docentes</h2>
+      <p>Escribe la clave de docente que entrega la BIC. Con ella creas sesiones, sigues a los equipos en vivo y descargas los reportes.</p>
+      <label class="campo">Clave de docente
+        <input type="password" id="fClave" autocomplete="current-password" spellcheck="false">
+      </label>
+      <details class="avanzado">
+        <summary>Servidor del panel</summary>
+        <label class="campo">Dirección del servicio
+          <input type="url" id="fApi" placeholder="https://panel-bic.utp.edu.co" spellcheck="false">
+        </label>
+        <p class="nota">Normalmente ya viene configurada. Solo se aceptan direcciones del dominio utp.edu.co.</p>
+      </details>
+      <p class="aviso-error" id="accesoMsg" role="alert"></p>
+      <div class="botones">
+        <button type="button" class="btn primario" id="btnEntrar">Entrar</button>
+        <button type="button" class="btn" id="btnLocal">Trabajar sin servidor</button>
+      </div>
+      <p class="nota">«Trabajar sin servidor» guarda las sesiones solo en este navegador. No hay seguimiento en vivo: los equipos entregan su resultado con un código o un QR al final de la partida.</p>
+    </div>
+  </section>
+
+  <!-- ===================== Nueva sesión ===================== -->
+  <section class="vista" id="vNueva" aria-labelledby="tNueva" hidden>
+    <div class="dos">
+      <div class="tarjeta">
+        <h2 id="tNueva">Nueva sesión</h2>
+        <p>Elige el laboratorio y cómo se jugará. Los equipos se unen con el código que verás al crearla.</p>
+        <fieldset class="campo">
+          <legend>Laboratorio</legend>
+          <div class="opciones" id="fLab">
+            <label class="opcion"><input type="radio" name="lab" value="grid-masters" checked><span><b>Grid Masters</b><small>Ingeniería eléctrica · frecuencia de la red</small></span></label>
+            <label class="opcion"><input type="radio" name="lab" value="turno-urgencias"><span><b>Turno de urgencias</b><small>Patología Médica · urgencias</small></span></label>
+          </div>
+        </fieldset>
+        <label class="campo" id="campoModo">Modo de juego
+          <select id="fModo">
+            <option value="guiado">Escenario guiado (para aprender)</option>
+            <option value="juego">Grid Masters (con puntaje e insignia)</option>
+            <option value="libre">Libre (el docente lanza los eventos)</option>
+          </select>
+        </label>
+        <label class="campo">Nivel
+          <select id="fNivel"></select>
+        </label>
+        <label class="campo">Título de la sesión <span class="opc">opcional</span>
+          <input type="text" id="fTitulo" maxlength="80" placeholder="Taller de estabilidad de frecuencia">
+        </label>
+        <label class="campo">Grupo o asignatura <span class="opc">opcional</span>
+          <input type="text" id="fGrupo" maxlength="60" placeholder="Sistemas de potencia · grupo 2">
+        </label>
+        <p class="aviso-error" id="nuevaMsg" role="alert"></p>
+        <div class="botones"><button type="button" class="btn primario" id="btnCrear">Crear sesión</button></div>
+      </div>
+      <div class="tarjeta">
+        <h2>Sesiones abiertas</h2>
+        <p class="nota">Toca una sesión para volver a su tablero.</p>
+        <ul class="lista-sesiones" id="abiertas"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== En vivo ===================== -->
+  <section class="vista" id="vVivo" aria-labelledby="tVivo" hidden>
+    <div class="vacio tarjeta" id="vivoVacio">
+      <h2>No hay una sesión activa</h2>
+      <p>Crea una sesión en «Nueva sesión» o abre una desde el «Histórico».</p>
+    </div>
+    <div id="vivo" hidden>
+      <div class="cabeza-sesion tarjeta">
+        <div class="codigo-bloque">
+          <span class="etq">Código de la sesión</span>
+          <b class="codigo" id="sCodigo">BIC-···</b>
+          <span class="meta" id="sMeta"></span>
+        </div>
+        <div class="qr-mini" id="sQr" aria-hidden="true"></div>
+        <div class="acciones-sesion">
+          <button type="button" class="btn" id="btnProyectar">Proyectar código</button>
+          <button type="button" class="btn" id="btnCopiarEnlace">Copiar enlace</button>
+          <button type="button" class="btn" id="btnReporte">Ver reporte</button>
+          <button type="button" class="btn peligro" id="btnCerrar">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="control tarjeta" id="controlGeneral">
+        <h2 class="h-peq">Control de la partida · todos los equipos</h2>
+        <div class="fila-control">
+          <button type="button" class="btn primario" data-cmd="iniciar">▶ Iniciar a todos</button>
+          <button type="button" class="btn" data-cmd="pausar">⏸ Pausar a todos</button>
+          <button type="button" class="btn" data-cmd="reanudar">⏵ Reanudar a todos</button>
+          <span class="sep" aria-hidden="true"></span>
+          <label class="en-linea">Evento <select id="selEvento"></select></label>
+          <button type="button" class="btn" id="btnEvento">Lanzar a todos</button>
+          <span class="sep" aria-hidden="true"></span>
+          <label class="en-linea crece">Mensaje <input type="text" id="txtMensaje" maxlength="200" placeholder="Ej.: Quedan dos minutos"></label>
+          <button type="button" class="btn" id="btnMensaje">Enviar a todos</button>
+        </div>
+        <p class="nota" id="ctlNota"></p>
+      </div>
+
+      <div class="tablero">
+        <div class="col-equipos">
+          <div class="titulo-fila"><h2 class="h-peq" id="tVivo">Equipos</h2><span class="nota" id="actualizado"></span></div>
+          <div class="equipos" id="equipos"></div>
+        </div>
+        <aside class="col-lateral">
+          <div class="tarjeta">
+            <h2 class="h-peq">Alertas</h2>
+            <ul class="alertas" id="alertas" aria-live="polite"></ul>
+          </div>
+          <div class="tarjeta">
+            <h2 class="h-peq">Clasificación</h2>
+            <ol class="ranking" id="ranking"></ol>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Reporte ===================== -->
+  <section class="vista" id="vReporte" aria-labelledby="tReporte" hidden>
+    <div class="tarjeta">
+      <div class="titulo-fila">
+        <div>
+          <p class="etq">Reporte de sesión</p>
+          <h2 id="tReporte">—</h2>
+          <p class="meta" id="rMeta"></p>
+        </div>
+        <div class="botones no-imprimir">
+          <button type="button" class="btn" id="btnVolverVivo">Volver al tablero</button>
+          <button type="button" class="btn" id="btnCsv">Descargar CSV</button>
+          <button type="button" class="btn primario" id="btnImprimir">Imprimir o guardar PDF</button>
+        </div>
+      </div>
+      <div class="kpis" id="rKpis"></div>
+      <h3>Resultados por equipo</h3>
+      <div class="tabla-env"><table class="tabla" id="rTabla"></table></div>
+      <div class="dos">
+        <div><h3>Errores más frecuentes</h3><ol class="barras" id="rErrores"></ol></div>
+        <div><h3>Aciertos más frecuentes</h3><ol class="barras ok" id="rAciertos"></ol></div>
+      </div>
+      <h3>Línea de tiempo de cada equipo</h3>
+      <div id="rLineas"></div>
+      <p class="nota">Datos tratados conforme a la Ley 1581 de 2012: solo nombre del equipo, códigos de estudiante autorizados al unirse y acciones del juego.</p>
+      <div class="botones no-imprimir"><button type="button" class="btn peligro" id="btnBorrar">Borrar esta sesión y todos sus datos</button></div>
+    </div>
+  </section>
+
+  <!-- ===================== Histórico ===================== -->
+  <section class="vista" id="vHistorico" aria-labelledby="tHist" hidden>
+    <div class="tarjeta">
+      <div class="titulo-fila">
+        <h2 id="tHist">Histórico de sesiones</h2>
+        <label class="en-linea">Laboratorio
+          <select id="fHistLab"><option value="">Todos</option><option value="grid-masters">Grid Masters</option><option value="turno-urgencias">Turno de urgencias</option></select>
+        </label>
+      </div>
+      <div class="kpis" id="hKpis"></div>
+      <figure class="grafica">
+        <canvas id="hGrafica" width="960" height="260" role="img" aria-label="Puntaje promedio por sesión a lo largo del tiempo"></canvas>
+        <figcaption class="nota" id="hLeyenda">Puntaje promedio de los equipos en cada sesión.</figcaption>
+      </figure>
+      <div class="tabla-env"><table class="tabla" id="hTabla"></table></div>
+    </div>
+  </section>
+
+  <!-- ===================== Importar ===================== -->
+  <section class="vista" id="vImportar" aria-labelledby="tImp" hidden>
+    <div class="dos">
+      <div class="tarjeta">
+        <h2 id="tImp">Registrar resultados sin red</h2>
+        <p>Cuando un equipo no tuvo conexión, el laboratorio le muestra al final un QR y un código que empieza por <code>BICR1.</code>. Escanéalo o pega el código aquí.</p>
+        <label class="campo">Sesión
+          <select id="fImpSesion"></select>
+        </label>
+        <div class="botones">
+          <button type="button" class="btn" id="btnCamara">Escanear QR con la cámara</button>
+        </div>
+        <div class="camara" id="camara" hidden>
+          <video id="video" playsinline muted></video>
+          <button type="button" class="btn" id="btnCamaraOff">Detener cámara</button>
+        </div>
+        <label class="campo">Código de resultado
+          <textarea id="fCodigo" rows="4" spellcheck="false" placeholder="BICR1.eyJ2Ij…"></textarea>
+        </label>
+        <p class="aviso-error" id="impMsg" role="alert"></p>
+        <div class="botones"><button type="button" class="btn primario" id="btnLeer">Revisar código</button></div>
+      </div>
+      <div class="tarjeta">
+        <h2>Vista previa</h2>
+        <div id="impVista"><p class="nota">Aquí verás el resultado antes de registrarlo.</p></div>
+        <div class="botones"><button type="button" class="btn primario" id="btnRegistrar" disabled>Registrar en la sesión</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Proyector -->
+<div class="proyector" id="proyector" hidden>
+  <div class="proy-caja">
+    <img src="../comun/img/logo-bic-utp.svg" alt="" width="96" height="92">
+    <p class="proy-lab" id="pLab"></p>
+    <p class="proy-txt">Escanea el QR o entra al laboratorio y pulsa «Unirse a la sesión del docente».</p>
+    <div class="proy-fila">
+      <div class="proy-qr" id="pQr"></div>
+      <div><span class="etq">Código</span><b class="proy-codigo" id="pCodigo"></b><span class="proy-url" id="pUrl"></span></div>
+    </div>
+    <p class="proy-equipos" id="pEquipos"></p>
+    <button type="button" class="btn" id="btnProyCerrar">Cerrar</button>
+  </div>
+</div>
+
+<!-- Diálogo genérico (mensaje o evento a un equipo, confirmaciones) -->
+<div class="fondo" id="dialogo" hidden>
+  <div class="dialogo" role="dialog" aria-modal="true" aria-labelledby="dTitulo">
+    <h2 id="dTitulo"></h2>
+    <div id="dCuerpo"></div>
+    <div class="botones"><button type="button" class="btn" id="dCancelar">Cancelar</button><button type="button" class="btn primario" id="dAceptar">Aceptar</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<footer class="pie caja">
+  <p>Panel docente BIC v1.0 · Biblioteca Jorge Roa Martínez · Universidad Tecnológica de Pereira · Herramienta interna.</p>
+  <p>Tratamiento de datos: Ley 1581 de 2012. Los códigos de estudiante solo se registran con la autorización que los equipos marcan al unirse; las sesiones se borran solas después del plazo de conservación del servidor o cuando el docente las borra.</p>
+</footer>
+</body>
+</html>
