@@ -615,7 +615,7 @@ Mínimo inicial: −2 p.u. del escalón en t = 0⁺</div>
         <label class="small" style="display:flex;gap:6px;align-items:center;color:var(--con-muted)">Equipo <input id="teamName" maxlength="24" value="Equipo 1" style="background:#0b1119;border:1px solid var(--con-line);border-radius:6px;padding:3px 8px;color:var(--con-ink);width:9rem"></label>
       </div>
       <div class="draft" id="draft" hidden>
-        <div><p class="eyebrow">Fase 1 · Preparación</p><h3>Decide tu reserva antes de la tormenta</h3></div>
+        <div><p class="eyebrow">Salida · Preparación</p><h3>Decide tu reserva antes de la tormenta</h3></div>
         <p class="small">Mantener reserva rodante cuesta: cada unidad extra en línea y cada punto de reserva por encima del mínimo descuentan Puntos de Estabilidad del Sistema (PES). Pero una buena reserva amortigua la caída de frecuencia.</p>
         <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
           <div class="ctl"><label for="dUnits">Unidades de El Cañón en línea <output id="dUnitsO"></output></label><input type="range" id="dUnits" min="2" max="4" step="1" value="3"></div>
@@ -623,7 +623,7 @@ Mínimo inicial: −2 p.u. del escalón en t = 0⁺</div>
         </div>
         <p class="small">El puntaje no baja de cero.</p>
         <p class="cost">Costo de preparación: <b id="dCost">0</b> PES</p>
-        <div class="row"><button class="btn primary" type="button" id="draftGo">Confirmar y empezar el nivel 1</button></div>
+        <div class="row"><button class="btn primary" type="button" id="draftGo">Confirmar y empezar</button></div>
       </div>
       <div class="status" aria-live="off">
         <div class="freqbox">
@@ -635,7 +635,7 @@ Mínimo inicial: −2 p.u. del escalón en t = 0⁺</div>
         <div class="stat"><span>ROCOF</span><b id="sRocof">0,00 Hz/s</b></div>
         <div class="stat"><span>Telecontrol</span><b id="sLink" class="ok">En línea</b></div>
         <div class="stat"><span>PES</span><b id="sPes">1000</b></div>
-        <div class="stat"><span>Fase</span><b id="sPhase">Lista</b></div>
+        <div class="stat"><span>Momento</span><b id="sPhase">Lista</b></div>
       </div>
       <div class="coach" id="coach" aria-live="polite"><b>Guía</b><span id="coachTxt">Pulsa «Iniciar» para comenzar la operación normal.</span></div>
       <div class="simgrid">
@@ -1310,7 +1310,7 @@ if(typeof module!=='undefined') module.exports={newSim,stepSim,startUnit,tripUni
 const KEY='lab-gridmasters-v1';
 const BADGES=[
  {id:'balance',ab:'BL',n:'Balance entendido',d:'Explora los tres experimentos de fundamentos.'},
- {id:'guiado',ab:'N1',n:'Contingencia superada',d:'Termina el escenario guiado sin apagón.'},
+ {id:'guiado',ab:'N1',n:'Contingencia superada',d:'Termina el escenario guiado sin apagón, responde al rayo y haz al menos tres maniobras.'},
  {id:'sinedac',ab:'0E',n:'Sin deslastre',d:'Supera el rayo en L3 sin que actúe el EDAC.'},
  {id:'voz',ab:'RD',n:'Enlace por voz',d:'Transmite una consigna por radio con el telecontrol caído.'},
  {id:'proteccion',ab:'PR',n:'Decisión de protección',d:'Dispara U2 a tiempo durante la oscilación.'},
@@ -1406,11 +1406,11 @@ let fundReady=false;
 const SPEC={guiado:{end:300,name:'Escenario guiado N-1'},juego:{end:420,name:'Grid Masters'},libre:{end:1e9,name:'Libre'}};
 const G={mode:'guiado',speed:1,run:false,sim:null,params:defaultParams(),score:null,done:false,ended:false,role:'cnd',queueSet:null,queuePlant:null,lastLink:true,acted:{},lastEvent:null,phase:'Lista',scriptDone:{},osc:null,outT:0,radio:[],bandExit:null,overload:null,shedFlag:null};
 function resetSim(keepDraft){
-  G.sim=newSim(Object.assign({},G.params,G.draftOpts||{}));G.run=false;G.done=false;G.ended=false;G.queueSet=null;G.queuePlant=null;G.acted={};G.lastEvent=null;G.scriptDone={};G.radio=[];G.bandExit=null;G.overload=null;G.shedFlag=null;G.evSeen=0;G.noEdacB=false;G.recover=null;G.osc=null;G.voiceBonus=0;G.warnedLocal=0;outAcc=0;
+  G.sim=newSim(Object.assign({},G.params,G.draftOpts||{}));G.run=false;G.done=false;G.ended=false;G.queueSet=null;G.queuePlant=null;G.acted={};G.lastEvent=null;G.scriptDone={};G.radio=[];G.bandExit=null;G.overload=null;G.shedFlag=null;G.evSeen=0;G.noEdacB=false;G.nudged={};G.nAct=0;G.recover=null;G.osc=null;G.voiceBonus=0;G.warnedLocal=0;outAcc=0;
   G.score={pes:1000,items:[]};if(G.mode==='juego'&&G.draftCost){pes(-G.draftCost,'Costo de la reserva elegida en la preparación');}
   $('#playBtn').textContent='▶ Iniciar';$('#cSet').value=G.sim.setH;$('#pSet').value=G.sim.setH;$('#cAgc').checked=true;$('#cRed').value=0;$('#pQ').value=180;
   setPlantMode('remoto',true);$('#log').innerHTML='';$('#mRadio').innerHTML='';radio('Sistema','Enlace de telecontrol en servicio. Canal de voz de respaldo disponible.','in');
-  G.phase='Lista';coach(G.mode==='juego'?'Fase 1: decide tu reserva y confirma para empezar.':(G.mode==='guiado'?'Operación normal. Pulsa «Iniciar». En el minuto 1 empieza la rampa de demanda de la mañana.':'Modo libre: inyecta eventos desde el panel del docente.'));
+  G.phase='Lista';coach(G.mode==='juego'?'Salida: mueve «Unidades de El Cañón en línea» y «Reserva primaria de las térmicas», mira el costo y pulsa «Confirmar y empezar». Entonces arranca el reloj.':(G.mode==='guiado'?'Paso 1: repartan los roles (CND, Planta, Protecciones y Comunicaciones) y pulsen «▶ Iniciar». Durante el primer minuto todo está en calma: observen la frecuencia en 60 Hz.':'Modo libre: abre el «Panel del docente» y lanza los eventos cuando quieras.'));
   $('#draft').hidden=!(G.mode==='juego'&&!keepDraft);
   buildUnits();buildShed();updateUI(true);
 }
@@ -1419,22 +1419,33 @@ function coach(t){$('#coachTxt').textContent=t;}
 function log(t,cls){const p=document.createElement('p');p.className=cls||'';p.textContent=`[${fmtT(G.sim.t)}] ${t}`;const b=$('#log');b.prepend(p);while(b.children.length>80)b.lastChild.remove();}
 function radio(who,t,dir){const p=document.createElement('p');p.className=dir||'';p.textContent=`${G.sim?fmtT(G.sim.t):'00:00'} ${who}: ${t}`;$('#mRadio').prepend(p);}
 function fmtT(t){const m=Math.floor(t/60),s=Math.floor(t%60);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-function act(role,what){const s=G.sim;if(G.lastEvent&&!G.acted[G.lastEvent.id]){G.acted[G.lastEvent.id]=s.t-G.lastEvent.t;}log(`${role}: ${what}`,'ok');}
+function act(role,what){const s=G.sim;G.nAct=(G.nAct||0)+1;G.roles=G.roles||{};G.roles[role]=1;if(G.lastEvent&&!G.acted[G.lastEvent.id]){G.acted[G.lastEvent.id]=s.t-G.lastEvent.t;}log(`${role}: ${what}`,'ok');}
 /* guion de eventos */
 function inject(ev,auto){const s=G.sim;
-  if(ev==='ramp'){s.rampTarget=Math.min(0.2,s.rampTarget+0.06);s.rampRate=0.06/60;log('Inicia la rampa de demanda del área Centro (+6 % en 60 s)','warn');coach('La demanda del Centro sube. CND: sigue la rampa con consignas o redespacho. Planta: considera arrancar U4.');}
-  if(ev==='L3'){tripLine(s,'L3');newEvent('L3');coach('¡Rayo en L3! Se perdieron 420 MW de importación. Planta: sube la consigna local o arranca U4. CND: vigila el flujo por L1 y L2.');}
-  if(ev==='L1'){tripLine(s,'L1');newEvent('L1');coach('Segundo rayo: L1 fuera. Todo el flujo del Norte va por L2. CND: redespacha para aliviar L2 antes de que dispare su relé térmico.');}
-  if(ev==='link'){s.link=false;newEvent('link');coach('Se perdió el telecontrol. El CND queda a ciegas. Planta: pasa a modo local. Comunicaciones: transmite las consignas por radio.');radio('Sistema','Enlace IEC 60870-5-104 caído. Usar canal de voz.','in');}
+  if(ev==='ramp'){s.rampTarget=Math.min(0.2,s.rampTarget+0.06);s.rampRate=0.06/60;log('Inicia la rampa de demanda del área Centro (+6 % en 60 s)','warn');coach('Evento 1 · La demanda del Centro sube. CND: deja marcado «AGC activo», sube «Consigna para El Cañón» unos 50 MW y pulsa «Enviar consigna». Planta: pulsa «Arrancar» en una unidad parada; tarda 60 s y será tu reserva para el rayo.');}
+  if(ev==='L3'){tripLine(s,'L3');newEvent('L3');coach('Evento 2 · ¡Rayo en L3! Faltan 420 MW y la frecuencia cae. CND: sube «Consigna para El Cañón» y pulsa «Enviar consigna». Planta: pulsa «Arrancar» en cualquier unidad parada. Si la frecuencia baja de 59,5 Hz, CND pulsa un botón de «Alivio de carga manual» antes de que actúe el EDAC.');}
+  if(ev==='L1'){tripLine(s,'L1');newEvent('L1');coach('Evento 3 · Segundo rayo: L1 fuera y todo el flujo va por L2. CND: mueve «Redespacho Norte → Centro» hacia la derecha hasta que L2 quede en verde o amarillo en el diagrama (menos de 100 %). Tienes menos de un minuto.');}
+  if(ev==='link'){s.link=false;newEvent('link');coach('Evento '+(G.mode==='juego'?'4':'3')+' · Telecontrol caído: las consignas ya no llegan solas. 1) Planta: pulsa «Local». 2) CND: elige la consigna y pulsa «Enviar consigna». 3) Comunicaciones: pulsa «Transmitir por radio a la planta». 4) Planta: pulsa «Aplicar consigna».');radio('Sistema','Enlace IEC 60870-5-104 caído. Usar canal de voz.','in');}
   if(ev==='linkok'){s.link=true;log('Telecontrol restablecido','ok');radio('Sistema','Enlace IEC 60870-5-104 restablecido.','in');}
-  if(ev==='osc'){s.osc.on=true;s.osc.amp=10;s.osc.dmg=0;G.osc={t:s.t};newEvent('osc');coach('El gobernador de U2 oscila y la amplitud crece. Protecciones: decide si disparas U2.');}
+  if(ev==='osc'){s.osc.on=true;s.osc.amp=10;s.osc.dmg=0;G.osc={t:s.t};newEvent('osc');coach('Evento 5 · U2 oscila y su vibración crece. Protecciones: pulsa «Disparar unidad U2» antes de 20 s (suma puntos); si esperas más de 45 s, la máquina se daña. Planta: luego arranca otra unidad para reponer esos MW.');}
   if(ev==='unit'){const i=s.unitState.findIndex(u=>u==='on');if(i>=0){tripUnit(s,i);newEvent('unit');}}
   if(!auto&&G.mode!=='libre')log('Evento inyectado por el docente','warn');
 }
 function newEvent(id){G.lastEvent={id:id+'@'+Math.round(G.sim.t),t:G.sim.t,kind:id};G.bandExit=null;if(id==='L3'||id==='unit'||id==='L1'){G.recover={t:G.sim.t,done:false};}}
 const SCRIPT={guiado:[[60,'ramp'],[120,'L3'],[200,'link']],juego:[[10,'ramp'],[90,'L3'],[150,'L1'],[210,'link'],[300,'osc']],libre:[]};
 function runScript(){const s=G.sim;for(const [t,ev] of SCRIPT[G.mode]){const k=t+ev;if(!G.scriptDone[k]&&s.t>=t){G.scriptDone[k]=1;inject(ev,true);}}
-  const ph=G.mode==='juego'?(s.t<90?'Nivel 1 · Rampa':(s.t<420?'Nivel 2 · Tormenta':'Fin')):(G.mode==='guiado'?(s.t<120?'Fase 1 · Normal':(s.t<200?'Fase 3 · Respuesta':'Fase 4 · Sin telecontrol')):'Libre');G.phase=ph;}
+  const ph=G.mode==='juego'?(s.t<10?'Salida':s.t<90?'Evento 1 · Rampa':s.t<150?'Evento 2 · Rayo L3':s.t<210?'Evento 3 · Rayo L1':s.t<300?'Evento 4 · Sin telecontrol':s.t<420?'Evento 5 · Oscilación U2':'Meta'):(G.mode==='guiado'?(s.t<60?'Calma':s.t<120?'Evento 1 · Rampa':s.t<200?'Evento 2 · Rayo L3':'Evento 3 · Sin telecontrol'):'Libre');G.phase=ph;
+  nudgeTick();}
+/* recordatorios cuando nadie responde (siempre en el guiado; en Grid Masters solo en Pregrado) */
+const NUDGE={ramp:'Recordatorio · La rampa sigue. CND: pulsa «Enviar consigna» con un valor más alto. Planta: pulsa «Arrancar» en la unidad parada.',
+ L3:'Recordatorio · Nadie ha respondido al rayo. Planta: pulsa «Arrancar» en una unidad parada. CND: sube «Consigna para El Cañón» y pulsa «Enviar consigna».',
+ L1:'Recordatorio · Mira L2 en el diagrama: si está en rojo, su relé térmico ya cuenta. CND: mueve «Redespacho Norte → Centro» a la derecha.',
+ link:'Recordatorio · Sin telecontrol nada cambia solo. Planta: pulsa «Local». Comunicaciones: pulsa «Transmitir por radio a la planta» cuando aparezca la consigna del CND.',
+ osc:'Recordatorio · U2 sigue oscilando. Protecciones: pulsa «Disparar unidad U2» ahora.'};
+function nudgeTick(){const s=G.sim;if(!G.run||G.ended||G.mode==='libre')return;if(G.mode==='juego'&&LVL!=='pre')return;G.nudged=G.nudged||{};
+  const e=G.lastEvent;if(e&&!G.acted[e.id]&&!G.nudged[e.id]&&s.t-e.t>=(e.kind==='osc'?10:15)&&NUDGE[e.kind]){G.nudged[e.id]=1;coach(NUDGE[e.kind]);toast('La guía tiene una sugerencia');}
+  const f=60+s.dfA;if(f<59.5&&(!e||s.t-e.t>=7)&&s.edacA.every(x=>!x)&&!s.shedManA&&!G.nudged.shed){G.nudged.shed=1;coach('¡Atención! La frecuencia está en '+fmt(f,2)+' Hz. CND: pulsa ya un botón de «Alivio de carga manual» (100 MW) para que no actúe el EDAC.');}
+}
 /* puntaje en tiempo real */
 let outAcc=0;
 function scoreTick(dt){const s=G.sim;if(G.mode!=='juego'){/* el guiado también mide, sin puntaje visible */}
@@ -1457,8 +1468,12 @@ function endSession(why){if(G.ended)return;G.ended=true;G.run=false;$('#playBtn'
   const nad=s.hist.reduce((m,h)=>Math.min(m,h[1]),60);const edac=s.edacA.reduce((a,b)=>a+b,0)+s.edacB.reduce((a,b)=>a+b,0);
   if(G.mode==='juego'){PR.board.push({team:($('#teamName').value||'Equipo').slice(0,24),pes:Math.round(G.score.pes),nadir:nad,edac,date:Date.now()});PR.board.sort((a,b)=>b.pes-a.pes);PR.board=PR.board.slice(0,20);save();
     addXP(Math.max(10,Math.round(G.score.pes/20)),'sesión de Grid Masters');if(G.score.pes>=900&&why!=='blackout')badge('master');}
-  if(G.mode==='guiado'&&why!=='blackout'){addXP(40,'escenario guiado completado');badge('guiado');}
-  coach(why==='blackout'?'Apagón. Revisa el debriefing: ¿qué decisión llegó tarde?':'Sesión terminada. Revisa el debriefing para la discusión.');
+  let msg=why==='blackout'?'Apagón. Revisa el debriefing: ¿qué decisión llegó tarde? Pulsa «Reiniciar» e inténtalo de nuevo.':'Sesión terminada. Revisa el debriefing para la discusión.';
+  if(G.mode==='guiado'&&why!=='blackout'){const l3=Object.keys(G.acted).some(k=>k.startsWith('L3@'));const ok=l3&&(G.nAct||0)>=3;
+    if(ok){addXP(40,'escenario guiado completado');badge('guiado');msg='¡Contingencia superada! Ganaste la insignia y 40 VX. Ahora prueben el modo «Grid Masters».';}
+    else{addXP(10,'escenario guiado recorrido');msg='La red aguantó, pero la insignia pide responder al rayo en L3 y hacer al menos tres maniobras (llevas '+(G.nAct||0)+'). Pulsa «Reiniciar» y sigue los pasos de esta franja.';}}
+  if(G.mode==='juego'&&why!=='blackout')msg=G.score.pes>=900?'¡Grid Master! Terminaste con '+Math.round(G.score.pes)+' PES. Revisa el debriefing.':'Terminaste con '+Math.round(G.score.pes)+' PES. Para la insignia Grid Master necesitas 900 o más. Revisa en el debriefing dónde se perdieron puntos.';
+  coach(msg);
   renderDebrief();toast(why==='blackout'?'Apagón del área Centro':'Sesión terminada');}
 /* bucle */
 let lastT=null;
@@ -1500,7 +1515,7 @@ $$('#gmPanel [data-ev]').forEach(b=>b.onclick=()=>{inject(b.dataset.ev,false);})
 $$('#roleTabs button').forEach(b=>b.onclick=()=>{$$('#roleTabs button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$$('.roles .role').forEach(r=>r.classList.toggle('cur',r.id==='r-'+b.dataset.r));});
 function draftCalc(){const u=+$('#dUnits').value,r=+$('#dRsv').value;$('#dUnitsO').textContent=u;$('#dRsvO').textContent=r+' %';const cost=Math.max(0,u-3)*30+(r-3)*15;$('#dCost').textContent=cost;return {u,r,cost};}
 ['dUnits','dRsv'].forEach(id=>$('#'+id).addEventListener('input',draftCalc));
-$('#draftGo').onclick=()=>{const d=draftCalc();G.draftOpts={unitsOn0:d.u,rsvPct:d.r,hydroP0:Math.min(630,d.u*250-40)};G.draftCost=d.cost;resetSim(true);$('#draft').hidden=true;G.run=true;$('#playBtn').textContent='⏸ Pausa';coach('Nivel 1: la rampa de demanda empieza en 10 s. Sigue la carga sin salir de la banda.');};
+$('#draftGo').onclick=()=>{const d=draftCalc();G.draftOpts={unitsOn0:d.u,rsvPct:d.r,hydroP0:Math.min(630,d.u*250-40)};G.draftCost=d.cost;resetSim(true);$('#draft').hidden=true;G.run=true;$('#playBtn').textContent='⏸ Pausa';coach('¡Empieza el reloj! En 10 s llega el evento 1, la rampa de demanda. CND: prepárate para subir «Consigna para El Cañón» y pulsar «Enviar consigna».');};
 /* parámetros del docente */
 const PDEF=[['HA','H área Centro (s)'],['HB','H área Norte (s)'],['Rth','Estatismo térmicas (%)'],['Rh','Estatismo hidro (%)'],['Tw','T_w turbina (s)'],['Tt','T térmicas (s)'],['Ki','Ganancia AGC K_i'],['Kd','Amortiguamiento por línea (MW/Hz)'],['impC','Importación por L3 (MW)'],['lineRating','Capacidad L1 y L2 (MW)'],['startTime','Arranque de unidad (s)']];
 function buildParams(){$('#params').innerHTML=PDEF.map(([k,n])=>`<label>${n}<input type="number" step="any" data-p="${k}" value="${G.params[k]}"></label>`).join('');}

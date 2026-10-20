@@ -2292,7 +2292,7 @@ function tuStartTurn(){
   Object.assign(TU,{run:true,t:0,pts:0,pats:[],sel:null,sys:true,icu:TU.level==='pre'?2:1,ended:false,log:[],started:true,pend:[],cons:{}});
   TU.queue=pool.slice(0,n).map((c,i)=>({c,at:arr[i]}));TU.spare=pool.slice(n);
   $('#tuLog').innerHTML='';$('#tuDebrief').hidden=true;$('#tuMain').hidden=false;$('#tuPause').disabled=false;$('#tuPause').textContent='Pausa';
-  tuLog(`Inicia el turno en nivel ${TU.level==='pre'?'pregrado':'posgrado'}.`,true);tuCoach('Llega el primer paciente. Clasifícalo con el triage antes de cualquier otra cosa.');
+  tuLog(`Inicia el turno en nivel ${TU.level==='pre'?'pregrado':'posgrado'}.`,true);tuCoach('Llega el primer paciente. Clasifícalo con el triage antes de cualquier otra cosa.');TU.stepKey=null;
   tuBuildButtons();tuRender(true);
 }
 function tuCoach(t){$('#tuCoach').textContent=t;}
@@ -2308,7 +2308,7 @@ function tuTick(dt){
     if($('#tuAuto').checked){for(const o of p.orders)if(!o.given&&TU.t>=o.t+2)tuGive(p,o,true);}
     // evolución
     if(p.dxOk&&tuNeedMet(p)){if(!p.treating){p.treating=true;tuLog(`Cama ${p.bed}: tratamiento definitivo completo; el paciente empieza a responder.`,true);}p.s=Math.max(0,p.s-dt/40);}
-    else{p.treating=false;const st=Math.min(2,Math.floor(p.s));const rate=1/p.c.prog[st];let g=1;for(const k in p.c.good||{})if(p.done[k])g*=p.c.good[k];if(p.done.liq_dengue||p.done.bolo30||p.done.liq_cad)g*=0.8;p.s+=rate*g*p.mul*dt;}
+    else{p.treating=false;const st=Math.min(2,Math.floor(p.s));const rate=1/p.c.prog[st];let g=1;for(const k in p.c.good||{})if(p.done[k])g*=p.c.good[k];if(p.done.liq_dengue||p.done.bolo30||p.done.liq_cad)g*=0.8;p.s+=rate*g*p.mul*(TU.level==='pre'?0.6:1)*dt;}
     const stg=tuStage(p);
     if(p.c.onsetStage!=null&&p.onset==null&&stg>=p.c.onsetStage)p.onset=TU.t;
     if(p.c.id==='pe'&&stg>=1&&p.severeBPt==null)p.severeBPt=TU.t;
@@ -2437,7 +2437,35 @@ function tuRender(full){const ps=TU.pats;$('#tuClock').textContent=tuFmt(TU.t);$
     return `<div class="tu-item ${crit?'crit':''}"><b>${esc(tuTestName(id))}</b>${r.done?`<span>${esc(r.txt.label)}</span>${r.txt.img?`<button class="btn" type="button" data-rx="${r.txt.img}">Abrir la placa</button>`:''}${crit&&!r.reported?`<button class="btn" type="button" data-crit="${id}">Reportar valor crítico</button>`:''}`:`<span class="bar"><i style="width:${pr}%"></i></span><span class="small muted">Listo en ${Math.max(0,Math.ceil(r.ready-TU.t))} min</span>`}</div>`;}).join('')||'<p class="small muted">Sin pruebas solicitadas.</p>';
   $$('#tuConsult [data-cons]').forEach(b=>{const s=TU.cons[b.dataset.cons+':'+p.bed];b.querySelector('small').textContent=s==null?'':(s==='ok'?'aceptada':(typeof s==='object'?'en trámite':s));b.setAttribute('aria-pressed',String(s!=null));});
   $('#tuSbar').textContent=tuSbar(p);
+  tuStep();
 }
+/* paso siguiente para pregrado: la franja guía dice qué hacer y con qué botón */
+function tuStep(){if(TU.level!=='pre'||!TU.run||TU.ended)return;const p=cur();if(!p)return;let k,t;const B=`Cama ${p.bed}`;
+  const crit=Object.keys(p.tests).find(id=>{const r=p.tests[id];return r.done&&r.stage>=1&&p.c.key.includes(id)&&!r.reported;});
+  const rx=Object.keys(p.tests).find(id=>{const r=p.tests[id];return r.done&&r.txt&&r.txt.img&&!(p.readRx&&p.readRx['rx:'+r.txt.img]);});
+  const nTests=Object.keys(p.tests).length,nDone=Object.values(p.tests).filter(r=>r.done).length;
+  if(p.state==='muerto'){k='dead';t=`${B}: el paciente falleció. Toca otra cama en el tablero para seguir el turno.`;}
+  else if(p.state==='egresado'){k='out';t=`${B} resuelta. Toca otra cama en el tablero; el turno termina cuando todos tengan destino.`;}
+  else if(p.triage==null){k='tri';t=`Paso 1 de 9 · Clasifica. ${B}: mira los signos vitales y el NEWS2 y pulsa una categoría en «Triage de llegada» (I es la más urgente; V, la menos).`;}
+  else if(!nTests){k='test';t=`Pasos 2 y 3 de 9 · Evalúa y pide pruebas. ${B}: lee el examen físico (ABCDE) y el monitor; luego pide en «Pruebas» los exámenes que sugiere la pista clínica. Cada prueba tarda; las que no corresponden restan puntos.`;}
+  else if(crit){k='crit'+crit;t=`Laboratorio · ${B}: hay un valor crítico. Pulsa «Reportar valor crítico» ya (+20 si es a tiempo).`;}
+  else if(rx){k='rx'+rx;t=`Paso 5 de 9 · Lee la placa. ${B}: pulsa «Abrir la placa» y toca el hallazgo principal; si la ves normal, pulsa «Sin hallazgos».`;}
+  else if(!p.dx&&!nDone){k='wait'+(p.avatarTried?'a':'');t=p.avatarTried?`${B}: espera los resultados; la barra de «Laboratorio e imágenes» muestra cuánto falta.`:`Paso 4 de 9 · Señala el órgano. ${B}: mientras llegan los resultados, pulsa «Señalar el órgano afectado en el avatar» y toca el órgano que crees enfermo.`;}
+  else if(!p.dx){k='dx';t=`Paso 6 de 9 · Diagnostica. ${B}: con los resultados, elige una opción en «Diagnóstico» y pulsa «Confirmar diagnóstico».`;}
+  else if(!p.treating){const band=p.s<1.5?0:1;const cons=new Set();
+    if(p.c.need[band].some(r=>r.split('|').includes('uci'))&&TU.cons['uci:'+p.bed]!=='ok')cons.add('uci');
+    for(const o of p.orders){const it=TU_INT.find(x=>x.id===o.id);if(!o.given&&it&&it.need&&TU.cons[it.need+':'+p.bed]!=='ok')cons.add(it.need);}
+    const wait=[...cons].filter(c=>typeof TU.cons[c+':'+p.bed]==='object');const ask=[...cons].filter(c=>TU.cons[c+':'+p.bed]==null);
+    const nm=c=>'«'+TU_CONS.find(x=>x.id===c).n+'»';
+    const pend=p.orders.some(o=>!o.given);const testsPend=Object.values(p.tests).some(r=>!r.done);
+    const lastG=Math.max(-1e9,...p.orders.filter(o=>o.given).map(o=>typeof p.done[o.id]==='number'?p.done[o.id]:-1e9));const fresh=!pend&&p.orders.length&&TU.t-lastG<6;
+    k='tx'+p.orders.length+(pend?'p':'')+(fresh?'f':'')+ask.join()+'/'+wait.join();
+    t=`Paso 7 de 9 · Trata. ${B}: `+(p.orders.length?(pend&&!ask.length&&!wait.length?($('#tuAuto').checked?'enfermería está administrando tus órdenes; en un momento verás si el paciente responde.':'pulsa «Administrar» en «Órdenes por administrar».'):(pend?'hay órdenes en espera.':fresh?'tratamiento administrado. Espera unos minutos para ver si el paciente responde.':'el paciente aún no responde: falta parte del tratamiento'+(testsPend?' o una prueba en curso':'')+'. Revisa la pista clínica y ordena lo que falte en «Intervenciones».')):`ordena el tratamiento en «Intervenciones» siguiendo la pista clínica${$('#tuAuto').checked?'; enfermería lo administra sola':' y luego pulsa «Administrar» en «Órdenes por administrar»'}.`)
+      +(ask.length?` Necesitas que acepte ${ask.map(nm).join(' y ')}: pídelo en «Enlace interconsultas».`:'')+(wait.length?` ${wait.map(nm).join(' y ')} está revisando el caso; acepta en unos minutos.`:'')+(p.orders.length?'':' Las intervenciones dañinas restan puntos.');}
+  else if(p.state!=='estable'){k='resp';t=`Paso 8 de 9 · Estabiliza. ${B} responde al tratamiento. Espera a que diga «Estable»${TU.pats.some(q=>q!==p&&q.state!=='muerto'&&q.state!=='egresado')?' y, mientras tanto, atiende la otra cama':''}.`;}
+  else{k='dispo';t=`Paso 9 de 9 · Define el destino. ${B} está estable: elige a dónde va en «Paciente estable: define el destino».`;}
+  const wait=TU.pats.find(q=>q!==p&&q.triage==null&&q.state!=='muerto');if(wait&&k!=='tri'){k+='w'+wait.bed;t+=` Ojo: la cama ${wait.bed} espera triage; tócala en el tablero.`;}
+  const key=p.bed+':'+k;if(TU.stepKey!==key){TU.stepKey=key;tuCoach(t);}}
 function tuDrawMon(ts){const cv=$('#tuEcg');const p=cur();if(!p)return;const dpr=window.devicePixelRatio||1;const W=520,H=190;const cw=cv.clientWidth||W;if(cv.width!==Math.round(cw*dpr)){cv.width=Math.round(cw*dpr);cv.height=Math.round(cw*H/W*dpr);}
   const c=cv.getContext('2d');c.setTransform(cv.width/W,0,0,cv.height/H,0,0);c.fillStyle=css('--mon-bg');c.fillRect(0,0,W,H);c.strokeStyle=css('--mon-grid');c.lineWidth=1;
   for(let x=0;x<=W;x+=26){c.beginPath();c.moveTo(x+.5,0);c.lineTo(x+.5,H);c.stroke();}for(let y=0;y<=H;y+=24){c.beginPath();c.moveTo(0,y+.5);c.lineTo(W,y+.5);c.stroke();}
