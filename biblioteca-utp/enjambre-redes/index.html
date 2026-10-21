@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://*.utp.edu.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<title>Enjambre de Redes Sociales · Biblioteca Jorge Roa Martínez</title>
+<meta name="description" content="Herramienta interna de la BIC para gestionar las redes sociales de la Biblioteca Jorge Roa Martínez con Gemini.">
+<link rel="icon" href="../comun/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../comun/css/fuentes.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="band">
+  <div class="band-inner">
+    <img src="../comun/img/logo-bic-utp.svg" alt="Logo Universidad Tecnológica de Pereira">
+    <div>
+      <span class="badge">Herramienta interna · BIC</span>
+      <h1>Enjambre de Redes Sociales</h1>
+      <p>Diez especialistas, analítica y estudio de piezas para las redes de la Biblioteca Jorge Roa Martínez en Instagram, TikTok y Facebook.</p>
+      <p class="motor" id="motorIA">Motor: Gemini</p>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Secciones">
+    <div class="tabs-inner" role="tablist">
+      <button type="button" role="tab" class="tab" id="tab-btn-bots" data-tab="bots" aria-selected="true" aria-controls="tab-bots">Especialistas</button>
+      <button type="button" role="tab" class="tab" id="tab-btn-analitica" data-tab="analitica" aria-selected="false" aria-controls="tab-analitica">Analítica</button>
+      <button type="button" role="tab" class="tab" id="tab-btn-estudio" data-tab="estudio" aria-selected="false" aria-controls="tab-estudio">Estudio de piezas</button>
+      <a class="tab tab-link" href="guia/">Guía de uso</a>
+    </div>
+  </nav>
+</header>
+
+<!-- ============ PESTAÑA 1 · ESPECIALISTAS ============ -->
+<div class="wrap" id="tab-bots" role="tabpanel" aria-labelledby="tab-btn-bots">
+  <nav class="rail" aria-label="Bots del enjambre">
+    <h2>Especialistas</h2>
+    <ol id="botList"></ol>
+  </nav>
+
+  <main class="desk">
+    <section class="card" aria-labelledby="botTitle">
+      <div class="bot-head">
+        <h2 id="botTitle">Copywriter</h2>
+        <p class="role" id="botRole"></p>
+        <p id="botDesc"></p>
+        <div class="notice" id="botNotice" hidden></div>
+      </div>
+      <form id="botForm" novalidate></form>
+    </section>
+
+    <section class="card" aria-live="polite">
+      <div class="out-head">
+        <h3 id="outTitle">Resultado</h3>
+        <div class="actions" style="grid-column:auto">
+          <span class="tag" id="outTag" hidden></span>
+          <button class="btn ghost" type="button" id="btnSend" hidden>Llevar al Estudio</button>
+          <button class="btn ghost" type="button" id="btnCopy" hidden>Copiar texto</button>
+        </div>
+      </div>
+      <div class="output" id="output"></div>
+      <p class="ai-note">Borrador generado con inteligencia artificial (Gemini): revísalo y verifica los datos antes de publicar. <a href="#declaratoria" class="lnk-decl">Ver declaratoria</a></p>
+    </section>
+  </main>
+</div>
+
+<!-- ============ PESTAÑA 2 · ANALÍTICA ============ -->
+<div class="page" id="tab-analitica" role="tabpanel" aria-labelledby="tab-btn-analitica" hidden>
+  <section class="card">
+    <div class="sec-head">
+      <h2>Fuente de datos</h2>
+      <span class="tag" id="anaSource">Ejemplo</span>
+    </div>
+    <div class="sources">
+      <div class="source">
+        <h3>Archivo exportado (CSV)</h3>
+        <p class="hint">Exporta las estadísticas de publicaciones desde Meta Business Suite (Instagram o Facebook) o TikTok Studio y súbelas aquí. Las columnas se reconocen solas. El archivo se procesa en tu navegador: no se envía a ningún servidor.</p>
+        <label class="drop" id="drop" for="csvFile">
+          <input type="file" id="csvFile" accept=".csv,text/csv">
+          <span><strong>Elige un archivo CSV</strong> o arrástralo aquí</span>
+        </label>
+        <p class="status" id="csvStatus" aria-live="polite"></p>
+      </div>
+      <div class="source">
+        <h3>Cómo exportar</h3>
+        <ul class="tools">
+          <li><strong>Instagram y Facebook:</strong> en Meta Business Suite, abre las estadísticas de contenido, elige el periodo y exporta los datos de publicaciones en CSV.</li>
+          <li><strong>TikTok:</strong> en TikTok Studio, abre las estadísticas y descarga los datos del periodo.</li>
+          <li>Los nombres de los menús cambian con frecuencia; incluye alcance, me gusta, comentarios, compartidos y guardados.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="Indicadores principales"></section>
+
+  <section class="card">
+    <div class="sec-head">
+      <h2>Tasa de interacción por publicación</h2>
+      <span class="hint">Interacciones ÷ alcance</span>
+    </div>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <div class="sec-head"><h2>Rendimiento por formato</h2></div>
+      <div id="byFormat"></div>
+    </section>
+    <section class="card">
+      <div class="sec-head"><h2>Columnas reconocidas</h2></div>
+      <div id="colMap"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="sec-head">
+      <h2>Publicaciones, de mejor a peor</h2>
+      <span class="hint" id="rowCount"></span>
+    </div>
+    <div class="tbl" id="rank"></div>
+  </section>
+
+  <section class="card" aria-live="polite">
+    <div class="sec-head">
+      <h2>Lectura del bot de Analítica</h2>
+      <button class="btn" type="button" id="btnAnaIA">Analizar con Gemini</button>
+    </div>
+    <div class="output" id="anaOut"><p class="hint">Pulsa «Analizar con Gemini» para recibir hallazgos y tres recomendaciones a partir de los datos cargados.</p></div>
+    <p class="ai-note">Análisis generado con IA sobre los datos cargados: contrástalo con las estadísticas de cada red. <a href="#declaratoria" class="lnk-decl">Ver declaratoria</a></p>
+  </section>
+</div>
+
+<!-- ============ PESTAÑA 3 · ESTUDIO DE PIEZAS ============ -->
+<div class="page" id="tab-estudio" role="tabpanel" aria-labelledby="tab-btn-estudio" hidden>
+  <section class="card">
+    <div class="sec-head">
+      <h2>Pieza gráfica en Canva</h2>
+    </div>
+    <p class="hint">La herramienta arma el brief con la identidad de @bibliotecautp, lo copia y abre Canva. Allí puedes pegarlo en la herramienta de IA de Canva o usarlo como guía para una plantilla. El logo oficial búho-libro se inserta a mano al editar.</p>
+    <form id="canvaForm" class="form2" novalidate>
+      <div class="field full">
+        <label for="cvBrief">Brief de la pieza</label>
+        <textarea id="cvBrief" rows="5">Publicación para anunciar el horario extendido de la sala de estudio durante la semana de parciales. Título: «Prepárate para parciales». Subtítulo: «La biblioteca te acompaña». Incluir el texto «Edificio 9 · biblioteca.utp.edu.co».</textarea>
+      </div>
+      <div class="field">
+        <label for="cvFormat">Formato</label>
+        <select id="cvFormat">
+          <option>Instagram · post vertical 4:5 (1080×1350)</option>
+          <option>Instagram · post cuadrado (1080×1080)</option>
+          <option>Instagram · historia 9:16 (1080×1920)</option>
+          <option>Facebook · publicación (1200×630)</option>
+          <option>Facebook · portada (1640×624)</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="lbl">Identidad</span>
+        <label class="chip"><input type="checkbox" id="cvBrand" checked> Aplicar identidad de @bibliotecautp</label>
+      </div>
+      <div class="actions">
+        <a class="btn" href="https://www.canva.com/" target="_blank" rel="noopener" id="btnCanva">Copiar brief y abrir Canva ↗</a>
+        <button class="btn ghost" type="button" id="btnFromDesigner">Traer del Diseñador de Prompts</button>
+        <span class="hint" id="canvaHint"></span>
+      </div>
+    </form>
+    <p class="status" id="canvaStatus" aria-live="polite"></p>
+    <details class="gem-ver" id="cvVer"><summary>Ver el brief copiado</summary><pre id="cvFinal"></pre></details>
+  </section>
+
+  <section class="card">
+    <div class="sec-head">
+      <h2>Video corto para CapCut</h2>
+      <a class="btn ghost" href="https://www.capcut.com/" target="_blank" rel="noopener">Abrir CapCut ↗</a>
+    </div>
+    <p class="hint">A partir del guion, Gemini prepara el plan de edición clip por clip (duraciones, textos con la paleta de marca, transiciones, subtítulos y exportación) para armarlo en CapCut.</p>
+    <form id="capForm" class="form2" novalidate>
+      <div class="field full">
+        <label for="capGuion">Guion o idea del video</label>
+        <textarea id="capGuion" rows="5" placeholder="Pega el guion del bot de Guiones y Storyboards, o describe el video"></textarea>
+      </div>
+      <div class="field">
+        <label for="capDur">Duración</label>
+        <select id="capDur"><option>15 segundos</option><option selected>30 segundos</option><option>45 segundos</option><option>60 segundos</option></select>
+      </div>
+      <div class="field">
+        <label for="capRed">Destino</label>
+        <select id="capRed"><option>Reel de Instagram</option><option>TikTok</option><option>Reel de Facebook</option></select>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit" id="btnCap">Preparar plan de edición</button>
+        <button class="btn ghost" type="button" id="btnFromGuion">Traer del bot de Guiones</button>
+        <span class="hint" id="capHint"></span>
+      </div>
+    </form>
+    <div class="output" id="capOut"></div>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><h2>Herramientas aliadas</h2></div>
+    <ul class="tools">
+      <li><strong>Gemini</strong> · servicio de IA de la suite Google Workspace de la UTP. Genera los contenidos de los bots, el análisis y los planes de edición. <a href="https://gemini.google.com/app" target="_blank" rel="noopener">gemini.google.com</a></li>
+      <li><strong>Canva</strong> · diseño de posts, carruseles, historias y portadas. Recomendado: crear el Brand Kit de la biblioteca. <a href="https://www.canva.com/" target="_blank" rel="noopener">canva.com</a></li>
+      <li><strong>CapCut</strong> · edición de reels y TikToks con el plan que prepara el Estudio. <a href="https://www.capcut.com/" target="_blank" rel="noopener">capcut.com</a></li>
+      <li><strong>Meta Business Suite</strong> · programación de publicaciones y exportación de estadísticas de Instagram y Facebook. <a href="https://business.facebook.com/" target="_blank" rel="noopener">business.facebook.com</a></li>
+      <li><strong>TikTok Studio</strong> · programación y estadísticas de TikTok. <a href="https://www.tiktok.com/tiktokstudio" target="_blank" rel="noopener">tiktok.com/tiktokstudio</a></li>
+    </ul>
+  </section>
+</div>
+
+<!-- ============ COMÚN A TODAS LAS PESTAÑAS ============ -->
+<div class="page common">
+  <section class="card">
+    <details class="about" id="declaratoria">
+      <summary>Declaratoria de uso de inteligencia artificial</summary>
+      <div class="decl">
+        <p><strong>Herramienta:</strong> Enjambre de Redes Sociales · Biblioteca Jorge Roa Martínez · Biblioteca e Información Científica (BIC), Universidad Tecnológica de Pereira. Versión 2.0, octubre de 2026.</p>
+        <h4>Autoría y decisiones humanas</h4>
+        <p>La idea original de esta herramienta, la definición de su estructura y la incorporación de nuevos módulos, bots o comandos son decisiones humanas del equipo de la BIC. La inteligencia artificial asistió en la redacción de contenidos y en la programación, siguiendo esas decisiones, pero no decide qué funciones existen ni cómo se organizan.</p>
+        <h4>Uso de IA</h4>
+        <p>Los textos, guiones, instrucciones de diseño, respuestas, planes de edición y análisis los genera Gemini, el servicio de inteligencia artificial de Google incluido en la suite Google Workspace de la UTP, a partir de lo que escribe la persona usuaria y de instrucciones predefinidas por la BIC. Las piezas gráficas se producen en Canva.</p>
+        <h4>Cómo se conecta</h4>
+        <p>En el modo Gemini, la herramienta solo arma la instrucción: la persona la copia, la envía desde su propia cuenta institucional y pega la respuesta. Cuando el CRIE active el servicio institucional, la instrucción se envía a la API de Gemini desde un servidor de la UTP. La herramienta no publica, no edita ni borra contenido de las cuentas de la biblioteca.</p>
+        <h4>Supervisión humana</h4>
+        <p>Todo resultado es un borrador. Antes de publicarlo, una persona del equipo de la BIC debe revisarlo, verificar los datos y aprobarlo. La responsabilidad sobre lo publicado es del equipo, no de la herramienta.</p>
+        <h4>Exactitud y limitaciones</h4>
+        <p>La IA puede cometer errores o proponer información desactualizada. Las tendencias que sugiere el Trend-Hunter deben comprobarse en cada red. Los cálculos de la pestaña Analítica dependen de la calidad del archivo cargado; el análisis con IA debe contrastarse con las estadísticas de cada red.</p>
+        <h4>Privacidad</h4>
+        <p>No ingreses nombres, documentos, correos, teléfonos ni otros datos personales de usuarios al pegar comentarios o mensajes. Los archivos CSV se procesan en el navegador. La herramienta no almacena solicitudes, resultados ni datos en servidores de la BIC.</p>
+        <h4>Derechos de autor</h4>
+        <p>No pegues obras completas, letras de canciones ni imágenes de terceros. Los audios y las imágenes deben obtenerse de bibliotecas con licencia o de producción propia. El logo oficial se inserta desde el archivo institucional: no lo genera la IA.</p>
+        <h4>Fuentes</h4>
+        <p>La identidad visual que aplican los bots y las piezas (logo búho-libro, paleta, plantillas y tono) se verificó el 21 de octubre de 2026 en la cuenta oficial de Instagram <strong>@bibliotecautp</strong>. La interfaz sigue los lineamientos del CRIE (Noto Sans, Atkinson Hyperlegible, archivos separados, GitHub Pages) y la marca de herramienta interna de la BIC.</p>
+        <h4>Atribución sugerida</h4>
+        <p>Cuando el contenido publicado tenga una participación sustancial de IA, puede indicarse: «Contenido elaborado con apoyo de inteligencia artificial y revisado por el equipo de la Biblioteca Jorge Roa Martínez».</p>
+        <p class="hint">Responsable: Biblioteca e Información Científica (BIC), Universidad Tecnológica de Pereira.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="card">
+    <details class="identity" id="identity">
+      <summary>Identidad que aplican los bots y las piezas</summary>
+      <div class="swatches" id="swatches"></div>
+      <ul class="id-notes" id="idNotes"></ul>
+    </details>
+  </section>
+</div>
+
+<footer>Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</footer>
+
+<script src="config.js"></script>
+<script src="bots.js"></script>
+<script src="app.js"></script>
+<script src="analitica.js"></script>
+<script src="estudio.js"></script>
+</body>
+</html>

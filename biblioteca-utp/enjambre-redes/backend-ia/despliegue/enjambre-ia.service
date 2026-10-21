@@ -1,0 +1,21 @@
+# Unidad systemd de ejemplo · /etc/systemd/system/enjambre-ia.service
+# sudo systemctl daemon-reload && sudo systemctl enable --now enjambre-ia
+[Unit]
+Description=Servicio de IA (Gemini) - Enjambre de Redes - Biblioteca Jorge Roa Martinez (UTP)
+After=network.target
+
+[Service]
+User=enjambre-ia
+Group=enjambre-ia
+WorkingDirectory=/opt/enjambre-ia
+EnvironmentFile=/etc/enjambre-ia/enjambre.env
+ExecStart=/opt/enjambre-ia/.venv/bin/gunicorn --workers 2 --timeout 150 --bind 127.0.0.1:8020 --access-logfile - app:app
+Restart=on-failure
+# Endurecimiento básico
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
