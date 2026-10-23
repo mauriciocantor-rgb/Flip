@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; worker-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>Renombrador de archivos · Biblioteca Jorge Roa Martínez (UTP)</title>
+<meta name="description" content="Genera y valida nombres de archivo para el Repositorio Institucional y la documentación administrativa de la UTP según la Nomenclatura Oficial y las Tablas de Retención Documental.">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<link rel="icon" href="../comun/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="preload" href="../comun/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../comun/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../comun/css/fuentes.css">
+<link rel="stylesheet" href="../comun/css/base.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="../comun/vendor/pdf.min.js" defer></script>
+<script src="../comun/vendor/jszip.min.js" defer></script>
+<script src="datos-trd.js" defer></script>
+<script src="app.js" defer></script>
+<script src="admin-trd.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo-header"><img src="../comun/img/logo-bic-utp.svg" alt="Búho de la Biblioteca Jorge Roa Martínez, Universidad Tecnológica de Pereira" width="52" height="50"></div>
+    <div class="header-text">
+      <span class="badge">Repositorio Institucional · UTP</span>
+      <h1>Renombrador de archivos</h1>
+      <p>Genera y valida nombres de archivo para el Repositorio Institucional (Nomenclatura Oficial UTP) y para la documentación administrativa (Tablas de Retención Documental). El contenido de los archivos no se modifica: solo cambia su nombre.</p>
+      <p class="subline">Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="card privacy" aria-labelledby="privTitle">
+    <h2 id="privTitle">🔒 Cómo se usan los datos de los archivos</h2>
+    <ul>
+      <li><b>Todo ocurre en tu navegador.</b> Los archivos que eliges no se suben ni se envían a ningún servidor, ni de la Universidad ni de terceros.</li>
+      <li><b>Qué se lee:</b> el nombre y la extensión de cada archivo, y sus primeros bytes para comprobar que el formato real coincide. En los trabajos de grado (PDF) se lee además el texto de las primeras cinco páginas para identificar autor, año y tipo de recurso.</li>
+      <li><b>Qué se guarda:</b> solo los contadores de consecutivos (número siguiente por serie), en el almacenamiento local de este navegador. No se guardan archivos, textos ni nombres de personas. Puedes borrarlos con «Reiniciar a 1» o limpiando los datos del sitio.</li>
+      <li><b>Qué no cambia:</b> el contenido de los archivos. Solo se genera el nombre nuevo; el ZIP, el script y el CSV se crean aquí mismo y se entregan como descarga.</li>
+      <li><b>Sin conexiones externas:</b> la página, sus fuentes y sus librerías (pdf.js y JSZip) están alojadas en el mismo sitio. Una política de seguridad de contenido impide que la página se conecte a cualquier otro servidor.</li>
+    </ul>
+    <p class="src">Marco aplicado: Ley 1581 de 2012 y Decreto 1074 de 2015 (protección de datos personales), Ley 1712 de 2014 (transparencia), Ley 594 de 2000 y Acuerdo 001 de 2024 del AGN (función archivística), Resolución de Rectoría 1762 de 2024 (seguridad de la información UTP) e ISO/IEC 27001. Consultas sobre datos personales: Oficial de Datos Personales de la UTP (Gestión de Tecnologías Informáticas y Sistemas de Información).</p>
+  </section>
+
+  <section class="card anatomy-card" aria-label="Estructura del nombre">
+    <h2>Estructura del nombre</h2>
+    <div class="anatomy" role="img" aria-label="Estructura: utp, tipo de recurso, autor, año, identificador y extensión. Ejemplo: utp_master-thesis_escobar-vargas_2026_0004.pdf">
+      <div class="part"><div class="line"><span class="seg" data-k="inst">utp</span><span class="sep">_</span></div><span class="lab">Institución</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="type">master-thesis</span><span class="sep">_</span></div><span class="lab">Tipo de recurso</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="prog">mh</span><span class="sep">_</span></div><span class="lab">Programa (si se detecta)</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="author">escobar-vargas</span><span class="sep">_</span></div><span class="lab">Autor principal</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="year">2026</span><span class="sep">_</span></div><span class="lab">Año</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="id">0004</span><span class="dot">.</span></div><span class="lab">Identificador</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="ext">pdf</span></div><span class="lab">Extensión</span></div>
+    </div>
+  </section>
+
+  <div class="upload-card" id="drop" role="button" tabindex="0" aria-label="Seleccionar o arrastrar archivos">
+    <div class="icon">📂</div>
+    <h3>Selecciona o arrastra los archivos del depósito</h3>
+    <p>Los archivos se procesan en este mismo navegador; no se envían a ningún servidor. En cada PDF se lee la portada para identificar al autor principal y se verifica el formato real.</p>
+    <div class="btns">
+      <button class="btn" id="btnPick" type="button">Elegir archivos</button>
+      <button class="btn alt" id="btnManual" type="button">Agregar nombre sin archivo</button>
+    </div>
+    <input type="file" id="filePick" multiple />
+  </div>
+
+  <section class="card defaults" aria-label="Valores para los archivos nuevos">
+    <h2>Valores para los archivos nuevos</h2>
+    <p class="hint">Se aplican a cada archivo que agregues; puedes ajustarlos fila por fila.</p>
+    <label class="f">Tipo de recurso
+      <select id="defType"></select>
+    </label>
+    <div class="g2">
+      <label class="f">Año de publicación
+        <input id="defYear" inputmode="numeric" maxlength="4" autocomplete="off">
+      </label>
+      <label class="f">Contador inicial para programas nuevos
+        <input id="defStart" inputmode="numeric" value="1" autocomplete="off">
+      </label>
+    </div>
+    <div class="btns">
+      <button class="btn alt btn-sm" id="btnApplyAll" type="button">Aplicar tipo y año a todos</button>
+      <button class="btn alt btn-sm" id="btnRenumber" type="button">Asignar identificadores pendientes</button>
+    </div>
+    <p class="hint">Cada programa académico (o cada tipo de recurso, si no se identifica un programa) lleva su propia serie de identificadores. Se guarda en este navegador y continúa donde quedó la próxima vez que abras la herramienta.</p>
+  </section>
+
+  <section class="card" id="countersCard" aria-label="Contadores de identificador por programa" hidden>
+    <h2>Contadores de identificador en uso</h2>
+    <p class="hint">Próximo número que se asignará en cada serie, en este navegador. Reiniciar no cambia los archivos que ya nombraste.</p>
+    <div id="counters"></div>
+  </section>
+
+  <section id="listSection" aria-labelledby="listTitle">
+    <div class="list-head">
+      <h2 id="listTitle">Nombres generados <span class="count" id="count"></span></h2>
+      <button class="btn-quiet" id="btnClear" type="button" hidden>Quitar todos</button>
+    </div>
+    <div class="rows" id="rows"></div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section class="admin-header" aria-label="Documentación administrativa">
+    <span class="badge admin-badge">Sección aparte de los trabajos de grado</span>
+    <h2 class="admin-title">Documentación administrativa (TRD)</h2>
+    <p class="hint">Nombra cualquier documento administrativo con el código de la <b>Tabla de Retención Documental</b> de la UTP, según el <b>Documento maestro de nomenclatura de archivos BIC v1.0</b> (oct. 2026). Las presentaciones, fotografías y videos llevan el código TRD del documento al que acompañan.</p>
+  </section>
+
+  <section class="card anatomy-card" aria-label="Estructura del nombre administrativo">
+    <h2>Estructura del nombre administrativo</h2>
+    <div class="anatomy" role="img" aria-label="Estructura: utp, código TRD, tipo documental, fecha, consecutivo y extensión. Ejemplo: utp_124000-0333_acta-reunion-interna_2026-10-23_0001.pdf">
+      <div class="part"><div class="line"><span class="seg" data-k="inst">utp</span><span class="sep">_</span></div><span class="lab">Institución</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="type">124000-0333</span><span class="sep">_</span></div><span class="lab">Código TRD</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="author">acta-reunion-interna</span><span class="sep">_</span></div><span class="lab">Tipo documental</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="year">2026-10-23</span><span class="sep">_</span></div><span class="lab">Fecha ISO 8601</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="id">0001</span><span class="dot">.</span></div><span class="lab">Consecutivo</span></div>
+      <div class="part"><div class="line"><span class="seg" data-k="ext">pdf</span></div><span class="lab">Extensión</span></div>
+    </div>
+  </section>
+
+  <div class="upload-card" id="dropAdmin" role="button" tabindex="0" aria-label="Seleccionar o arrastrar documentos administrativos">
+    <div class="icon">🗂️</div>
+    <h3>Selecciona o arrastra los documentos administrativos</h3>
+    <p>Se procesan en este navegador; no se envían a ningún servidor. Solo se lee el nombre, la extensión y los primeros bytes para verificar el formato.</p>
+    <div class="btns">
+      <button class="btn" id="btnPickAdmin" type="button">Elegir archivos</button>
+      <button class="btn alt" id="btnManualAdmin" type="button">Agregar nombre sin archivo</button>
+    </div>
+    <input type="file" id="filePickAdmin" multiple />
+  </div>
+
+  <section class="card defaults" aria-label="Valores para los documentos administrativos nuevos">
+    <h2>Valores para los documentos nuevos</h2>
+    <label class="f">Oficina productora
+      <select id="admDefOfi"></select>
+    </label>
+    <label class="f">Serie o subserie TRD
+      <select id="admDefTrd"></select>
+    </label>
+    <div class="g2">
+      <label class="f">Soporte
+        <select id="admDefSop"></select>
+      </label>
+      <label class="f">Fecha (ISO 8601)
+        <input id="admDefYear" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="AAAA, AAAA-MM o AAAA-MM-DD">
+      </label>
+    </div>
+    <div class="btns">
+      <button class="btn alt btn-sm" id="btnAdmApplyAll" type="button">Aplicar a todos</button>
+    </div>
+    <p class="hint">Si escribes <code>23/10/2026</code> la fecha se convierte sola a <code>2026-10-23</code>. El consecutivo corre por código TRD, tipo y año, sin saltar números; se guarda en este navegador.</p>
+  </section>
+
+  <section class="card" id="adminCountersCard" aria-label="Consecutivos administrativos en uso" hidden>
+    <h2>Consecutivos en uso (administrativos)</h2>
+    <p class="hint">Próximo número de cada serie en este navegador.</p>
+    <div id="adminCounters"></div>
+  </section>
+
+  <section class="w-100" aria-labelledby="adminListTitle">
+    <div class="list-head">
+      <h2 id="adminListTitle">Nombres generados <span class="count" id="adminCount"></span></h2>
+      <button class="btn-quiet" id="btnClearAdmin" type="button" hidden>Quitar todos</button>
+    </div>
+    <div class="rows" id="adminRows"></div>
+  </section>
+
+  <section class="card" id="adminExportCard" aria-label="Exportar documentos administrativos" hidden>
+    <div class="list-head"><h2 id="adminSum" class="h2-sm"></h2></div>
+    <p class="hint" id="adminMsg" role="status" aria-live="polite"></p>
+    <div class="btns">
+      <button class="btn gold" id="btnZipAdmin" type="button">Descargar ZIP</button>
+      <button class="btn alt" id="btnScriptAdmin" type="button">Script</button>
+      <button class="btn alt" id="btnCsvAdmin" type="button">CSV</button>
+    </div>
+  </section>
+
+  <details class="ref">
+    <summary>Reglas de la nomenclatura administrativa y catálogo TRD</summary>
+    <div class="ref-body">
+      <div>
+        <h3>Reglas</h3>
+        <ul>
+          <li>Cinco segmentos separados por guion bajo: <code>utp_[oficina]-[subserie]_[tipo]_[fecha]_[consecutivo].[ext]</code>.</li>
+          <li>Minúsculas, sin tildes, sin ñ, sin espacios ni caracteres especiales; el guion une palabras dentro de un segmento.</li>
+          <li>Fecha ISO 8601: día para actas, resoluciones, acuerdos, comprobantes, cortes y soportes; mes de cierre para informes periódicos; año para informes anuales.</li>
+          <li>Soportes (presentación, foto, video, anexo): llevan el código TRD del documento que acompañan y un tema corto, p. ej. <code>utp_124000-0101_foto-feria-del-libro_2026-04-23_0001.jpg</code>.</li>
+          <li>Nunca datos personales en el nombre (nombres, documentos de identidad, códigos estudiantiles) ni palabras como «final», «copia» o «versión».</li>
+          <li>Máximo 90 caracteres.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Catálogo de series y subseries</h3>
+        <p class="src mb-8">Consolidado de las TRD publicadas por Secretaría General (consultadas el 23 de octubre de 2026). Las entradas «verificar» tienen lectura dudosa en la TRD escaneada.</p>
+        <div class="tblwrap"><table id="adminTypeTable"><thead><tr><th>Código</th><th>Serie / subserie</th><th>Tipo</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="ref">
+    <summary>Reglas de la nomenclatura y tipos de recurso</summary>
+    <div class="ref-body">
+      <div>
+        <h3>Cómo se identifica el autor principal en el PDF</h3>
+        <ul>
+          <li>Se leen las primeras cinco páginas y se busca una línea con etiqueta: «Autor», «Presentado por», «Elaborado por», «Realizado por», «Estudiante», entre otras. El nombre puede estar en la misma línea o en las siguientes.</li>
+          <li>Si no hay etiqueta, se toma el primer nombre de persona bajo el título de la portada, descartando los que siguen a «Director», «Asesor» o «Jurado». La confianza es media o baja y se avisa.</li>
+          <li>Como último recurso se usa el campo Autor de los metadatos del PDF, que suele ser quien creó el archivo; la confianza es baja.</li>
+          <li>De un nombre completo se toman los apellidos: dos apellidos si hay tres o más palabras, uno si hay dos. También se reconoce el formato «APELLIDOS, Nombres». Los casos dudosos (tres palabras, partículas como «de la» o varios autores) quedan marcados para revisión.</li>
+          <li>Si el PDF menciona varios autores, se usa el primero. Puedes escoger otro con los botones «Usar…» o escribirlo tú.</li>
+          <li>Un PDF escaneado sin texto seleccionable no se puede leer: se avisa y el autor se escribe a mano.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Reglas técnicas obligatorias</h3>
+        <ul>
+          <li>Todo en minúsculas, sin espacios.</li>
+          <li>Sin tildes ni diacríticos; la ñ se reemplaza por su equivalente ASCII (n).</li>
+          <li>Sin paréntesis, comillas, barras, signos ni otros caracteres especiales.</li>
+          <li>Guion bajo (_) separa los campos; guion (-) separa elementos dentro de un campo, como los apellidos compuestos.</li>
+          <li>El título completo no va en el nombre; se registra en los metadatos.</li>
+          <li>Autor: el autor principal, normalizado. Año: cuatro dígitos. Identificador: único y estable.</li>
+          <li>Versiones (v01, v02…) solo cuando sea necesario. Nunca final, final2 ni definitivo.</li>
+          <li>La extensión debe corresponder al formato real del archivo.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Vocabulario controlado de tipos de recurso</h3>
+        <div class="tblwrap"><table id="typeTable"><thead><tr><th>Código</th><th>Tipo de recurso</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3>Programas académicos UTP reconocidos en la portada</h3>
+        <p class="src mb-8">Si el nombre de un programa aparece en la portada, se usa para determinar el tipo de recurso y para agregar la abreviatura del programa al nombre del archivo, con confianza alta. <b>La abreviatura es una extensión propuesta por esta herramienta y no forma parte todavía de la Nomenclatura Oficial vigente</b>; formalízala en el documento institucional antes de adoptarla de forma generalizada. Fuente de los programas: programasacademicos.utp.edu.co y páginas de cada facultad, consultada en septiembre de 2026; es una relación de trabajo, no un listado oficialmente certificado. Si un programa no aparece aquí, selecciona el tipo manualmente y avísame para agregarlo.</p>
+        <div class="tblwrap"><table id="programTable"><thead><tr><th>Programa</th><th>Nivel</th><th>Código</th><th>Abreviatura</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <h3>Ejemplos incorrectos y su corrección</h3>
+        <div class="tblwrap"><table>
+          <thead><tr><th>Incorrecto</th><th>Correcto</th></tr></thead>
+          <tbody>
+            <tr><td class="bad"><code>UTP Trabajo de Maestría García López 2026.pdf</code></td><td class="good"><code>utp_master-thesis_garcia-lopez_2026_0001.pdf</code></td></tr>
+            <tr><td class="bad"><code>utp_trabajo de maestría_garcía_lópez_2026.pdf</code></td><td class="good"><code>utp_master-thesis_garcia-lopez_2026_0001.pdf</code></td></tr>
+            <tr><td class="bad"><code>tesis_final_final2.pdf</code></td><td class="good"><code>utp_master-thesis_garcia-lopez_2026_0001.pdf</code></td></tr>
+            <tr><td class="bad"><code>Trabajo_Grado_Juan_Pérez.pdf</code></td><td class="good"><code>utp_undergraduate-thesis_perez_2026_0001.pdf</code></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <p class="src">Fuente: Nomenclatura Oficial de Archivos para el Repositorio Institucional UTP. El documento no define dónde va la versión; esta herramienta la agrega al final del identificador (…_0004_v01.pdf).</p>
+    </div>
+  </details>
+
+</main>
+
+<footer>Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</footer>
+
+<div class="exportbar" id="exportbar" hidden>
+  <div class="export-msg" id="msg" role="status" aria-live="polite"></div>
+  <div class="toolbar" role="toolbar" aria-label="Exportar nombres">
+    <span class="sum" id="sum"></span>
+    <span class="sep"></span>
+    <button class="tbtn round-accent" id="btnZip" type="button" title="ZIP con los archivos ya renombrados">Descargar ZIP</button>
+    <button class="tbtn" id="btnScript" type="button" title="Script de PowerShell para renombrar en la carpeta de origen">Script</button>
+    <button class="tbtn" id="btnCsv" type="button" title="Tabla nombre original a nombre nuevo">CSV</button>
+  </div>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="dlg-in">
+    <h2 id="dlgTitle">Script de renombrado para PowerShell</h2>
+    <p>Copia el script, ábrelo en PowerShell dentro de la carpeta que contiene los archivos originales y ejecútalo. Solo incluye las filas sin errores.</p>
+    <textarea id="dlgText" readonly spellcheck="false"></textarea>
+    <div class="btns">
+      <button class="btn" id="dlgCopy" type="button">Copiar script</button>
+      <button class="btn alt" id="dlgSave" type="button">Descargar como texto</button>
+      <button class="btn alt" id="dlgClose" type="button">Cerrar</button>
+    </div>
+  </div>
+</dialog>
+
+</body>
+</html>
