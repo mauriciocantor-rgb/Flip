@@ -15,6 +15,7 @@ como Claude Artifacts:
 | Panel docente BIC | [`panel-docente/`](panel-docente) | Seguimiento en vivo de los equipos de Grid Masters y Turno de urgencias, control de la partida, reporte de sesión (CSV y PDF), histórico y registro de resultados sin red. Servicio Python para el CRIE en `backend-panel/`. |
 | Recursos comunes de los laboratorios | [`comun/`](comun) | Fuentes del CRIE (Noto Sans, Atkinson Hyperlegible, Noto Sans Mono), conector de sesión, configuración del servicio del panel y librerías alojadas en el repositorio (three.js, qrcode-generator, jsQR). |
 | Enjambre de Redes Sociales | [`enjambre-redes/`](enjambre-redes) | Diez bots de community management, analítica de publicaciones (CSV) y estudio de piezas (Canva y CapCut) para las redes de la biblioteca, con Gemini (modo copiar y pegar con Google Workspace o servicio Python para el CRIE en `backend-ia/`). Incluye guía de uso en `guia/`. |
+| Renombrador de archivos | [`renombrador/`](renombrador) | Nombres de archivo para el Repositorio Institucional (Nomenclatura Oficial UTP) y para la documentación administrativa según las Tablas de Retención Documental. Lineamientos del CRIE, sin backend: todo se procesa en el navegador. |
 | Laboratorio de Tensión Continua (provisional) | [`tension-continua/`](tension-continua) | Osciloscopio y multímetro para fuentes de corriente continua. Reservado para el proyecto de CC. Alojamiento provisional para pruebas. |
 
 > **Actualización (15 de octubre de 2026):** el Constructor de citas y el FAQ
