@@ -64,6 +64,10 @@ const SRC={
   ssc2021:{t:'Evans, L. et al. (2021). Surviving Sepsis Campaign: International guidelines for management of sepsis and septic shock 2021. Critical Care Medicine, 49(11), e1063-e1143.',u:'https://doi.org/10.1097/CCM.0000000000005337',k:'SSC 2021'},
   esc_acs:{t:'Byrne, R. A. et al. (2023). 2023 ESC Guidelines for the management of acute coronary syndromes. European Heart Journal, 44(38), 3720-3826.',u:'https://doi.org/10.1093/eurheartj/ehad191',k:'ESC 2023'},
   aha_stroke:{t:'Powers, W. J. et al. (2019). Guidelines for the early management of patients with acute ischemic stroke: 2019 update. Stroke, 50(12), e344-e418.',u:'https://doi.org/10.1161/STR.0000000000000211',k:'AHA/ASA 2019'},
+  bts_o2:{t:"O'Driscoll, B. R., Howard, L. S., Earis, J. y Mak, V. (2017). BTS guideline for oxygen use in adults in healthcare and emergency settings. Thorax, 72(Suppl 1), ii1-ii90.",u:'https://doi.org/10.1136/thoraxjnl-2016-209729',k:'BTS 2017'},
+  metlay2019:{t:'Metlay, J. P. et al. (2019). Diagnosis and treatment of adults with community-acquired pneumonia: An official clinical practice guideline of the American Thoracic Society and Infectious Diseases Society of America. American Journal of Respiratory and Critical Care Medicine, 200(7), e45-e67.',u:'https://doi.org/10.1164/rccm.201908-1581ST',k:'ATS/IDSA 2019'},
+  who_preterm:{t:'Organización Mundial de la Salud. (2015). WHO recommendations on interventions to improve preterm birth outcomes.',u:'https://www.who.int/publications/i/item/9789241508988',k:'OMS 2015'},
+  utp_salud:{t:'Biblioteca e Información Científica, Universidad Tecnológica de Pereira. (2026). Recursos electrónicos: Facultad Ciencias de la Salud. Consultado el 26 de octubre de 2026.',u:'https://biblioteca.utp.edu.co/recursos-electronicos/369/facultad-ciencias-de-la-salud/',k:'BIC UTP'},
   dka2024:{t:'Umpierrez, G. E. et al. (2024). Hyperglycemic crises in adults with diabetes: A consensus report. Diabetes Care, 47(8), 1257-1275.',u:'https://doi.org/10.2337/dci24-0032',k:'Consenso 2024'},
   who_pe:{t:'Organización Mundial de la Salud. (2011). WHO recommendations for prevention and treatment of pre-eclampsia and eclampsia.',u:'https://www.who.int/publications/i/item/9789241548335',k:'OMS 2011'},
   cohen:{t:'Cohen, J. P., Morrison, P., Dao, L., Roth, K., Duong, T. Q. y Ghassemi, M. (2020). COVID-19 image data collection: Prospective predictions are the future. arXiv:2006.11988. Radiografías de casos de Radiopaedia (CC BY-NC-SA 3.0) usadas en el reto de lectura.',u:'https://github.com/ieee8023/covid-chestxray-dataset',k:'Cohen et al., 2020'},
@@ -1425,6 +1429,142 @@ function tuSetTriage(p,cat){if(p.triage!=null)return;p.triage=cat;const d=Math.a
 /* lectura de la placa */
 function tuOpenRx(p,img){const R=RXINFO[img];TU.reader={p,img};$('#tuRxImg').src=RXIMG[img];$('#tuRxMark').hidden=true;$('#tuRxFb').textContent='';$('#tuRxSrc').textContent='Imagen: '+R.src;$('#tuReader').hidden=false;}
 $('#tuReaderClose').onclick=()=>{$('#tuReader').hidden=true;};
+/* ================= Vademécum del turno y recursos electrónicos de la UTP ================= */
+const VD_PX='https://';
+const VD_RES={
+  micromedex:{n:'Micromedex',u:VD_PX+'lpdotlib.proxyutp.elogim.com/utpereira-colombia-2024',d:'Información de medicamentos: dosis, interacciones, compatibilidad intravenosa, efectos adversos y toxicología.'},
+  dynamed:{n:'DynaMed',u:VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?profile=dmp&authtype=ip,uid',d:'Resúmenes clínicos basados en la evidencia para decidir en el punto de atención.'},
+  clinicalkey:{n:'ClinicalKey',u:VD_PX+'clinicalkey.proxyutp.elogim.com/',d:'Libros, revistas, guías de práctica clínica y monografías de medicamentos de Elsevier.'},
+  accessmedicina:{n:'AccessMedicina',u:VD_PX+'accessmedicina.proxyutp.elogim.com/',d:'Libros de texto de medicina de McGraw-Hill en español, con videos y herramientas.'},
+  accessmedicine:{n:'AccessMedicine',u:VD_PX+'accessmedicine.proxyutp.elogim.com/',d:'La versión en inglés de McGraw-Hill: textos, casos y herramientas de referencia.'},
+  obgyn:{n:'Access ObGyn',u:VD_PX+'obgyn.proxyutp.elogim.com/',d:'Obstetricia y ginecología: textos, guías y herramientas de McGraw-Hill.'},
+  eureka:{n:'Eureka (Médica Panamericana)',u:VD_PX+'medicapanamericana.proxyutp.elogim.com/eureka',d:'Libros de ciencias de la salud de la Editorial Médica Panamericana, en español.'},
+  amolca:{n:'Amolca',u:VD_PX+'amolca.proxyutp.elogim.com/',d:'Libros interactivos de ciencias de la salud.'},
+  medline:{n:'MEDLINE Complete',u:VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?profile=ehost&defaultdb=mdc&authtype=ip',d:'Artículos biomédicos en texto completo para buscar la evidencia original.'},
+  mediclatina:{n:'MedicLatina',u:VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?profile=ehost&defaultdb=lth&authtype=ip',d:'Revistas médicas latinoamericanas y españolas, en español.'},
+  nejm:{n:'The New England Journal of Medicine',u:VD_PX+'nejm.proxyutp.elogim.com/',d:'Revista semanal de medicina general: ensayos clínicos, revisiones y casos.'},
+  bmj:{n:'The BMJ',u:VD_PX+'thebmj-bmj.proxyutp.elogim.com/',d:'Revista de medicina general con investigación, revisiones clínicas y opinión de expertos.'},
+  primal:{n:'Primal Pictures',u:VD_PX+'anatomytv.proxyutp.elogim.com/',d:'Anatomía humana en 3D para repasar el órgano afectado.'}
+};
+const VD_GRUPOS=[
+  ['Medicamentos','Para confirmar dosis, interacciones y contraindicaciones.',['micromedex']],
+  ['Decisión clínica en el punto de atención','Para revisar el manejo completo de cada cuadro.',['dynamed','clinicalkey','accessmedicina','accessmedicine','obgyn']],
+  ['Libros de ciencias de la salud','Para estudiar la farmacología y la fisiopatología con calma.',['eureka','amolca']],
+  ['Artículos y evidencia original','Para leer los ensayos y las guías completas.',['medline','mediclatina','nejm','bmj']],
+  ['Anatomía','Para repasar en 3D el órgano comprometido.',['primal']]
+];
+const VD_FICHA=['micromedex','dynamed','clinicalkey','accessmedicina'];
+const VD_UTP='https://biblioteca.utp.edu.co/recursos-electronicos/369/facultad-ciencias-de-la-salud/';
+const VD_MYLOFT='https://app.myloft.xyz/user/login';
+const VD=[
+ {id:'o2',ints:['o2'],n:'Oxígeno suplementario',g:'Gas medicinal',
+  uso:'Corrige la hipoxemia. En la mayoría de los adultos la meta de saturación está entre 94 y 98 %, y entre 88 y 92 % si hay riesgo de retener CO2.',
+  cuidado:'No se recomienda de rutina cuando la saturación es normal, por ejemplo en el síndrome coronario agudo con saturación de 90 % o más. Vigila la respuesta con el pulsioxímetro.',
+  q:'Oxygen therapy',src:['bts_o2','esc_acs']},
+ {id:'acet',ints:['acet'],n:'Acetaminofén (paracetamol)',g:'Analgésico y antipirético',
+  uso:'Fiebre y dolor leve a moderado. Es el analgésico de elección cuando los AINE están contraindicados, como en el dengue.',
+  cuidado:'La sobredosis produce daño hepático. Respeta la dosis máxima diaria y ajústala en hepatopatía, alcoholismo y desnutrición.',
+  q:'Acetaminophen',src:['dengue_col','who_arbo']},
+ {id:'aine',ints:['aine'],n:'Ibuprofeno',g:'Antiinflamatorio no esteroideo (AINE)',
+  uso:'Dolor, fiebre e inflamación en cuadros sin riesgo de sangrado ni compromiso renal.',
+  cuidado:'Contraindicado en el dengue por el riesgo de sangrado y en el síndrome coronario agudo. Precaución en enfermedad renal, úlcera péptica, anticoagulación y tercer trimestre del embarazo.',
+  q:'Ibuprofen',src:['dengue_col','esc_acs']},
+ {id:'cristaloides',ints:['liq_dengue','bolo_dengue','bolo30','liq_cad'],n:'Cristaloides isotónicos',g:'Soluciones intravenosas (lactato de Ringer, solución salina al 0,9 %)',
+  uso:'Reponen volumen en la deshidratación, el dengue con signos de alarma o choque, la sepsis con hipoperfusión y la cetoacidosis diabética. El volumen y la velocidad cambian según el cuadro.',
+  cuidado:'Reevalúa después de cada bolo: perfusión, diuresis, hematocrito y crepitantes. El exceso de líquidos produce sobrecarga y edema pulmonar.',
+  q:'Lactated Ringer solution',src:['dengue_col','ssc2021','dka2024']},
+ {id:'abx',ints:['abx'],n:'Antibiótico empírico intravenoso',g:'Antimicrobianos (por ejemplo, betalactámico más macrólido en la neumonía grave)',
+  uso:'Infección bacteriana probable. En la sepsis y el choque séptico se administra en la primera hora, idealmente después de tomar hemocultivos, sin retrasar el inicio.',
+  cuidado:'Pregunta siempre por alergias. Ajusta el esquema a la función renal, al foco probable y a la resistencia local.',
+  q:'Ceftriaxone',src:['ssc2021','metlay2019']},
+ {id:'asa',ints:['asa'],n:'Ácido acetilsalicílico',g:'Antiagregante plaquetario',
+  uso:'Síndrome coronario agudo: dosis de carga masticada lo antes posible, salvo contraindicación.',
+  cuidado:'No se usa con alergia al medicamento ni con sangrado activo. Evítalo en el dengue por el riesgo de sangrado.',
+  q:'Aspirin',src:['esc_acs']},
+ {id:'trombo',ints:['trombo'],n:'Alteplasa',g:'Trombolítico (activador tisular del plasminógeno)',
+  uso:'Ataque cerebrovascular isquémico agudo dentro de las 4,5 horas desde el inicio de los síntomas, con TC simple sin hemorragia.',
+  cuidado:'Contraindicada si hay hemorragia intracraneal, presión arterial por encima de 185/110 mmHg que no se controla, coagulopatía o plaquetas por debajo de 100 000. Haz una glucometría antes de decidir.',
+  q:'Alteplase',src:['aha_stroke']},
+ {id:'insulina',ints:['insulina'],n:'Insulina regular intravenosa en infusión',g:'Hipoglucemiante',
+  uso:'Cetoacidosis diabética y estado hiperosmolar, una vez iniciados los líquidos.',
+  cuidado:'Conoce el potasio antes de empezar: si está por debajo de 3,5 mmol/L, se repone primero. Controla la glucometría cada hora y el potasio con frecuencia.',
+  q:'Insulin regular',src:['dka2024']},
+ {id:'potasio',ints:['potasio'],n:'Cloruro de potasio intravenoso',g:'Electrolito',
+  uso:'Hipopotasemia y mantenimiento del potasio durante el tratamiento de la cetoacidosis.',
+  cuidado:'Nunca se aplica en bolo. Se diluye y se administra con bomba de infusión y monitoreo cardiaco. Revisa la función renal y la diuresis.',
+  q:'Potassium chloride',src:['dka2024']},
+ {id:'bicarb',ints:['bicarb'],n:'Bicarbonato de sodio intravenoso',g:'Alcalinizante',
+  uso:'En la cetoacidosis solo se considera si el pH es menor de 7,0.',
+  cuidado:'Con pH de 7,0 o más no mejora el desenlace y puede empeorar la hipopotasemia.',
+  q:'Sodium bicarbonate',src:['dka2024']},
+ {id:'mg',ints:['mg'],n:'Sulfato de magnesio intravenoso',g:'Anticonvulsivante en obstetricia',
+  uso:'Prevención y tratamiento de la eclampsia en la preeclampsia con signos de severidad.',
+  cuidado:'Vigila el reflejo patelar, la frecuencia respiratoria y la diuresis. Ten a mano gluconato de calcio como antídoto.',
+  q:'Magnesium sulfate',src:['who_pe']},
+ {id:'antihta',ints:['antihta'],n:'Antihipertensivos de acción rápida',g:'Labetalol intravenoso, hidralazina intravenosa o nifedipino oral',
+  uso:'Hipertensión severa en el embarazo, con presión de 160/110 mmHg o más.',
+  cuidado:'Baja la presión de forma gradual para no comprometer la perfusión de la placenta. El labetalol está contraindicado en el asma y en los bloqueos cardiacos. El nifedipino se da por vía oral, no sublingual.',
+  q:'Labetalol',src:['who_pe']},
+ {id:'cortico',ints:['cortico'],n:'Dexametasona intravenosa',g:'Corticoide',
+  uso:'Maduración pulmonar fetal cuando hay riesgo de parto pretérmino entre las semanas 24 y 34, entre otras indicaciones.',
+  cuidado:'No está indicada en el dengue. Eleva la glucemia.',
+  q:'Dexamethasone',src:['who_preterm','dengue_col']},
+ {id:'furo',ints:['furo'],n:'Furosemida intravenosa',g:'Diurético de asa',
+  uso:'Sobrecarga de volumen y edema pulmonar.',
+  cuidado:'Empeora la hipovolemia, por ejemplo en la fase crítica del dengue. No está indicada en la preeclampsia sin edema pulmonar. Produce hipopotasemia.',
+  q:'Furosemide',src:['dengue_col','who_pe']},
+ {id:'antic',ints:['antic'],n:'Anticoagulación plena',g:'Heparina no fraccionada o enoxaparina',
+  uso:'Tromboembolia venosa, algunos síndromes coronarios y prevención de embolias según el riesgo del paciente.',
+  cuidado:'En la fase aguda del ataque cerebrovascular isquémico aumenta el riesgo de transformación hemorrágica. Contraindicada con sangrado activo. Vigila las plaquetas y la función renal.',
+  q:'Heparin',src:['aha_stroke']},
+ {id:'noradr',ints:['noradr'],pg:1,n:'Norepinefrina en infusión',g:'Vasopresor',
+  uso:'Primera elección en el choque séptico cuando la presión arterial media sigue por debajo de 65 mmHg a pesar de los líquidos.',
+  cuidado:'Requiere bomba de infusión y monitoreo continuo. Puede iniciarse por una vena periférica mientras se consigue un acceso central. Vigila la extravasación.',
+  q:'Norepinephrine',src:['ssc2021']},
+ {id:'hidrocort',ints:['hidrocort'],pg:1,n:'Hidrocortisona intravenosa',g:'Corticoide',
+  uso:'Choque séptico que necesita vasopresor de forma continua.',
+  cuidado:'Produce hiperglucemia. No reemplaza los líquidos ni el antibiótico.',
+  q:'Hydrocortisone',src:['ssc2021']},
+ {id:'transf_plq',ints:['transf_plq'],pg:1,n:'Transfusión de plaquetas',g:'Hemoderivado',
+  uso:'Sangrado activo con trombocitopenia, o antes de un procedimiento según el recuento.',
+  cuidado:'En el dengue no se transfunden plaquetas de forma preventiva si no hay sangrado. Vigila las reacciones transfusionales.',
+  q:'Platelet transfusion',src:['dengue_col','who_arbo']}
+];
+const vdNorm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+function vdLink(k){const r=VD_RES[k];return `<a class="btn vd-ir" href="${esc(r.u)}" target="_blank" rel="noopener noreferrer">${esc(r.n)}</a>`;}
+function vdCard(v){
+  const fuentes=v.src.map(k=>SRC[k]).filter(Boolean).map(s=>s.u?`<a href="${esc(s.u)}" target="_blank" rel="noopener noreferrer">${esc(s.k)}</a>`:esc(s.k)).join(', ');
+  return `<details class="vd-card" data-vd="${v.id}"><summary><span class="vd-n">${esc(v.n)}</span><span class="vd-g">${esc(v.g)}</span>${v.pg?'<span class="vd-pg">Posgrado</span>':''}</summary>
+  <div class="vd-body"><p><b>Para qué se usa.</b> ${esc(v.uso)}</p><p><b>Precauciones.</b> ${esc(v.cuidado)}</p>
+  <p class="small"><b>Verifica la dosis y las interacciones.</b> En las bases en inglés busca <code class="vd-q">${esc(v.q)}</code>.</p>
+  <div class="vd-links">${VD_FICHA.map(vdLink).join('')}</div>
+  <p class="src">Fuente de la ficha: ${fuentes}.</p></div></details>`;}
+function vdRender(lista,cuenta,q){const t=vdNorm(q).trim();
+  const vs=VD.filter(v=>!t||vdNorm(v.n+' '+v.g+' '+v.q+' '+v.uso).includes(t));
+  $(lista).innerHTML=vs.length?vs.map(vdCard).join(''):'<p class="small muted">No hay fichas con ese término. Búscalo directamente en Micromedex.</p>';
+  if(cuenta)$(cuenta).textContent=`${vs.length} de ${VD.length} fichas`;}
+function vdRecursos(){
+  $('#vdRecursos').innerHTML=VD_GRUPOS.map(([t,d,ks])=>`<div class="panel vd-grupo"><h4>${esc(t)}</h4><p class="small muted">${esc(d)}</p><ul class="vd-ul">${ks.map(k=>{const r=VD_RES[k];return `<li><a href="${esc(r.u)}" target="_blank" rel="noopener noreferrer">${esc(r.n)}</a><span class="small muted">${esc(r.d)}</span></li>`;}).join('')}</ul></div>`).join('');}
+// Consulta desde el turno: queda en el registro y llega al panel docente
+function tuVadeConsulta(v){if(TU.started&&!TU.ended)tuLog(`Consulta del vademécum: ${v.n}.`);}
+function vdToggle(e){const d=e.target;if(!d.matches||!d.matches('details.vd-card')||!d.open)return;const v=VD.find(x=>x.id===d.dataset.vd);if(v&&d.closest('#tuVade'))tuVadeConsulta(v);}
+let vdPausa=false;
+function tuVadeOpen(filtro){
+  if(TU.level==='pre'&&TU.run&&!TU.ended){$('#tuPause').click();vdPausa=true;}
+  $('#tuVadeNota').textContent=TU.started&&!TU.ended?(vdPausa?'En pregrado el turno queda en pausa mientras consultas.':(TU.run?'En posgrado el reloj sigue corriendo mientras consultas.':'El turno está en pausa.')):'Consulta las fichas antes de empezar el turno.';
+  $('#tuVadeBuscar').value=filtro||'';vdRender('#tuVadeLista',null,filtro||'');$('#tuVade').hidden=false;$('#tuVadeBuscar').focus();}
+function tuVadeClose(){$('#tuVade').hidden=true;if(vdPausa&&!TU.run&&!TU.ended)$('#tuPause').click();vdPausa=false;}
+vdRender('#vdLista','#vdCuenta','');vdRecursos();
+$('#vdBuscar').addEventListener('input',e=>vdRender('#vdLista','#vdCuenta',e.target.value));
+$('#tuVadeBuscar').addEventListener('input',e=>vdRender('#tuVadeLista',null,e.target.value));
+$('#vdLista').addEventListener('toggle',vdToggle,true);
+$('#tuVadeLista').addEventListener('toggle',vdToggle,true);
+$$('[data-vade-open]').forEach(b=>b.addEventListener('click',()=>tuVadeOpen('')));
+$('#tuVadeClose').addEventListener('click',tuVadeClose);
+$('#tuVade').addEventListener('click',e=>{if(e.target.id==='tuVade')tuVadeClose();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#tuVade').hidden)tuVadeClose();});
+$('#tuVadeTodo').addEventListener('click',()=>{tuVadeClose();});
+
 $('#tuReader').addEventListener('click',e=>{if(e.target.id==='tuReader')$('#tuReader').hidden=true;});
 function tuRxAnswer(normal,x,y){const r=TU.reader;if(!r)return;const R=RXINFO[r.img];const p=r.p;let ok;
   if(normal)ok=!R.find.length;else ok=R.find.some(f=>((x-f.x)/f.rx)**2+((y-f.y)/f.ry)**2<=1);
@@ -1691,6 +1831,8 @@ new MutationObserver(rethemes).observe(document.documentElement,{attributes:true
   const test0=tuOrderTest;tuOrderTest=function(p,id){const ya=!!p.tests[id];test0(p,id);if(!ya&&p.tests[id])ev('accion',`Cama ${p.bed}: pide ${tuTestName(id)}`,0,'Médico líder');};
   const int0=tuOrderInt;tuOrderInt=function(p,id){const ya=!!p.ints[id];int0(p,id);if(!ya&&p.ints[id]){const it=TU_INT.find(x=>x.id===id);ev('accion',`Cama ${p.bed}: ordena ${it?it.n:id}`,0,'Médico líder');}};
   const cons0=tuConsult;tuConsult=function(p,id){const ya=TU.cons[id+':'+p.bed];cons0(p,id);if(!ya&&TU.cons[id+':'+p.bed]){const c=TU_CONS.find(x=>x.id===id);ev('accion',`Cama ${p.bed}: interconsulta a ${c?c.n:id}`,0,'Enlace');}};
+  // consultas del vademécum durante el turno
+  const vd0=tuVadeConsulta;tuVadeConsulta=function(v){vd0(v);if(TU.started&&!TU.ended)ev('accion',`Consulta el vademécum: ${v.n}`,0,'Médico líder');};
   const arr0=tuArrivals;tuArrivals=function(){const n=TU.pats.length;arr0();for(let i=n;i<TU.pats.length;i++)ev('evento',`Ingresa a la cama ${TU.pats[i].bed}: ${TU.pats[i].c.who}`);};
   // recordatorios del docente sin conexión y eventos del panel interno
   document.querySelectorAll('[data-gm]').forEach(b=>b.addEventListener('click',()=>{if(TU.started)ev('evento','Docente: '+b.textContent.trim());}));

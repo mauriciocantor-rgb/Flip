@@ -14,7 +14,7 @@ Salud.
 
 | Archivo | Uso |
 |---|---|
-| `index.html` | Página completa: turno de urgencias gamificado, modelo anatómico 3D, «Define tu enfermedad», consulta, sala de lectura radiológica, progreso y autoevaluación. |
+| `index.html` | Página completa: turno de urgencias gamificado, modelo anatómico 3D, «Define tu enfermedad», consulta, sala de lectura radiológica, vademécum del turno, progreso y autoevaluación. |
 | `models/m.json`, `models/f.json` | Índice de los modelos 3D masculino y femenino. |
 | `models/m.b64.txt`, `models/f.b64.txt` | Geometría 3D comprimida (gzip en base64) que la página descarga y descomprime en el navegador. |
 
@@ -35,7 +35,9 @@ tarda unos minutos.
   disponible el constructor manual.
 - El progreso (VX, insignias y tabla de clasificación) se guarda solo en el
   navegador de cada persona (`localStorage`).
-- Requiere conexión a internet para Three.js (cdnjs) y las fuentes de Google.
+- Three.js y las fuentes (Noto Sans, Atkinson Hyperlegible y Noto Sans Mono)
+  se cargan desde `../comun/` en el mismo repositorio, según los lineamientos
+  del CRIE; no se usan CDN ni Google Fonts.
 
 ## Qué revisar en las pruebas con el médico general
 
@@ -45,6 +47,28 @@ tarda unos minutos.
 2. La clasificación de triage esperada para cada caso (Resolución 5596 de 2015).
 3. La lectura de las radiografías y la identificación del órgano en el avatar.
 4. La claridad para estudiantes de pregrado y la exigencia para posgrado.
+5. Las 18 fichas del vademécum: usos y precauciones de cada medicamento y su
+   coherencia con las intervenciones correctas y dañinas de cada caso.
+
+## Vademécum del turno
+
+Sección «Vademécum» y ventana dentro del turno (botón en la barra y junto a
+«Intervenciones»). Tiene una ficha por cada medicamento o hemoderivado que se
+puede ordenar: para qué se usa, precauciones, término de búsqueda en inglés,
+fuente y enlaces a Micromedex, DynaMed, ClinicalKey y AccessMedicina. Al final
+están los recursos electrónicos de la UTP para Ciencias de la Salud agrupados
+por uso.
+
+- En pregrado el turno se pausa mientras la ventana está abierta; en posgrado
+  el reloj sigue corriendo.
+- Cada ficha abierta durante el turno queda en el registro y llega al Panel
+  docente como acción del médico líder. No suma ni resta puntos.
+- Los enlaces pasan por el proxy de la biblioteca (`proxyutp.elogim.com`) y
+  piden el usuario del correo institucional. Se tomaron de la página
+  [Facultad Ciencias de la Salud](https://biblioteca.utp.edu.co/recursos-electronicos/369/facultad-ciencias-de-la-salud/)
+  (actualizada el 20 de abril de 2026). Si la biblioteca cambia un enlace, se
+  actualiza en `VD_RES` dentro de `app.js` (o en la fuente del laboratorio).
+- Las fichas no dan dosis: remiten a la fuente para verificarlas.
 
 ## Fuentes de los modelos y las imágenes (licencias)
 

@@ -36,6 +36,7 @@
       <a href="#radiologia">Radiología</a>
       <a href="#progreso">Progreso</a>
       <a href="#evaluacion">Autoevaluación</a>
+      <a href="#vademecum">Vademécum</a>
       <a href="#referencias">Referencias</a>
     </nav>
     <a class="xpchip" href="#progreso" id="xpchip" aria-label="Tu progreso"><span id="chipLevel">Estudiante</span><b id="chipXp">0 VX</b></a>
@@ -160,6 +161,7 @@
       </div>
       <button class="btn primary" type="button" id="tuStart">Iniciar turno</button>
       <button class="btn" type="button" id="tuPause" disabled>Pausa</button>
+      <button class="btn" type="button" id="tuVadeBtn" data-vade-open>Vademécum</button>
       <label class="small tu-auto"><input type="checkbox" id="tuAuto" checked> Enfermería y laboratorio automáticos (modo individual)</label>
       <label class="small tu-auto">Equipo <input id="tuTeam" maxlength="24" value="Equipo 1"></label>
     </div>
@@ -201,7 +203,7 @@
           </div>
           <span class="lbl">Pruebas</span>
           <div class="tu-grid" id="tuTests"></div>
-          <span class="lbl">Intervenciones</span>
+          <div class="tu-vade-row"><span class="lbl">Intervenciones</span><button class="btn" type="button" data-vade-open>Consultar el vademécum</button></div>
           <div class="tu-grid" id="tuInterv"></div>
           <label class="f" for="tuDx">Diagnóstico
             <select id="tuDx"></select>
@@ -226,6 +228,17 @@
           <span class="lbl">Mensaje SBAR sugerido</span>
           <p class="small tu-sbar" id="tuSbar"></p>
         </section>
+      </div>
+    </div>
+    <div class="tu-reader" id="tuVade" hidden>
+      <div class="tu-reader-in vd-in" role="dialog" aria-modal="true" aria-labelledby="tuVadeTitulo">
+        <div class="tu-reader-head"><h3 id="tuVadeTitulo">Vademécum del turno</h3><button class="btn" type="button" id="tuVadeClose">Cerrar</button></div>
+        <p class="small" id="tuVadeNota"></p>
+        <label class="f" for="tuVadeBuscar">Buscar un medicamento
+          <input class="vd-search" id="tuVadeBuscar" type="search" placeholder="Por ejemplo, alteplasa o potasio" autocomplete="off">
+        </label>
+        <div class="vd-list" id="tuVadeLista"></div>
+        <p class="small">Para entrar a las bases de datos inicia sesión con tu usuario del correo institucional. <a href="#vademecum" id="tuVadeTodo">Ver todos los recursos electrónicos de la UTP</a></p>
       </div>
     </div>
     <div class="tu-reader" id="tuReader" hidden>
@@ -541,6 +554,27 @@
     </div>
     <div class="qscore"><span>Puntaje</span><b id="qScore">0 / 7</b><button class="btn" type="button" id="qReset">Reiniciar</button></div>
     <div class="quiz" id="quiz"></div>
+  </div>
+</section>
+
+<section class="block" id="vademecum">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Material de consulta</p>
+      <h2>Vademécum del turno</h2>
+      <p>Fichas breves de los medicamentos y hemoderivados que puedes ordenar en el turno de urgencias, con enlaces a los recursos electrónicos que la Universidad suscribe para Ciencias de la Salud. Las fichas orientan la decisión. La dosis exacta, las interacciones y las contraindicaciones completas se verifican siempre en la fuente.</p>
+    </div>
+    <div class="note vd-acceso"><b>Cómo entrar a los recursos.</b> Cada enlace te pide iniciar sesión con tu usuario del correo institucional (lo que va antes de @utp.edu.co) y tu contraseña, también desde fuera del campus. En el celular puedes usar la aplicación <a href="https://app.myloft.xyz/user/login" target="_blank" rel="noopener noreferrer">MyLoft</a>. Si no logras entrar, escribe a recursoselectronicos@utp.edu.co o llama a la extensión 303.</div>
+    <div class="vd-tools">
+      <label class="f" for="vdBuscar">Buscar un medicamento
+        <input class="vd-search" id="vdBuscar" type="search" placeholder="Por ejemplo, alteplasa o potasio" autocomplete="off">
+      </label>
+      <span class="small muted" id="vdCuenta"></span>
+    </div>
+    <div class="vd-list" id="vdLista"></div>
+    <h3 class="vd-h">Recursos electrónicos de la UTP para consultar</h3>
+    <div class="vd-res" id="vdRecursos"></div>
+    <p class="src">Enlaces tomados de la página <a href="https://biblioteca.utp.edu.co/recursos-electronicos/369/facultad-ciencias-de-la-salud/" target="_blank" rel="noopener noreferrer">Facultad Ciencias de la Salud</a> de la Biblioteca e Información Científica (actualizada el 20 de abril de 2026), consultada el 26 de octubre de 2026. Si un enlace cambia, la lista vigente está siempre en esa página.</p>
   </div>
 </section>
 
