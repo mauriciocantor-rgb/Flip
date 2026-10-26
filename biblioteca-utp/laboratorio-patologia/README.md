@@ -55,7 +55,8 @@ tarda unos minutos.
 Sección «Vademécum» y ventana dentro del turno (botón en la barra y junto a
 «Intervenciones»). Tiene una ficha por cada medicamento o hemoderivado que se
 puede ordenar: para qué se usa, precauciones, término de búsqueda en inglés,
-fuente y enlaces a Micromedex, DynaMed, ClinicalKey y AccessMedicina. Al final
+fuente y una ecuación de búsqueda que abre siete recursos de la UTP con la búsqueda
+hecha. Al final
 están los recursos electrónicos de la UTP para Ciencias de la Salud agrupados
 por uso.
 
@@ -69,6 +70,32 @@ por uso.
   (actualizada el 20 de abril de 2026). Si la biblioteca cambia un enlace, se
   actualiza en `VD_RES` dentro de `app.js` (o en la fuente del laboratorio).
 - Las fichas no dan dosis: remiten a la fuente para verificarlas.
+
+### Búsqueda directa en los recursos
+
+Cada ficha pregunta qué necesita el estudiante (dosis y administración,
+contraindicaciones y efectos adversos, interacciones o evidencia en el cuadro
+clínico) y arma la ecuación de búsqueda con sinónimos unidos por OR y el
+aspecto pedido con AND, por ejemplo
+`(alteplase OR "tissue plasminogen activator") AND (contraindications OR "adverse effects")`.
+
+| Recurso | Cómo llega la búsqueda |
+|---|---|
+| MEDLINE Complete | Ecuación completa en inglés (EBSCOhost, `db=mdc`, `bquery`) |
+| MedicLatina | Ecuación completa en español (EBSCOhost, `db=lth`, `bquery`) |
+| Scopus | Ecuación dentro de `TITLE-ABS-KEY( )` |
+| AccessMedicina | Medicamento y aspecto en español (`searchresults.aspx?q=`) |
+| ClinicalKey | Medicamento y aspecto en inglés (`#!/search/`) |
+| DynaMed y Micromedex | No aceptan búsqueda por enlace a través del proxy: el botón copia la búsqueda y abre el recurso para pegarla |
+
+Si el estudiante escribe un término que no tiene ficha (por ejemplo,
+warfarina), el vademécum ofrece buscarlo directamente en AccessMedicina,
+ClinicalKey, MedicLatina, MEDLINE Complete y Micromedex. Cada búsqueda hecha
+durante el turno queda en el registro y llega al Panel docente.
+
+Pendiente: probar cada enlace con una cuenta institucional, porque las
+direcciones de búsqueda pasan por el proxy de la biblioteca y solo responden
+después de iniciar sesión.
 
 ## Fuentes de los modelos y las imágenes (licencias)
 

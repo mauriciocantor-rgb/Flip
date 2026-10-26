@@ -1444,16 +1444,61 @@ const VD_RES={
   mediclatina:{n:'MedicLatina',u:VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?profile=ehost&defaultdb=lth&authtype=ip',d:'Revistas médicas latinoamericanas y españolas, en español.'},
   nejm:{n:'The New England Journal of Medicine',u:VD_PX+'nejm.proxyutp.elogim.com/',d:'Revista semanal de medicina general: ensayos clínicos, revisiones y casos.'},
   bmj:{n:'The BMJ',u:VD_PX+'thebmj-bmj.proxyutp.elogim.com/',d:'Revista de medicina general con investigación, revisiones clínicas y opinión de expertos.'},
+  scopus:{n:'Scopus',u:VD_PX+'scopus.proxyutp.elogim.com/',d:'Resúmenes y citas de literatura científica de todas las áreas, con herramientas de bibliometría.'},
   primal:{n:'Primal Pictures',u:VD_PX+'anatomytv.proxyutp.elogim.com/',d:'Anatomía humana en 3D para repasar el órgano afectado.'}
 };
 const VD_GRUPOS=[
   ['Medicamentos','Para confirmar dosis, interacciones y contraindicaciones.',['micromedex']],
   ['Decisión clínica en el punto de atención','Para revisar el manejo completo de cada cuadro.',['dynamed','clinicalkey','accessmedicina','accessmedicine','obgyn']],
   ['Libros de ciencias de la salud','Para estudiar la farmacología y la fisiopatología con calma.',['eureka','amolca']],
-  ['Artículos y evidencia original','Para leer los ensayos y las guías completas.',['medline','mediclatina','nejm','bmj']],
+  ['Artículos y evidencia original','Para leer los ensayos y las guías completas.',['medline','mediclatina','scopus','nejm','bmj']],
   ['Anatomía','Para repasar en 3D el órgano comprometido.',['primal']]
 ];
-const VD_FICHA=['micromedex','dynamed','clinicalkey','accessmedicina'];
+/* Ecuaciones de búsqueda: términos por medicamento (inglés y español) y cuadro clínico */
+const VD_T={
+ o2:{en:['oxygen therapy','oxygen inhalation therapy'],es:['oxigenoterapia'],ce:['hypoxemia'],cs:['hipoxemia']},
+ acet:{en:['acetaminophen','paracetamol'],es:['acetaminofén','paracetamol'],ce:['dengue'],cs:['dengue']},
+ aine:{en:['ibuprofen','NSAID'],es:['ibuprofeno','antiinflamatorios no esteroideos'],ce:['dengue','acute coronary syndrome'],cs:['dengue','síndrome coronario agudo']},
+ cristaloides:{en:['lactated Ringer','crystalloid solutions'],es:['lactato de Ringer','cristaloides'],ce:['sepsis','dengue','diabetic ketoacidosis'],cs:['sepsis','dengue','cetoacidosis diabética']},
+ abx:{en:['ceftriaxone','clarithromycin','empirical antibiotic therapy'],es:['ceftriaxona','claritromicina','antibioticoterapia empírica'],ce:['community-acquired pneumonia','sepsis'],cs:['neumonía adquirida en la comunidad','sepsis']},
+ asa:{en:['aspirin','acetylsalicylic acid'],es:['ácido acetilsalicílico','aspirina'],ce:['acute coronary syndrome','myocardial infarction'],cs:['síndrome coronario agudo','infarto agudo de miocardio']},
+ trombo:{en:['alteplase','tissue plasminogen activator'],es:['alteplasa','trombólisis'],ce:['acute ischemic stroke'],cs:['ataque cerebrovascular isquémico','ictus isquémico']},
+ insulina:{en:['regular insulin','insulin infusion'],es:['insulina regular','infusión de insulina'],ce:['diabetic ketoacidosis'],cs:['cetoacidosis diabética']},
+ potasio:{en:['potassium chloride'],es:['cloruro de potasio'],ce:['hypokalemia','diabetic ketoacidosis'],cs:['hipopotasemia','cetoacidosis diabética']},
+ bicarb:{en:['sodium bicarbonate'],es:['bicarbonato de sodio'],ce:['diabetic ketoacidosis'],cs:['cetoacidosis diabética']},
+ mg:{en:['magnesium sulfate'],es:['sulfato de magnesio'],ce:['preeclampsia','eclampsia'],cs:['preeclampsia','eclampsia']},
+ antihta:{en:['labetalol','hydralazine','nifedipine'],es:['labetalol','hidralazina','nifedipino'],ce:['severe hypertension in pregnancy','preeclampsia'],cs:['hipertensión severa en el embarazo','preeclampsia']},
+ cortico:{en:['dexamethasone','antenatal corticosteroids'],es:['dexametasona','corticoides antenatales'],ce:['preterm birth'],cs:['parto pretérmino']},
+ furo:{en:['furosemide'],es:['furosemida'],ce:['pulmonary edema','fluid overload'],cs:['edema pulmonar','sobrecarga de volumen']},
+ antic:{en:['heparin','enoxaparin'],es:['heparina','enoxaparina'],ce:['acute ischemic stroke','venous thromboembolism'],cs:['ataque cerebrovascular isquémico','tromboembolia venosa']},
+ noradr:{en:['norepinephrine','noradrenaline'],es:['norepinefrina','noradrenalina'],ce:['septic shock'],cs:['choque séptico']},
+ hidrocort:{en:['hydrocortisone'],es:['hidrocortisona'],ce:['septic shock'],cs:['choque séptico']},
+ transf_plq:{en:['platelet transfusion'],es:['transfusión de plaquetas'],ce:['dengue','thrombocytopenia'],cs:['dengue','trombocitopenia']}
+};
+/* Lo que necesita el usuario: cada opción agrega su bloque a la ecuación */
+const VD_NEED=[
+ {id:'dosis',n:'Dosis y administración',en:['dosage','drug administration'],es:['dosis','administración']},
+ {id:'contra',n:'Contraindicaciones y efectos adversos',en:['contraindications','adverse effects'],es:['contraindicaciones','efectos adversos']},
+ {id:'inter',n:'Interacciones',en:['drug interactions'],es:['interacciones farmacológicas']},
+ {id:'cuadro',n:'Evidencia en el cuadro clínico',en:null,es:null}
+];
+const vdQ=t=>/\s/.test(t)?`"${t}"`:t;
+const vdOr=a=>a.length>1?'('+a.map(vdQ).join(' OR ')+')':vdQ(a[0]);
+// ecuación booleana (bases de artículos) y consulta corta (herramientas clínicas)
+function vdEq(t,need,lang){const d=lang==='es'?t.es:t.en,c=lang==='es'?t.cs:t.ce,nd=VD_NEED.find(x=>x.id===need);
+  const f=nd.en?(lang==='es'?nd.es:nd.en):c;return vdOr(d)+' AND '+vdOr(f);}
+function vdCorta(t,need,lang){const d=(lang==='es'?t.es:t.en)[0],nd=VD_NEED.find(x=>x.id===need);
+  const f=nd.en?(lang==='es'?nd.es:nd.en)[0]:(lang==='es'?t.cs:t.ce)[0];return d+' '+f;}
+/* Cómo abre cada recurso: 'url' llega con la búsqueda hecha; 'copia' copia la búsqueda y abre el recurso */
+const VD_IR=[
+ {k:'micromedex',modo:'copia',lang:'en',q:(t)=>t.en[0]},
+ {k:'dynamed',modo:'copia',lang:'en',q:(t,n)=>vdCorta(t,n,'en')},
+ {k:'clinicalkey',modo:'url',lang:'en',url:(t,n)=>VD_PX+'clinicalkey.proxyutp.elogim.com/#!/search/'+encodeURIComponent(vdCorta(t,n,'en'))},
+ {k:'accessmedicina',modo:'url',lang:'es',url:(t,n)=>VD_PX+'accessmedicina.proxyutp.elogim.com/searchresults.aspx?q='+encodeURIComponent(vdCorta(t,n,'es'))},
+ {k:'medline',modo:'url',lang:'en',url:(t,n)=>VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?direct=true&authtype=ip&db=mdc&type=1&site=ehost-live&bquery='+encodeURIComponent(vdEq(t,n,'en'))},
+ {k:'mediclatina',modo:'url',lang:'es',url:(t,n)=>VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?direct=true&authtype=ip&db=lth&type=1&site=ehost-live&bquery='+encodeURIComponent(vdEq(t,n,'es'))},
+ {k:'scopus',modo:'url',lang:'en',url:(t,n)=>VD_PX+'scopus.proxyutp.elogim.com/results/results.uri?src=s&sot=b&sdt=b&s='+encodeURIComponent('TITLE-ABS-KEY('+vdEq(t,n,'en')+')')}
+];
 const VD_UTP='https://biblioteca.utp.edu.co/recursos-electronicos/369/facultad-ciencias-de-la-salud/';
 const VD_MYLOFT='https://app.myloft.xyz/user/login';
 const VD=[
@@ -1531,23 +1576,59 @@ const VD=[
   q:'Platelet transfusion',src:['dengue_col','who_arbo']}
 ];
 const vdNorm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-function vdLink(k){const r=VD_RES[k];return `<a class="btn vd-ir" href="${esc(r.u)}" target="_blank" rel="noopener noreferrer">${esc(r.n)}</a>`;}
+function vdBotones(id,need){const t=VD_T[id];
+  return VD_IR.map(r=>{const R=VD_RES[r.k];
+    if(r.modo==='url')return `<a class="btn vd-ir" href="${esc(r.url(t,need))}" target="_blank" rel="noopener noreferrer" data-vd-ir="${r.k}">${esc(R.n)}</a>`;
+    return `<a class="btn vd-ir vd-copia" href="${esc(R.u)}" target="_blank" rel="noopener noreferrer" data-vd-ir="${r.k}" data-vd-copia="${esc(r.q(t,need))}" title="Copia la búsqueda y abre ${esc(R.n)}">${esc(R.n)} <small>copia y pega</small></a>`;}).join('');}
+function vdBusqueda(id,need){const t=VD_T[id];
+  return `<div class="vd-eq"><span class="lbl">Ecuación de búsqueda</span><code class="vd-q" data-vd-eq>${esc(vdEq(t,need,'en'))}</code>
+  <button class="btn vd-copiar" type="button" data-vd-copiar="${esc(vdEq(t,need,'en'))}">Copiar</button></div>
+  <p class="small muted vd-nota">MEDLINE Complete y Scopus reciben la ecuación completa; MedicLatina y AccessMedicina, su versión en español: <code class="vd-q">${esc(vdEq(t,need,'es'))}</code>. ClinicalKey, DynaMed y Micromedex buscan mejor con pocas palabras.</p>
+  <div class="vd-links">${vdBotones(id,need)}</div>`;}
 function vdCard(v){
   const fuentes=v.src.map(k=>SRC[k]).filter(Boolean).map(s=>s.u?`<a href="${esc(s.u)}" target="_blank" rel="noopener noreferrer">${esc(s.k)}</a>`:esc(s.k)).join(', ');
+  const need='dosis';
   return `<details class="vd-card" data-vd="${v.id}"><summary><span class="vd-n">${esc(v.n)}</span><span class="vd-g">${esc(v.g)}</span>${v.pg?'<span class="vd-pg">Posgrado</span>':''}</summary>
   <div class="vd-body"><p><b>Para qué se usa.</b> ${esc(v.uso)}</p><p><b>Precauciones.</b> ${esc(v.cuidado)}</p>
-  <p class="small"><b>Verifica la dosis y las interacciones.</b> En las bases en inglés busca <code class="vd-q">${esc(v.q)}</code>.</p>
-  <div class="vd-links">${VD_FICHA.map(vdLink).join('')}</div>
+  <div class="vd-busca"><p class="vd-pregunta"><b>¿Qué necesitas buscar?</b></p>
+  <div class="seg vd-need" role="group" aria-label="Qué necesitas buscar">${VD_NEED.map(n=>`<button type="button" data-vd-need="${n.id}" aria-pressed="${n.id===need}">${esc(n.n)}</button>`).join('')}</div>
+  <div class="vd-out">${vdBusqueda(v.id,need)}</div></div>
   <p class="src">Fuente de la ficha: ${fuentes}.</p></div></details>`;}
+/* Búsqueda libre: lo que el usuario escribe, sin ficha */
+function vdLibre(q){const t=q.trim();if(t.length<3)return '';const e=encodeURIComponent(t),eq=/\s/.test(t)?`"${t}"`:t;
+  const L=[['accessmedicina',VD_PX+'accessmedicina.proxyutp.elogim.com/searchresults.aspx?q='+e],['clinicalkey',VD_PX+'clinicalkey.proxyutp.elogim.com/#!/search/'+e],
+   ['mediclatina',VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?direct=true&authtype=ip&db=lth&type=1&site=ehost-live&bquery='+encodeURIComponent(eq)],
+   ['medline',VD_PX+'ebsco.proxyutp.elogim.com/login.aspx?direct=true&authtype=ip&db=mdc&type=1&site=ehost-live&bquery='+encodeURIComponent(eq)]];
+  return `<div class="panel vd-libre"><p class="small"><b>Buscar "${esc(t)}" directamente en los recursos de la UTP.</b> Si el término está en español, empieza por AccessMedicina o MedicLatina.</p>
+  <div class="vd-links">${L.map(([k,u])=>`<a class="btn vd-ir" href="${esc(u)}" target="_blank" rel="noopener noreferrer" data-vd-ir="${k}" data-vd-libre="${esc(t)}">${esc(VD_RES[k].n)}</a>`).join('')}
+  <a class="btn vd-ir vd-copia" href="${esc(VD_RES.micromedex.u)}" target="_blank" rel="noopener noreferrer" data-vd-ir="micromedex" data-vd-copia="${esc(t)}" data-vd-libre="${esc(t)}">Micromedex <small>copia y pega</small></a></div></div>`;}
 function vdRender(lista,cuenta,q){const t=vdNorm(q).trim();
   const vs=VD.filter(v=>!t||vdNorm(v.n+' '+v.g+' '+v.q+' '+v.uso).includes(t));
-  $(lista).innerHTML=vs.length?vs.map(vdCard).join(''):'<p class="small muted">No hay fichas con ese término. Búscalo directamente en Micromedex.</p>';
+  $(lista).innerHTML=(vs.length?vs.map(vdCard).join(''):'<p class="small muted">No hay fichas con ese término.</p>')+vdLibre(q||'');
   if(cuenta)$(cuenta).textContent=`${vs.length} de ${VD.length} fichas`;}
 function vdRecursos(){
   $('#vdRecursos').innerHTML=VD_GRUPOS.map(([t,d,ks])=>`<div class="panel vd-grupo"><h4>${esc(t)}</h4><p class="small muted">${esc(d)}</p><ul class="vd-ul">${ks.map(k=>{const r=VD_RES[k];return `<li><a href="${esc(r.u)}" target="_blank" rel="noopener noreferrer">${esc(r.n)}</a><span class="small muted">${esc(r.d)}</span></li>`;}).join('')}</ul></div>`).join('');}
 // Consulta desde el turno: queda en el registro y llega al panel docente
 function tuVadeConsulta(v){if(TU.started&&!TU.ended)tuLog(`Consulta del vademécum: ${v.n}.`);}
 function vdToggle(e){const d=e.target;if(!d.matches||!d.matches('details.vd-card')||!d.open)return;const v=VD.find(x=>x.id===d.dataset.vd);if(v&&d.closest('#tuVade'))tuVadeConsulta(v);}
+// Búsqueda en un recurso desde el turno: registro y panel docente
+function tuVadeBusqueda(recurso,que,tema){if(TU.started&&!TU.ended)tuLog(`Busca en ${recurso}: ${tema} (${que}).`);}
+function vdCopiar(txt){try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(txt).then(()=>true,()=>false);}catch(e){}
+  return Promise.resolve(false);}
+function vdClick(e){
+  const nb=e.target.closest('[data-vd-need]');
+  if(nb){const card=nb.closest('.vd-card');const need=nb.dataset.vdNeed;
+    card.querySelectorAll('[data-vd-need]').forEach(x=>x.setAttribute('aria-pressed',String(x===nb)));
+    card.querySelector('.vd-out').innerHTML=vdBusqueda(card.dataset.vd,need);return;}
+  const cp=e.target.closest('[data-vd-copiar]');
+  if(cp){vdCopiar(cp.dataset.vdCopiar).then(ok=>toast(ok?'Ecuación copiada':'Selecciona la ecuación y cópiala'));return;}
+  const ir=e.target.closest('[data-vd-ir]');if(!ir)return;
+  const R=VD_RES[ir.dataset.vdIr];
+  if(ir.dataset.vdCopia!=null)vdCopiar(ir.dataset.vdCopia).then(ok=>toast(ok?`Búsqueda copiada: pégala en el buscador de ${R.n}`:`Escribe en ${R.n}: ${ir.dataset.vdCopia}`));
+  if(ir.closest('#tuVade')){const card=ir.closest('.vd-card');
+    if(card){const v=VD.find(x=>x.id===card.dataset.vd);const nb2=card.querySelector('[data-vd-need][aria-pressed="true"]');
+      tuVadeBusqueda(R.n,nb2?nb2.textContent.toLowerCase():'',v.n);}
+    else tuVadeBusqueda(R.n,'búsqueda libre',ir.dataset.vdLibre||'');}}
 let vdPausa=false;
 function tuVadeOpen(filtro){
   if(TU.level==='pre'&&TU.run&&!TU.ended){$('#tuPause').click();vdPausa=true;}
@@ -1558,6 +1639,8 @@ vdRender('#vdLista','#vdCuenta','');vdRecursos();
 $('#vdBuscar').addEventListener('input',e=>vdRender('#vdLista','#vdCuenta',e.target.value));
 $('#tuVadeBuscar').addEventListener('input',e=>vdRender('#tuVadeLista',null,e.target.value));
 $('#vdLista').addEventListener('toggle',vdToggle,true);
+$('#vdLista').addEventListener('click',vdClick);
+$('#tuVadeLista').addEventListener('click',vdClick);
 $('#tuVadeLista').addEventListener('toggle',vdToggle,true);
 $$('[data-vade-open]').forEach(b=>b.addEventListener('click',()=>tuVadeOpen('')));
 $('#tuVadeClose').addEventListener('click',tuVadeClose);
@@ -1833,6 +1916,7 @@ new MutationObserver(rethemes).observe(document.documentElement,{attributes:true
   const cons0=tuConsult;tuConsult=function(p,id){const ya=TU.cons[id+':'+p.bed];cons0(p,id);if(!ya&&TU.cons[id+':'+p.bed]){const c=TU_CONS.find(x=>x.id===id);ev('accion',`Cama ${p.bed}: interconsulta a ${c?c.n:id}`,0,'Enlace');}};
   // consultas del vademécum durante el turno
   const vd0=tuVadeConsulta;tuVadeConsulta=function(v){vd0(v);if(TU.started&&!TU.ended)ev('accion',`Consulta el vademécum: ${v.n}`,0,'Médico líder');};
+  const vb0=tuVadeBusqueda;tuVadeBusqueda=function(r,q,t){vb0(r,q,t);if(TU.started&&!TU.ended)ev('accion',`Busca en ${r}: ${t}${q?' ('+q+')':''}`,0,'Médico líder');};
   const arr0=tuArrivals;tuArrivals=function(){const n=TU.pats.length;arr0();for(let i=n;i<TU.pats.length;i++)ev('evento',`Ingresa a la cama ${TU.pats[i].bed}: ${TU.pats[i].c.who}`);};
   // recordatorios del docente sin conexión y eventos del panel interno
   document.querySelectorAll('[data-gm]').forEach(b=>b.addEventListener('click',()=>{if(TU.started)ev('evento','Docente: '+b.textContent.trim());}));
