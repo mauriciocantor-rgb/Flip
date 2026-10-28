@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>Traductor Académico · Biblioteca Jorge Roa Martínez (UTP)</title>
+<meta name="description" content="Traduce al inglés títulos, resúmenes, palabras clave y tablas de contenido para el Repositorio Institucional de la UTP, con criterios de indexación académica.">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<link rel="icon" href="../comun/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="preload" href="../comun/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../comun/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../comun/css/fuentes.css">
+<link rel="stylesheet" href="../comun/css/base.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="config.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-header"><img src="../comun/img/logo-bic-utp.svg" alt="Búho de la Biblioteca Jorge Roa Martínez, Universidad Tecnológica de Pereira" width="52" height="50"></div>
+    <div class="header-text">
+      <span class="badge">Repositorio Institucional · UTP</span>
+      <h1>Traductor Académico</h1>
+      <p>Traduce títulos, resúmenes, palabras clave y tablas de contenido al inglés, con criterios de indexación académica, antes de depositarlos en el repositorio.</p>
+      <p class="motor">Motor: Gemini · cuenta institucional de Google Workspace</p>
+      <p class="subline">Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="card" aria-labelledby="tituloOrigen">
+    <h2 id="tituloOrigen">Texto en español</h2>
+    <div class="modes" role="group" aria-label="Tipo de traducción" id="modeGroup">
+      <button class="mode-btn active" data-mode="title" type="button" aria-pressed="true">Título</button>
+      <button class="mode-btn" data-mode="abstract" type="button" aria-pressed="false">Resumen / Abstract</button>
+      <button class="mode-btn" data-mode="toc" type="button" aria-pressed="false">Tabla de contenido</button>
+    </div>
+    <p class="hint" id="modeHint">Pega el título del trabajo de grado o tesis. Las siglas se conservan tal cual aparecen en el original.</p>
+    <textarea id="srcText" placeholder="Pega aquí el texto en español…" aria-label="Texto en español"></textarea>
+    <div class="row">
+      <span class="count" id="charCount">0 caracteres</span>
+      <div class="actions">
+        <button class="btn btn-ghost" id="clearBtn" type="button">Limpiar</button>
+        <button class="btn btn-primary" id="translateBtn" type="button">Preparar para Gemini</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Paso con Gemini: aparece al pulsar «Preparar para Gemini» -->
+  <section class="card gemini-card" id="geminiCard" aria-labelledby="tituloGemini" hidden>
+    <div class="row">
+      <h2 id="tituloGemini">Traducir con Gemini</h2>
+      <span class="count" id="geminiCount"></span>
+    </div>
+    <ol class="gem-pasos">
+      <li>Pulsa «Copiar y abrir Gemini». Gemini se abrirá en otra pestaña con tu cuenta institucional de Google Workspace.</li>
+      <li>Pega la instrucción en Gemini (Ctrl+V o Cmd+V) y envíala.</li>
+      <li>Copia la respuesta completa de Gemini, pégala abajo y pulsa «Usar respuesta».</li>
+    </ol>
+    <div class="actions">
+      <a class="btn btn-primary" id="geminiOpen" href="https://gemini.google.com/app" target="_blank" rel="noopener">Copiar y abrir Gemini ↗</a>
+      <button class="btn btn-ghost" id="geminiCopy" type="button">Solo copiar la instrucción</button>
+    </div>
+    <p class="gem-estado" id="geminiEstado" role="status" aria-live="polite"></p>
+    <details class="gem-ver">
+      <summary>Ver la instrucción</summary>
+      <textarea id="geminiPrompt" readonly aria-label="Instrucción para Gemini"></textarea>
+    </details>
+    <label class="gem-label" for="geminiResp">Respuesta de Gemini</label>
+    <textarea id="geminiResp" class="gem-resp" placeholder="Pega aquí la respuesta de Gemini (debe incluir las líneas TRANSLATION:, FLAG: y KEYWORDS:)"></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" id="geminiUse" type="button">Usar respuesta</button>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="tituloTraduccion">
+    <div class="row">
+      <h2 id="tituloTraduccion">Traducción técnica (inglés)</h2>
+      <button class="btn btn-ghost btn-sm" id="copyTranslationBtn" type="button">Copiar</button>
+    </div>
+    <div class="output-box empty" id="translationBox" aria-live="polite">La traducción aparecerá aquí.</div>
+    <div class="flag" id="flagBox"><strong>⚠ Señalado, no corregido:</strong> <span id="flagText"></span></div>
+  </section>
+
+  <section class="card" aria-labelledby="tituloClaves">
+    <div class="row">
+      <h2 id="tituloClaves">Palabras clave (inglés)</h2>
+      <button class="btn btn-ghost btn-sm" id="copyKeywordsBtn" type="button">Copiar</button>
+    </div>
+    <p class="hint">Verificadas contra el tesauro más apropiado según el área de conocimiento (MeSH, ERIC, IEEE/ACM, AGROVOC, Tesauro UNESCO, UNBIS, terminología ODS).</p>
+    <div class="kw-wrap" id="kwWrap"><span class="kw-empty">Las palabras clave aparecerán aquí después de traducir.</span></div>
+  </section>
+
+  <div class="err-box" id="errBox" role="alert"></div>
+
+  <section class="card method-card" aria-labelledby="tituloCriterios">
+    <h2 id="tituloCriterios">Criterios de indexación, cosecha y traducción técnica</h2>
+    <p class="method-intro">Esta herramienta no traduce de forma literal: aplica, para cada tipo de texto, los criterios editoriales que las plataformas de indexación y los recolectores (harvesters) usan para describir, posicionar y recuperar un documento académico.</p>
+
+    <div class="method-grid">
+      <div class="method-item">
+        <h3>① Optimización para indexación y cosecha (SEO académico)</h3>
+        <p>En títulos, el descriptor temático principal se ubica cerca del inicio de la oración en inglés y se usa terminología estandarizada por disciplina, para favorecer la correspondencia con los algoritmos de emparejamiento (matching) de buscadores y agregadores, y la correcta recolección por protocolos OAI-PMH.</p>
+        <div class="tag-row">
+          <span class="method-tag">Google Scholar</span>
+          <span class="method-tag">Scopus</span>
+          <span class="method-tag">Web of Science</span>
+          <span class="method-tag">OpenAIRE</span>
+          <span class="method-tag">LA Referencia</span>
+          <span class="method-tag">BASE</span>
+        </div>
+      </div>
+
+      <div class="method-item">
+        <h3>② Terminología verificada por tesauro disciplinar</h3>
+        <p>Las palabras clave no se traducen de forma libre: se contrastan contra el tesauro controlado más apropiado según el área de conocimiento del trabajo, porque un repositorio multidisciplinar no puede verificarse con una sola fuente terminológica.</p>
+        <div class="tag-row">
+          <span class="method-tag">MeSH · salud</span>
+          <span class="method-tag">ERIC · educación</span>
+          <span class="method-tag">IEEE/ACM · ingeniería y computación</span>
+          <span class="method-tag">AGROVOC · ciencias agropecuarias</span>
+          <span class="method-tag">Tesauro UNESCO · ciencias sociales y humanidades</span>
+          <span class="method-tag">UNBIS · temas ONU</span>
+          <span class="method-tag">ODS/SDG</span>
+        </div>
+      </div>
+
+      <div class="method-item">
+        <h3>③ Traducción técnica-académica, no literal</h3>
+        <p>El resumen/abstract se reconstruye con la sintaxis propia del abstract científico en inglés (voz, orden de la información, conectores) y con las convenciones verbales del género: pasado para métodos y resultados, presente para conclusiones generales. La terminología se mantiene consistente con el título y las palabras clave ya fijados para el mismo trabajo.</p>
+      </div>
+
+      <div class="method-item">
+        <h3>④ Conservación estricta de siglas, nombres propios y citas</h3>
+        <p>Las siglas se transcriben exactamente como aparecen en el original — nunca se expanden ni se agregan si no estaban presentes. Nombres de instituciones, marcas, software, modelos de equipos y autores no se traducen. Los números de citas bibliográficas conservan su posición original. No se añaden subtítulos metodológicos ni calificadores geográficos ausentes en la fuente.</p>
+      </div>
+
+      <div class="method-item">
+        <h3>⑤ Señalar, nunca corregir en silencio</h3>
+        <p>Errores tipográficos, inconsistencias terminológicas entre secciones de un mismo trabajo, o defectos del documento original (numeración duplicada u omitida, "Marcador no definido" de Word) se reportan de forma explícita en el recuadro de señalamiento. La herramienta nunca enmienda el texto fuente sin que el usuario lo sepa.</p>
+      </div>
+    </div>
+
+    <p class="method-note">Estos criterios siguen el flujo de trabajo de traducción de metadatos del Repositorio Institucional UTP y se aplican de forma consistente en los tres modos (Título, Resumen/Abstract, Tabla de contenido).</p>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  <span class="internal-badge">🦉 Herramienta interna · Biblioteca e Información Científica (BIC) · UTP</span>
+  <p class="privacidad">Los textos se procesan en Gemini con tu cuenta institucional de Google Workspace. Esta página no los guarda ni los envía a ningún otro servidor.</p>
+</footer>
+
+</body>
+</html>
