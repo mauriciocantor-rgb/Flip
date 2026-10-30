@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>Tablero de citas Scopus · Producción UTP 2020–2026</title>
+<meta name="description" content="Indicadores de producción y citación de la Universidad Tecnológica de Pereira en Scopus, 2020–2026: documentos, citas, índice h y evolución anual.">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<link rel="icon" href="../comun/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="preload" href="../comun/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../comun/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../comun/css/fuentes.css">
+<link rel="stylesheet" href="../comun/css/base.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="datos.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo-header"><img src="../comun/img/logo-bic-utp.svg" alt="Búho de la Biblioteca Jorge Roa Martínez, Universidad Tecnológica de Pereira" width="52" height="50"></div>
+    <div class="header-text">
+      <span class="badge">Bibliometría · Scopus</span>
+      <h1>Tablero de citas · Producción UTP 2020–2026</h1>
+      <p>Documentos, citas e índice h de la producción de la Universidad Tecnológica de Pereira indexada en Scopus, y su evolución año a año.</p>
+      <p class="subline">Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="barra-sup">
+    <p class="corte" id="corte"></p>
+    <button type="button" class="btn-csv" id="btnCsv">Descargar CSV</button>
+  </div>
+
+  <section aria-labelledby="tKpi">
+    <h2 id="tKpi" class="sr-only">Indicadores clave</h2>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="card" aria-labelledby="tDocs">
+    <div class="card-head">
+      <div>
+        <h2 id="tDocs">Documentos publicados por año</h2>
+        <p class="sub">Cuántos documentos publica la UTP cada año y cuántos ya registran citas en Scopus.</p>
+      </div>
+      <button type="button" class="btn-tabla" data-tabla="docs" aria-expanded="false">Ver tabla</button>
+    </div>
+    <div class="leyenda" id="leyDocs"></div>
+    <div class="grafico" id="gDocs"></div>
+    <div class="tabla" id="tabla-docs" hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="tCitas">
+    <div class="card-head">
+      <div>
+        <h2 id="tCitas">Citas recibidas por año</h2>
+        <p class="sub">Citas que la producción 2020–2026 recibió en cada año calendario.</p>
+      </div>
+      <button type="button" class="btn-tabla" data-tabla="citas" aria-expanded="false">Ver tabla</button>
+    </div>
+    <div class="grafico" id="gCitas"></div>
+    <div class="tabla" id="tabla-citas" hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="tCoh">
+    <div class="card-head">
+      <div>
+        <h2 id="tCoh">Citas por documento según año de publicación</h2>
+        <p class="sub">Promedio de citas acumuladas por los documentos de cada año. Los años recientes han tenido menos tiempo para ser citados.</p>
+      </div>
+      <button type="button" class="btn-tabla" data-tabla="coh" aria-expanded="false">Ver tabla</button>
+    </div>
+    <div class="grafico" id="gCoh"></div>
+    <div class="tabla" id="tabla-coh" hidden></div>
+  </section>
+
+  <section class="card nota" aria-labelledby="tNota">
+    <h2 id="tNota">Nota metodológica</h2>
+    <ul id="nota"></ul>
+  </section>
+</main>
+
+<div class="tooltip" id="tooltip" role="status" aria-live="polite" hidden></div>
+
+<footer>
+  <p>Biblioteca e Información Científica (BIC) · Biblioteca Jorge Roa Martínez · Universidad Tecnológica de Pereira</p>
+</footer>
+</body>
+</html>

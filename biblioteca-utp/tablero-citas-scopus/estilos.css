@@ -1,0 +1,100 @@
+/* Tablero de citas Scopus · estilos (Biblioteca e Información Científica, UTP) */
+:root {
+  --navy: #003DA5;
+  --navy-dark: #00204A;
+  --gold: #F2A900;
+  --bg: #f4f6fa;
+  --panel: #ffffff;
+  --text: #16202e;
+  --muted: #5b6b81;
+  --border: #dfe4ec;
+  --grid: #e8ecf2;
+  --serie-1: #2F6FE0;   /* documentos con citas · citas */
+  --serie-2: #D99000;   /* documentos sin citas registradas */
+  --parcial: #9DB8EE;   /* año en curso */
+  --tip-bg: #16202e;
+  --tip-text: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1621; --panel: #17202e; --text: #eef1f6; --muted: #9aa8bd; --border: #2a3648; --grid: #253043;
+    --serie-1: #4F86F0; --serie-2: #B87F00; --parcial: #34508a; --tip-bg: #eef1f6; --tip-text: #0f1621;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1621; --panel: #17202e; --text: #eef1f6; --muted: #9aa8bd; --border: #2a3648; --grid: #253043;
+  --serie-1: #4F86F0; --serie-2: #B87F00; --parcial: #34508a; --tip-bg: #eef1f6; --tip-text: #0f1621;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+body { min-height: 100vh; display: flex; flex-direction: column; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Encabezado (mismo de las demás herramientas BIC) */
+header { width: 100%; background: linear-gradient(135deg, var(--navy-dark), var(--navy)); color: #fff; padding: 22px 16px; }
+header .badge { display: inline-block; background: var(--gold); color: var(--navy-dark); font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; text-transform: uppercase; }
+header h1 { margin: 0 0 4px; font-size: 1.45rem; }
+header p { margin: 0; font-size: .85rem; color: #d7e2f5; max-width: 620px; }
+header .subline { margin: 8px 0 0; font-size: .7rem; color: rgba(255,255,255,.55); }
+.header-inner { display: flex; align-items: center; justify-content: center; gap: 18px; max-width: 760px; margin: 0 auto; flex-wrap: wrap; }
+.logo-header { flex-shrink: 0; width: 52px; opacity: .96; }
+.logo-header img { display: block; width: 100%; height: auto; }
+@media (max-width: 480px) { .header-inner, .header-text { text-align: center; } }
+
+main { width: 100%; max-width: 1040px; margin: 0 auto; padding: 20px 16px 32px; flex: 1; }
+.barra-sup { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.corte { margin: 0; font-size: .82rem; color: var(--muted); }
+.btn-csv { background: var(--navy); color: #fff; border: 0; border-radius: 8px; padding: 8px 14px; font-size: .82rem; font-weight: 600; cursor: pointer; }
+.btn-csv:hover { background: var(--navy-dark); }
+
+/* KPIs */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.kpi .etq { font-size: .78rem; color: var(--muted); margin: 0 0 6px; }
+.kpi .valor { font-family: var(--fuente-titulos); font-size: 1.75rem; font-weight: 700; line-height: 1.1; margin: 0; font-variant-numeric: tabular-nums; }
+.kpi .det { font-size: .74rem; color: var(--muted); margin: 6px 0 0; }
+
+/* Tarjetas */
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 14px; margin-bottom: 18px; }
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.card h2 { margin: 0 0 4px; font-size: 1.08rem; }
+.card .sub { margin: 0 0 10px; font-size: .82rem; color: var(--muted); max-width: 640px; }
+.btn-tabla { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 12px; font-size: .8rem; cursor: pointer; }
+.btn-tabla:hover { border-color: var(--serie-1); }
+
+.leyenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin: 2px 0 6px; }
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.leyenda i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+.grafico { width: 100%; }
+.grafico svg { display: block; width: 100%; height: auto; overflow: visible; }
+.grafico text { font-family: var(--fuente-texto); fill: var(--muted); font-size: 12px; }
+.grafico text.val { fill: var(--text); font-weight: 600; }
+.grafico .eje { stroke: var(--border); }
+.grafico .rejilla { stroke: var(--grid); }
+.grafico .hit { fill: transparent; cursor: default; }
+.grafico .barra, .grafico .col text { pointer-events: none; }
+.grafico .col.activa .barra { opacity: .8; }
+
+/* Tablas */
+.tabla { overflow-x: auto; margin-top: 10px; }
+.tabla table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+.tabla th, .tabla td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.tabla th:first-child, .tabla td:first-child { text-align: left; }
+.tabla th { color: var(--muted); font-weight: 600; }
+
+/* Tooltip */
+.tooltip { position: fixed; z-index: 10; pointer-events: none; background: var(--tip-bg); color: var(--tip-text); border-radius: 8px; padding: 8px 10px; font-size: .78rem; line-height: 1.45; box-shadow: 0 4px 14px rgba(0,0,0,.18); max-width: 260px; }
+.tooltip b { font-family: var(--fuente-titulos); }
+
+.nota ul { margin: 6px 0 0; padding-left: 18px; font-size: .82rem; color: var(--muted); line-height: 1.55; }
+.nota li { margin-bottom: 4px; }
+.nota code { font-family: var(--fuente-mono); font-size: .76rem; word-break: break-all; }
+
+footer { text-align: center; font-size: .72rem; color: var(--muted); padding: 14px 16px 22px; }
+footer p { margin: 0; }
+.leyenda i.l1 { background: var(--serie-1); }
+.leyenda i.l2 { background: var(--serie-2); }
+@media (max-width: 560px) { .grafico text { font-size: 11px; } .card { padding: 16px 14px 12px; } }
