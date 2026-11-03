@@ -18,6 +18,7 @@ como Claude Artifacts:
 | Renombrador de archivos | [`renombrador/`](renombrador) | Nombres de archivo para el Repositorio Institucional (Nomenclatura Oficial UTP) y para la documentación administrativa según las Tablas de Retención Documental. Lineamientos del CRIE, sin backend: todo se procesa en el navegador. |
 | Traductor Académico | [`traductor-academico/`](traductor-academico) | Traducción al inglés de títulos, resúmenes y tablas de contenido para el Repositorio Institucional, con palabras clave por tesauro disciplinar. Sin backend: usa Gemini con la cuenta institucional de Google Workspace (modo copiar y pegar). Lineamientos del CRIE. |
 | Laboratorio de Tensión Continua (provisional) | [`tension-continua/`](tension-continua) | Osciloscopio y multímetro para fuentes de corriente continua. Reservado para el proyecto de CC. Alojamiento provisional para pruebas. |
+| Conversor de PDF a Flipbook | [`conversor-flipbook/`](conversor-flipbook) | Convierte un PDF en flipbook con zoom detallado, búsqueda, miniaturas y descarga del PDF o del flipbook como un solo `.html`. Sin backend: todo se procesa en el navegador. |
 
 > **Actualización (15 de octubre de 2026):** el Constructor de citas y el FAQ
 > APA 7 se movieron a [`coleccion-apa/`](coleccion-apa), junto con el
