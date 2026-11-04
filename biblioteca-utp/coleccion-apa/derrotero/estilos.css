@@ -125,11 +125,6 @@ td.name{font-weight:600;white-space:nowrap}
 .kit b{display:block;font-size:.92rem}
 .kit span{font-size:.8rem;color:var(--muted)}
 .kit .pend{border-style:dashed}
-.fig{margin:14px 0 0;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--sunk)}
-.fig-frame{max-height:420px;overflow:hidden;position:relative}
-.fig.open .fig-frame{max-height:none}
-.fig-frame img{display:block;width:100%;height:auto;max-width:620px;margin:0 auto}
-.fig figcaption{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--border)}
 /* Constructor embebido (bloque 3) */
 .cons{margin-top:14px;border:1px solid var(--border);border-top:4px solid var(--m-cons);border-radius:10px;background:var(--panel);padding:14px 16px;display:grid;gap:14px;min-width:0}
 .cons-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}

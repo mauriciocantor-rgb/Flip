@@ -19,14 +19,14 @@ const MAT={
   tab:{n:"Infografía Tablas y figuras",c:"var(--m-none)"}
 };
 const B=[
- {t:"Formato del documento",short:"Formato",d:{120:15,90:10},main:"info",sup:["guia","tab"],img:["fmt","tab"],
+ {t:"Formato del documento",short:"Formato",d:{120:15,90:10},main:"info",sup:["guia","tab"],
   obj:"Dejar el documento configurado antes de hablar de citas.",
-  fac:["Abre con una bienvenida breve (2 o 3 minutos): por qué se cita y qué herramientas se llevarán.","Proyecta la infografía Configuración del Formato General (está debajo de este bloque) y recorre sus 5 secciones: tamaño de hoja y márgenes, fuentes aceptadas, espaciado y alineación, numeración y encabezado, niveles de títulos.","Termina con el recuadro de portada para trabajos estudiantiles: título en negrita, nombre del estudiante, afiliación (facultad o programa e institución), asignatura (código y nombre), nombre del docente y fecha de entrega (día, mes y año).","Remite a la guía, capítulo 1 (pp. 3–4): excepciones a la fuente única y al interlineado doble, y orden de las partes del trabajo.","Menciona la infografía Tablas y figuras (la segunda de este bloque) y el capítulo 3 de la guía (pp. 11–13); si el grupo trabaja con datos, muéstrala en 2 minutos."],
+  fac:["Abre con una bienvenida breve (2 o 3 minutos): por qué se cita y qué herramientas se llevarán.","Proyecta la infografía Formato general (kit, punto 1) y recorre sus 5 secciones: tamaño de hoja y márgenes, fuentes aceptadas, espaciado y alineación, numeración y encabezado, niveles de títulos.","Termina con el recuadro de portada para trabajos estudiantiles: título en negrita, nombre del estudiante, afiliación (facultad o programa e institución), asignatura (código y nombre), nombre del docente y fecha de entrega (día, mes y año).","Remite a la guía, capítulo 1 (pp. 3–4): excepciones a la fuente única y al interlineado doble, y orden de las partes del trabajo.","Menciona la infografía Tablas y figuras (kit, punto 7) y el capítulo 3 de la guía (pp. 11–13); si el grupo trabaja con datos, muéstrala en 2 minutos."],
   est:["Abren la colección APA en su equipo.","Configuran su propio documento siguiendo la infografía."],
   tip:"Deja la infografía proyectada mientras configuran; el diagnóstico rápido (¿han tenido devoluciones por APA?) cabe en la bienvenida."},
- {t:"Anatomía de una cita",short:"Anatomía",d:{120:20,90:15},main:"anat",sup:["guia"],img:"anat",
+ {t:"Anatomía de una cita",short:"Anatomía",d:{120:20,90:15},main:"anat",sup:["guia"],
   obj:"Entender las partes de la cita y las formas de integrarla al texto.",
-  fac:["Proyecta la infografía Anatomía de las citas (está debajo de este bloque) y explica sus 4 secciones en orden.","Anatomía: autor, año y localizador (página, párrafo o marca de tiempo).","Enfoques: cita narrativa y cita parentética.","Tipos según extensión y forma: textual corta, en bloque (40 palabras o más; con exactamente 40 ya va en bloque) y paráfrasis.","Reglas de oro y normativa UTP: «y» entre dos autores, también dentro del paréntesis, y verbo en plural con dos autores.","Apóyate en la guía, capítulo 2 (pp. 5–10): el esquema «La cita en tres preguntas» y la tabla de autores (instituciones con sigla, obra sin autor)."],
+  fac:["Proyecta la infografía Anatomía de las citas (kit, punto 2) y explica sus 4 secciones en orden.","Anatomía: autor, año y localizador (página, párrafo o marca de tiempo).","Enfoques: cita narrativa y cita parentética.","Tipos según extensión y forma: textual corta, en bloque (40 palabras o más; con exactamente 40 ya va en bloque) y paráfrasis.","Reglas de oro y normativa UTP: «y» entre dos autores, también dentro del paréntesis, y verbo en plural con dos autores.","Apóyate en la guía, capítulo 2 (pp. 5–10): el esquema «La cita en tres preguntas» y la tabla de autores (instituciones con sigla, obra sin autor)."],
   est:["Señalan las partes de la cita en un ejemplo proyectado.","Convierten una cita narrativa en parentética y al revés."],
   tip:"Usa un mismo ejemplo para las cuatro secciones; en el bloque 3 lo resolverás en el constructor."},
  {t:"Constructor de citas",short:"Constructor",d:{120:25,90:20},main:"cons",sup:["anat"],tool:true,
@@ -59,13 +59,6 @@ const PRE=[
  "Prepara los enlaces del kit para pegarlos en el chat o en el aula virtual.",
  "Pide a los estudiantes que traigan un trabajo propio con citas y referencias."
 ];
-const IMGS={tab:"img/tablas-figuras.webp",fmt:"img/formato-general.webp",anat:"img/anatomia-citas.webp"};
-const FIGS={
-  tab:{h:2703,t:"Apoyo: infografía Tablas y figuras (capítulo 3 de la guía)",alt:"Infografía Presentación de Tablas y Figuras APA 7: anatomía de una tabla, componentes de una figura, reglas de mención en el texto y nota de derechos de autor"},
-  fmt:{h:2849,alt:"Infografía Configuración del Formato General APA 7: tamaño de hoja y márgenes, fuentes aceptadas, espaciado y alineación, numeración y encabezado, niveles de títulos y portada para trabajos estudiantiles"},
-  anat:{h:3178,alt:"Infografía Estructura y Anatomía de Citas APA 7: anatomía de la cita (autor, año, localizador), cita narrativa y parentética, tipos de cita según extensión y reglas de oro de la UTP"}
-};
-const figura=k=>`<figure class="fig" id="fig-${k}"><div class="fig-frame"><img src="${IMGS[k]}" alt="${FIGS[k].alt}" width="1000" height="${FIGS[k].h}" loading="lazy"></div><figcaption><span>${FIGS[k].t||"Infografía para proyectar en este bloque"}</span><button type="button" class="btn figbtn" data-fig="${k}" aria-expanded="false">Ver completa</button></figcaption></figure>`;
 /* Constructor de citas embebido: versión simplificada (3 pasos) */
 const CONS=(()=>{
   const node=document.getElementById("consTpl").content.firstElementChild.cloneNode(true);
@@ -166,7 +159,7 @@ function render(){
       <div class="mats">${b.main!=="none"?chip(b.main):""}${b.sup.map(chip).join("")}</div>
       <div class="cols"><div><h4>La facilitadora</h4><ul>${b.fac.map(x=>`<li>${x}</li>`).join("")}</ul></div>
       <div><h4>Los estudiantes</h4><ul>${b.est.map(x=>`<li>${x}</li>`).join("")}</ul></div></div>
-      <div class="tip"><b>Consejo:</b> ${b.tip}</div>${b.img?[].concat(b.img).map(figura).join(""):""}${b.tool?'<div class="cons-slot"></div>':""}</div></article>`;
+      <div class="tip"><b>Consejo:</b> ${b.tip}</div>${b.tool?'<div class="cons-slot"></div>':""}</div></article>`;
   });
   document.getElementById("ribbon").innerHTML=rib;
   document.getElementById("blocks").innerHTML=blk;
@@ -197,4 +190,3 @@ document.querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("clic
   try{navigator.clipboard.writeText(txt).then(ok,sel)}catch(e){sel()}
 }));
 render();
-document.addEventListener("click",e=>{const bt=e.target.closest(".figbtn");if(!bt)return;const f=document.getElementById("fig-"+bt.dataset.fig),o=f.classList.toggle("open");bt.setAttribute("aria-expanded",o);bt.textContent=o?"Contraer":"Ver completa"});
