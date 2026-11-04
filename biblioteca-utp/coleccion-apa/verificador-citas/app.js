@@ -1,5 +1,6 @@
-/* Verificador de citas y referencias APA 7 · v1.0 · Biblioteca Jorge Roa Martínez (UTP)
-   Lógica sin cambios respecto al artefacto publicado (14 oct. 2026).
+/* Verificador de citas y referencias APA 7 · v1.1 · Biblioteca Jorge Roa Martínez (UTP)
+   v1.1 (nov. 2026): reconoce tres o más autores escritos completos y revisa p./pp. en el localizador
+   (ambos casos de la tabla «Errores frecuentes» de la Guía de citas y referencias, p. 19).
    El análisis ocurre en el navegador: el texto no se envía a ningún servidor. */
 'use strict';
 /* ===== Motor del verificador de correspondencia citas–referencias (APA 7) ===== */
@@ -32,6 +33,13 @@ function interpretaAutor(a, alias){
   const br = a.match(/^(.*?)\s*\[([^\]]+)\]$/);
   if(br){ out.inst = br[1].trim(); out.sigla = br[2].trim(); alias[norm(out.sigla)] = norm(out.inst); return out; }
   if(/\s+et\s+al\.?$/i.test(a)){ out.etAl = true; a = a.replace(/\s+et\s+al\.?$/i,'').trim(); }
+  // Tres o más autores escritos completos: "Ospina, Duque y Salazar"
+  if(!out.etAl && /,/.test(a)){
+    const lista = a.split(/\s*,\s*|\s+(?:&|y|e)\s+/).map(x => x.trim()).filter(Boolean);
+    if(lista.length >= 3 && lista.every(pareceApellido)){
+      const cm = a.match(/\s+(&|y|e)\s+/); out.personas = lista; out.conector = cm ? cm[1] : null; return out;
+    }
+  }
   const m = a.split(/\s+(&|y|e)\s+/);
   if(m.length === 3 && pareceApellido(m[0]) && pareceApellido(m[2])){
     out.personas = [m[0].trim(), m[2].trim()]; out.conector = m[1];
@@ -121,6 +129,15 @@ function extraerCitas(texto){
   return { citas, alias };
 }
 
+/* ---------- Localizador: p. para una página, pp. para varias (Guía, cap. 2) ---------- */
+function revisaLocalizador(t){
+  const r = t.match(/\bp\.\s*(\d+)\s*[–-]\s*(\d+)/);
+  if(r) return `Para un rango de páginas se usa pp., no p.: pp. ${r[1]}–${r[2]}.`;
+  const u = t.match(/\bpp\.\s*(\d+)\s*(?:\)|$)/);
+  if(u) return `Para una sola página se usa p., no pp.: p. ${u[1]}.`;
+  return null;
+}
+
 /* ---------- Referencias ---------- */
 function parseReferencias(txt){
   const lineas = txt.split(/\r?\n/).map(l => l.trim()).filter(l => l && !/^referencias(\s+bibliogr[áa]ficas)?:?$/i.test(l));
@@ -165,7 +182,8 @@ function verificar(texto, refsTxt){
     const encontrados = [];
     if(c.secundaria) msgs.push(['info', `Cita secundaria: ${c.secundaria} no necesita entrada propia; debe figurar la fuente que leíste.`]);
     if(sg.secundaria) msgs.push(['info', `Cita secundaria: ${sg.secundaria} no necesita entrada propia; debe figurar la fuente que leíste.`]);
-    if(autor.conector === '&') msgs.push(['warn','En español los dos autores se unen con “y”, también dentro del paréntesis: (Restrepo y Cardona, 2019).']);
+    if(autor.conector === '&') msgs.push(['warn','En español los autores se unen con “y”, también dentro del paréntesis: (Restrepo y Cardona, 2019).']);
+    const lm = revisaLocalizador(sg.resto || ''); if(lm) msgs.push(['warn', lm]);
 
     for(const y of sg.years){
       const porNombre = refs.filter(r => r.year !== null && coincideNombre(autor, r, alias));
@@ -238,6 +256,12 @@ function verificar(texto, refsTxt){
     const sinLoc = !par || !LOC_RE.test(par[1]);
     if(sinLoc || angulares) comillas.push({ inicio:q.index, fin:q.index + q[0].length, texto:q[1], sinLoc, angulares });
   }
+  /* Localizadores sueltos de citas narrativas: (p. 45–46) */
+  const lre = /\((pp?\.\s*[^()]{1,40})\)/g; let l;
+  while((l = lre.exec(texto))){
+    const msg = revisaLocalizador(l[1]);
+    if(msg) comillas.push({ inicio:l.index, fin:l.index + l[0].length, texto:l[1], sinLoc:false, angulares:false, msg });
+  }
   return { resultados, refs, comillas, alias };
 }
 
@@ -276,7 +300,7 @@ function agruparCitas(resultados){
 
 function pintarTextoResaltado(texto, res){
   const marcas = agruparCitas(res.resultados).map(m => ({...m, cls:m.estado==='info'?'ok':m.estado}))
-    .concat(res.comillas.map(q => ({ inicio:q.inicio, fin:q.fin, cls:'q' })))
+    .concat(res.comillas.map(q => ({ inicio:q.inicio, fin:q.fin, cls: q.msg ? 'warn' : 'q' })))
     .sort((a,b)=>a.inicio-b.inicio);
   let html = '', pos = 0;
   for(const m of marcas){
@@ -327,12 +351,12 @@ function render(){
 
   /* Citas */
   let citas = res.resultados.map(r => ({...r}));
-  const quotes = res.comillas.map(q => ({ estado:'warn', c:{ raw:'“' + q.texto + '”', forma:'textual' }, msgs:[].concat(q.sinLoc ? [['warn','Cita textual sin localizador: agrega la página, el párrafo, la sección o la marca de tiempo después de la cita.']] : [],
-    q.angulares ? [['warn','En APA las citas textuales van entre comillas dobles (“ ”), no entre comillas angulares (« »).']] : []), refs:[] }));
+  const quotes = res.comillas.map(q => ({ estado:'warn', c:{ raw: q.msg ? '(' + q.texto + ')' : '“' + q.texto + '”', forma: q.msg ? 'localizador' : 'textual' }, msgs:[].concat(q.sinLoc ? [['warn','Cita textual sin localizador: agrega la página, el párrafo, la sección o la marca de tiempo después de la cita.']] : [],
+    q.angulares ? [['warn','En APA las citas textuales van entre comillas dobles (“ ”), no entre comillas angulares (« »).']] : [], q.msg ? [['warn', q.msg]] : []), refs:[] }));
   citas = citas.concat(quotes);
   if(filtro==='problemas') citas = citas.filter(r => r.estado==='err' || r.estado==='warn');
   $('listaCitas').innerHTML = citas.length ? citas.map(r => {
-    const tipo = r.c.forma==='narrativa' ? 'Narrativa' : r.c.forma==='parentetica' ? 'Parentética' + (r.c.multiple ? ' · cita múltiple' : '') : 'Cita textual';
+    const tipo = r.c.forma==='narrativa' ? 'Narrativa' : r.c.forma==='parentetica' ? 'Parentética' + (r.c.multiple ? ' · cita múltiple' : '') : r.c.forma==='localizador' ? 'Localizador' : 'Cita textual';
     const extra = r.refs && r.refs.length ? `<div class="refmatch">↳ ${esc(r.refs[0].raw)}</div>` : '';
     const cabeza = r.c.multiple ? `(${esc(r.c.seg.texto)})<div class="refmatch mt-2">Dentro de ${esc(r.c.raw)}</div>` : esc(r.c.raw);
     return tarjeta(r.estado, cabeza, tipo, r.msgs, extra);

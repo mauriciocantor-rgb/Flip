@@ -39,6 +39,7 @@ th{background:var(--th);color:var(--thc)}
 footer{background:linear-gradient(115deg,#081F48,#173C9F);color:#dbe6fb;text-align:center;font-size:.8rem;padding:16px}
 footer b{color:var(--gold)}
 .hide{display:none}
+.sin-resultados{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:var(--card);border:1px dashed var(--line);color:var(--mut);font-size:.92rem}
 @media print{input,.nav{display:none}details{break-inside:avoid}body{background:#fff}}
 
 /* Títulos con Atkinson Hyperlegible (CRIE) */
