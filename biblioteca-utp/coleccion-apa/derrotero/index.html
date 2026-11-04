@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<title>Derrotero de capacitación APA 7 · Biblioteca Jorge Roa Martínez</title>
+<meta name="description" content="Guía para orientadores: bloques, tiempos y materiales de la capacitación en norma APA 7 de la Biblioteca Jorge Roa Martínez.">
+<meta name="author" content="Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira">
+<link rel="icon" href="../assets/img/logo-bic-utp.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/fuentes.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="estilos.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<header class="band gutter">
+  <div class="shell head-row">
+    <div class="owl" aria-hidden="true"><img src="../assets/img/logo-bic-utp.svg" alt="" width="62" height="59"></div>
+    <div class="head-text">
+      <span class="badge">Guía para facilitadores · APA 7</span>
+      <h1>Derrotero de la capacitación en norma APA</h1>
+      <p>Seis bloques, un material principal por bloque: qué hacer en cada momento de la sesión y en qué punto entra cada herramienta de la línea APA de la biblioteca. Pensado para sesiones de 1 h 30 min o 2 h con estudiantes de pregrado y posgrado.</p>
+      <p class="internal">Herramienta interna · Biblioteca e Información Científica (BIC) · Universidad Tecnológica de Pereira</p>
+    </div>
+  </div>
+</header>
+
+<main class="shell gutter">
+
+  <section>
+    <h2>La regla de cada bloque</h2>
+    <p class="lead">Cada material entra con la misma secuencia. Así los estudiantes no ven una demostración larga, sino un concepto que enseguida practican con la herramienta.</p>
+    <div class="rule">
+      <div><b>1 · Explica</b><span>El concepto en 2 o 3 minutos, con un solo ejemplo.</span></div>
+      <div><b>2 · Muestra</b><span>Proyecta la herramienta y resuelve ese mismo ejemplo en vivo.</span></div>
+      <div><b>3 · Practica</b><span>Los estudiantes la usan en su propio equipo con un caso nuevo.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="dur-row">
+      <div><h2>Mapa de la sesión</h2><p class="lead m0">Elige la duración; los tiempos se ajustan. Toca un tramo para ir al bloque.</p></div>
+      <div class="seg" role="group" aria-label="Duración de la sesión">
+        <button type="button" id="d90" data-d="90" aria-pressed="false">1 h 30 min</button>
+        <button type="button" id="d120" data-d="120" aria-pressed="true">2 h</button>
+      </div>
+    </div>
+    <div class="ribbon" id="ribbon"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section>
+    <h2>Paso a paso</h2>
+    <p class="lead">Los minutos son relativos al inicio de la sesión. La bienvenida va al inicio del bloque 1 y el cierre al final del bloque 6.</p>
+    <div class="blocks" id="blocks"></div>
+  </section>
+
+  <section>
+    <h2>Material de práctica para el verificador</h2>
+    <p class="lead">Texto con errores sembrados a propósito, con autores y obras ficticios. Pégalo en el verificador durante el bloque 5 (primero el texto, luego las referencias). Pruébalo antes de la sesión para conocer cómo lo reporta la herramienta.</p>
+    <div class="practice">
+      <div>
+        <div class="bar"><b>Texto con citas</b><button class="btn" type="button" data-copy="pt">Copiar</button></div>
+        <div class="box" id="pt">
+          <p>La alfabetización informacional mejora el desempeño académico de los estudiantes universitarios (Gómez, 2019). Según Rivera y Ortiz (2021), quienes reciben formación en búsqueda de información citan con mayor precisión.</p>
+          <p>Otros estudios llegan a conclusiones similares (Castaño et al., 2020; Muñoz, 2018). Sin embargo, la escritura académica "exige práctica constante y retroalimentación oportuna" (Londoño, 2022).</p>
+        </div>
+      </div>
+      <div>
+        <div class="bar"><b>Lista de referencias</b><button class="btn" type="button" data-copy="pr">Copiar</button></div>
+        <div class="box refs" id="pr">
+          <p>Castaño, L., Pérez, M. y Ríos, A. (2020). Citación y plagio en trabajos de grado. <i>Revista Investigación y Desarrollo, 15</i>(3), 101–118.</p>
+          <p>Gómez, P. (2019). <i>Alfabetización informacional en la universidad</i>. Editorial Universitaria.</p>
+          <p>Londoño, C. (2022). <i>Escribir para investigar</i>. Ediciones del Sur.</p>
+          <p>Muñoz, J. (2017). Hábitos de lectura en estudiantes de ingeniería. <i>Revista de Educación Superior, 12</i>(2), 45–60.</p>
+          <p>Rivera, S. y Ortiz, D. (2021). Formación de usuarios y uso ético de la información. <i>Revista Bibliotecas, 8</i>(1), 10–25.</p>
+          <p>Salazar, M. (2023). <i>Competencias digitales docentes</i>. Editorial Académica.</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel seeded">
+      <b>Errores sembrados para comentar con el grupo</b>
+      <ul>
+        <li><b>Año que no coincide:</b> Muñoz aparece como 2018 en el texto y 2017 en la lista.</li>
+        <li><b>Cita textual sin página:</b> la frase de Londoño va entre comillas pero no indica página.</li>
+        <li><b>Referencia sin citar:</b> Salazar (2023) está en la lista pero no en el texto.</li>
+      </ul>
+      <p class="nota-ver">Lo que mostrará el verificador (probado): «Hay 3 errores de correspondencia» y 4 puntos por corregir. El año de Muñoz aparece dos veces, como error en la cita y en la referencia; la cita de Londoño sale como «Revisar», sin localizador.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Qué material entra en cada bloque</h2>
+    <p class="lead">Círculo lleno: material principal del bloque. Círculo tenue: apoyo o mención breve.</p>
+    <div class="panel tw"><table id="matrix"></table></div>
+  </section>
+
+  <section class="two">
+    <div class="panel">
+      <h3>Antes de la sesión</h3>
+      <div id="pre"></div>
+    </div>
+    <div class="panel">
+      <h3>Si algo falla</h3>
+      <ul>
+        <li><b>Sin internet en la sala:</b> lleva las infografías y la Guía de citas y referencias en PDF descargadas, y trabaja los ejemplos en el tablero.</li>
+        <li><b>Los estudiantes no tienen equipo:</b> haz la práctica en parejas o resuélvela en grupo desde el proyector, con voluntarios que dictan los datos.</li>
+        <li><b>Se acaba el tiempo:</b> en el bloque 6 deja el reto del FAQ como tarea y conserva el cierre; nunca recortes la práctica del constructor (bloque 3) ni la del verificador (bloque 5).</li>
+        <li><b>Una pregunta que no está en el FAQ:</b> anótala y envíala al equipo de la línea APA para sumarla a la guía.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Kit para entregar al final</h2>
+    <p class="lead">Comparte estos enlaces en el chat de la sesión o en el aula virtual. Son públicos: los estudiantes los abren sin iniciar sesión. Si solo puedes compartir uno, comparte la colección completa.</p>
+    <div class="kit">
+      <a href="../" target="_blank" rel="noopener"><b>Colección Herramientas APA 7</b><span>Portada con todas las herramientas en un solo enlace.</span></a>
+      <a href="../infografia-formato-general/" target="_blank" rel="noopener"><b>1 · Formato general</b><span>Hoja, márgenes, fuentes, espaciado, numeración, títulos y portada.</span></a>
+      <a href="../infografia-citas/" target="_blank" rel="noopener"><b>2 · Anatomía de las citas</b><span>Partes de la cita, narrativa y parentética, tipos y reglas.</span></a>
+      <a href="../constructor-citas/" target="_blank" rel="noopener"><b>3 · Constructor de citas</b><span>La misma versión de tres pasos que está en el bloque 3.</span></a>
+      <a href="../guia/guia-citas-referencias-apa7.pdf" target="_blank" rel="noopener"><b>4 · Guía de citas y referencias APA 7 (PDF)</b><span>Edición de octubre de 2026, 22 páginas. Referencias en los capítulos 4 y 5 (pp. 14–18).</span></a>
+      <a href="../verificador-citas/" target="_blank" rel="noopener"><b>5 · Verificador de citas y referencias</b><span>Revisa que citas y lista correspondan.</span></a>
+      <a href="../preguntas-frecuentes/" target="_blank" rel="noopener"><b>6 · Preguntas frecuentes</b><span>Casos difíciles y errores comunes.</span></a>
+      <a href="../infografia-tablas-figuras/" target="_blank" rel="noopener"><b>7 · Tablas y figuras</b><span>Componentes de tablas y figuras, mención en el texto y derechos de autor.</span></a>
+    </div>
+  </section>
+</main>
+<template id="consTpl">
+<section class="cons" id="cons" aria-labelledby="consT">
+  <div class="cons-head"><h4 id="consT">Constructor de citas</h4><span>Es el mismo que los estudiantes abren en el panel (tarjeta 3)</span></div>
+  <div class="cons-paso"><p class="cons-n"><b>1</b> Datos de la fuente</p>
+    <div class="cons-fila">
+      <label class="cc" for="cNum">¿Cuántos autores?<select id="cNum"><option value="1">1 autor</option><option value="2">2 autores</option><option value="3">3 o más</option></select></label>
+      <label class="cc" for="cA1">Apellido del primer autor<input id="cA1" type="text" autocomplete="off" placeholder="Ej.: Gómez"></label>
+      <label class="cc" for="cA2" id="cA2w" hidden>Apellido del segundo autor<input id="cA2" type="text" autocomplete="off" placeholder="Ej.: Torres"></label>
+      <label class="cc" for="cAnio">Año<input id="cAnio" type="text" autocomplete="off" placeholder="Ej.: 2021 o s.f."></label>
+    </div>
+  </div>
+  <div class="cons-paso"><p class="cons-n"><b>2</b> Tipo de cita</p>
+    <div class="cons-ops" role="radiogroup" aria-label="¿Cómo usas la fuente?">
+      <label class="cop"><input type="radio" name="cTipo" value="parafraseo" checked><span><b>Con mis palabras</b>Parafraseo</span></label>
+      <label class="cop"><input type="radio" name="cTipo" value="corta"><span><b>Copio menos de 40 palabras</b>Cita textual corta</span></label>
+      <label class="cop"><input type="radio" name="cTipo" value="bloque"><span><b>Copio 40 palabras o más</b>Cita en bloque</span></label>
+    </div>
+    <div class="cons-ops dos" role="radiogroup" aria-label="¿Dónde va el autor?">
+      <label class="cop"><input type="radio" name="cForma" value="narrativa" checked><span><b>Dentro de mi frase</b>Narrativa</span></label>
+      <label class="cop"><input type="radio" name="cForma" value="parentetica"><span><b>Al final, entre paréntesis</b>Parentética</span></label>
+    </div>
+    <div class="cons-fila">
+      <label class="cc" for="cLocT">Ubicación<select id="cLocT"><option value="p">Página (p.)</option><option value="pp">Rango de páginas (pp.)</option><option value="parr">Párrafo, sin páginas (párr.)</option><option value="tiempo">Video o audio (marca de tiempo)</option></select></label>
+      <label class="cc" for="cLoc"><span id="cLocL">Número (opcional al parafrasear)</span><input id="cLoc" type="text" autocomplete="off" placeholder="Ej.: 45"></label>
+    </div>
+    <label class="cc" for="cTxt" id="cTxtw" hidden>Texto que copias de la fuente, sin comillas<textarea id="cTxt" rows="3" placeholder="Pega aquí el fragmento exacto."></textarea><span class="cons-conteo" id="cConteo" aria-live="polite"></span></label>
+  </div>
+  <div class="cons-paso"><p class="cons-n"><b>3</b> Tu cita</p>
+    <div class="cons-out" id="cOut" aria-live="polite"></div>
+    <div class="cons-acc">
+      <button type="button" class="btn" id="cCopiar">Copiar cita</button>
+      <button type="button" class="btn" id="cEj">Ver un ejemplo</button>
+      <button type="button" class="btn" id="cLimpiar">Limpiar</button>
+      <span class="cons-aviso" id="cAviso" role="status"></span>
+    </div>
+    <ul class="cons-pend" id="cPend"></ul>
+    <ul class="cons-claves" id="cClaves"></ul>
+  </div>
+  <p class="cons-fuente">Reglas del sitio oficial <a href="https://apastyle.apa.org/style-grammar-guidelines/citations" target="_blank" rel="noopener">APA Style</a> (7.ª ed.), adaptadas al español con los criterios de la Guía de citas y referencias de la Biblioteca Jorge Roa Martínez: «y» entre dos autores y «s.f.» sin fecha.</p>
+</section>
+</template>
+
+<footer class="pie gutter">Biblioteca e Información Científica (BIC) · Biblioteca Jorge Roa Martínez · Universidad Tecnológica de Pereira · Basado en APA 7.ª edición</footer>
+</body>
+</html>

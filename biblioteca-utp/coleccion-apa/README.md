@@ -46,6 +46,7 @@ Fuentes:
 | 5 · Verificador de citas y referencias (v1.0) | [`verificador-citas/`](verificador-citas) | `verificador-citas` |
 | 6 · Preguntas frecuentes APA 7 | [`preguntas-frecuentes/`](preguntas-frecuentes) | `preguntas-frecuentes` |
 | 7 · Infografía · Tablas y figuras | [`infografia-tablas-figuras/`](infografia-tablas-figuras) | `infografia-tablas-figuras` |
+| Derrotero de la capacitación (guía para orientadores; no aparece en la portada) | [`derrotero/`](derrotero) | — |
 | Infografía · Configura tu formato: reemplazada por Formato general; la dirección antigua redirige a `infografia-formato-general/` | [`infografia-formato/`](infografia-formato) | — |
 
 ## Estructura
