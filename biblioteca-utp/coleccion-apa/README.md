@@ -45,6 +45,7 @@ Fuentes:
 | 4 · Guía de citas y referencias APA 7 | pendiente de publicar (tarjeta sin enlace en la portada) | — |
 | 5 · Verificador de citas y referencias (v1.0) | [`verificador-citas/`](verificador-citas) | `verificador-citas` |
 | 6 · Preguntas frecuentes APA 7 | [`preguntas-frecuentes/`](preguntas-frecuentes) | `preguntas-frecuentes` |
+| 7 · Infografía · Tablas y figuras | [`infografia-tablas-figuras/`](infografia-tablas-figuras) | `infografia-tablas-figuras` |
 | Infografía · Configura tu formato (fuera de la portada; reemplazada por Formato general) | [`infografia-formato/`](infografia-formato) | `infografia-formato` |
 
 ## Estructura

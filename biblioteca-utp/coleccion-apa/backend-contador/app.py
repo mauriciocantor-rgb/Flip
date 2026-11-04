@@ -48,6 +48,7 @@ HERRAMIENTAS = {
     "infografia-formato",
     "infografia-citas",
     "infografia-formato-general",
+    "infografia-tablas-figuras",
 }
 HERRAMIENTAS |= {
     h.strip() for h in os.environ.get("HERRAMIENTAS_EXTRA", "").split(",") if h.strip()

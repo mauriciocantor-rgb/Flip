@@ -72,7 +72,7 @@ en la directiva `connect-src` de la política de seguridad (CSP) de cada
 
 Herramientas registradas: `constructor-citas`, `preguntas-frecuentes`,
 `verificador-citas`, `infografia-formato`, `infografia-citas`,
-`infografia-formato-general`. Cualquier otro identificador
+`infografia-formato-general`, `infografia-tablas-figuras`. Cualquier otro identificador
 responde 404. Para sumar una herramienta nueva sin tocar el código, use la
 variable `HERRAMIENTAS_EXTRA`.
 
