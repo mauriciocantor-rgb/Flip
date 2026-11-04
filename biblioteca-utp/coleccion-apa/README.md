@@ -39,12 +39,13 @@ Fuentes:
 | Herramienta | Carpeta | Identificador del contador |
 |---|---|---|
 | Portada de la colección | [`index.html`](index.html) | — |
-| Constructor de citas APA 7 (v2.0) | [`constructor-citas/`](constructor-citas) | `constructor-citas` |
-| Verificador de citas y referencias (v1.0) | [`verificador-citas/`](verificador-citas) | `verificador-citas` |
-| Preguntas frecuentes APA 7 | [`preguntas-frecuentes/`](preguntas-frecuentes) | `preguntas-frecuentes` |
-| Infografía · Configura tu formato | [`infografia-formato/`](infografia-formato) | `infografia-formato` |
-| Infografía · Formato general | [`infografia-formato-general/`](infografia-formato-general) | `infografia-formato-general` |
-| Infografía · Anatomía de las citas | [`infografia-citas/`](infografia-citas) | `infografia-citas` |
+| 1 · Infografía · Formato general | [`infografia-formato-general/`](infografia-formato-general) | `infografia-formato-general` |
+| 2 · Infografía · Anatomía de las citas | [`infografia-citas/`](infografia-citas) | `infografia-citas` |
+| 3 · Constructor de citas APA 7 (v2.0) | [`constructor-citas/`](constructor-citas) | `constructor-citas` |
+| 4 · Guía de citas y referencias APA 7 | pendiente de publicar (tarjeta sin enlace en la portada) | — |
+| 5 · Verificador de citas y referencias (v1.0) | [`verificador-citas/`](verificador-citas) | `verificador-citas` |
+| 6 · Preguntas frecuentes APA 7 | [`preguntas-frecuentes/`](preguntas-frecuentes) | `preguntas-frecuentes` |
+| Infografía · Configura tu formato (fuera de la portada; reemplazada por Formato general) | [`infografia-formato/`](infografia-formato) | `infografia-formato` |
 
 ## Estructura
 

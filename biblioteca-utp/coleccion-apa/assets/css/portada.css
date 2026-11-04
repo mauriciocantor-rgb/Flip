@@ -29,6 +29,11 @@ main{padding-block:28px 40px}
 .tarjeta h2{margin:4px 0 0; font-size:1.2rem; line-height:1.3}
 .tarjeta p{margin:0; color:var(--muted); font-size:.95rem}
 .ir{margin-top:auto; padding-top:6px; color:var(--link); font-weight:700; font-size:.9rem}
+.ruta{margin:0 0 18px; color:var(--muted); max-width:70ch}
+.tarjeta.pendiente{border-top-style:dashed; box-shadow:none}
+.tarjeta.pendiente:hover{transform:none; border-color:var(--border)}
+.tarjeta.pendiente .num{background:var(--muted)}
+.tarjeta.pendiente .ir{color:var(--muted)}
 .pie{text-align:center; font-size:.8rem; color:var(--muted); padding:0 16px 32px}
 
 @media (max-width:640px){
