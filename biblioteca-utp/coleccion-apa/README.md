@@ -41,8 +41,8 @@ Fuentes:
 | Portada de la colección | [`index.html`](index.html) | — |
 | 1 · Infografía · Formato general | [`infografia-formato-general/`](infografia-formato-general) | `infografia-formato-general` |
 | 2 · Infografía · Anatomía de las citas | [`infografia-citas/`](infografia-citas) | `infografia-citas` |
-| 3 · Constructor de citas APA 7 (v2.0) | [`constructor-citas/`](constructor-citas) | `constructor-citas` |
-| 4 · Guía de citas y referencias APA 7 | pendiente de publicar (tarjeta sin enlace en la portada) | — |
+| 3 · Constructor de citas APA 7 (v3.0, versión simplificada en tres pasos; la v2.0 queda en el historial del repositorio) | [`constructor-citas/`](constructor-citas) | `constructor-citas` |
+| 4 · Guía de citas y referencias APA 7 (PDF, edición de octubre de 2026) | [`guia/guia-citas-referencias-apa7.pdf`](guia/guia-citas-referencias-apa7.pdf) | — |
 | 5 · Verificador de citas y referencias (v1.0) | [`verificador-citas/`](verificador-citas) | `verificador-citas` |
 | 6 · Preguntas frecuentes APA 7 | [`preguntas-frecuentes/`](preguntas-frecuentes) | `preguntas-frecuentes` |
 | 7 · Infografía · Tablas y figuras | [`infografia-tablas-figuras/`](infografia-tablas-figuras) | `infografia-tablas-figuras` |
